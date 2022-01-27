@@ -1,0 +1,4 @@
+ng-datepicker /deep/ .ngx-datepicker-container,
+ng-datepicker /deep/ .ngx-datepicker-calendar-container {
+    z-index: 1024;
+}

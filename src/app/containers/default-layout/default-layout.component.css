@@ -1,0 +1,7 @@
+.nav-item a {
+  cursor: pointer;
+}
+
+ngx-spinner /deep/ .black-overlay{
+  position: fixed !important;
+}

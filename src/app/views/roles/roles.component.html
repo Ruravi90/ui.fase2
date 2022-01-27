@@ -1,0 +1,124 @@
+<div class="animated fadeIn">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            <h4>Roles</h4>
+          </div>
+          <ul class="list-group">
+            <li class="list-group-item" *ngFor="let r of roles$ | async">
+              {{r.name}}
+              <button class="btn btn-sm btn-danger ml-2 float-right" (click)="deleteRol(r)">
+                  <i class="fa fa-trash"></i>
+              </button>
+              <button class="btn btn-sm btn-default float-right" (click)="editRol(r)">
+                  <i class="fa fa-edit"></i>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6">
+          <div class="card">
+            <div class="card-header">
+              <h4>Permisos</h4>
+            </div>
+            <ul class="list-group">
+                <li class="list-group-item" *ngFor="let p of permissions$ | async">
+                  {{p.name}}
+                  <button class="btn btn-sm btn-danger ml-2 float-right" (click)="deletePermission(p)">
+                      <i class="fa fa-trash"></i>
+                  </button>
+                  <button class="btn btn-sm btn-default float-right" (click)="editPermission(p)">
+                      <i class="fa fa-edit"></i>
+                  </button>
+                </li>
+              </ul>
+          </div>
+      </div>
+    </div>
+</div>
+
+
+<!-- ModalRoles -->
+<div class="modal fade" id="modalRol" tabindex="-1" role="dialog" aria-labelledby="modalRolLabel" aria-hidden="true">
+  <form class="modal-dialog" role="document" #rolForm="ngForm" (ngSubmit)="saveRol()">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" id="modalRolLabel">{{(isEdit?'Editar roles':'Agregar roles')}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body">
+          <div class="row">
+            <div class="form-group col-md-6">
+                <input type="text" name="name" #name="ngModel" class="form-control" [(ngModel)]="rol.name" placeholder="Nombre" required>
+              </div>
+              <div class="form-group col-md-6">
+                <input type="text" name="slug" #slug="ngModel" class="form-control" [(ngModel)]="rol.slug" placeholder="Identificador" required>
+              </div>
+          </div>
+          <div class="row mt-1">
+              <div class="form-group col-md-12">
+                <textarea name="description" #description="ngModel" class="form-control" [(ngModel)]="rol.description" placeholder="Descripción"></textarea>
+              </div>
+          </div>
+          <div class="row mt-1">
+            <div class="col-lg-12">
+              <ng-select
+                [items]="comboPermissions$ | async"
+                [multiple]="true"
+                [closeOnSelect]="false"
+                [hideSelected]="true"
+                bindLabel="name"
+                placeholder="Seleciona los roles"
+                name="roles"
+                [(ngModel)]="rol.permissions"
+                #roles="ngModel"
+                required>
+              </ng-select>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="rolForm.invalid">Guardar</button>
+      </div>
+      </div>
+  </form>
+</div>
+
+<!-- ModalPermission -->
+<div class="modal fade" id="modalPermission" tabindex="-1" role="dialog" aria-labelledby="modalPermissionLabel" aria-hidden="true">
+  <form class="modal-dialog" role="document" #permissionForm="ngForm" (ngSubmit)="savePermission()">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" id="modalPermissionLabel">{{(isEdit?'Editar permisos':'Agregar permisos')}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body">
+          <div class="row">
+            <div class="form-group col-md-6">
+                <input type="text" name="name" #name="ngModel" class="form-control" [(ngModel)]="permission.name" placeholder="Nombre" required>
+              </div>
+              <div class="form-group col-md-6">
+                <input type="text" name="slug" #slug="ngModel" class="form-control" [(ngModel)]="permission.slug" placeholder="Identificador" required>
+              </div>
+          </div>
+          <div class="row mt-1">
+              <div class="form-group col-md-12">
+                <textarea name="description" #description="ngModel" class="form-control" [(ngModel)]="permission.description" placeholder="Descripción"></textarea>
+              </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="permissionForm.invalid">Guardar</button>
+      </div>
+      </div>
+  </form>
+</div>
+

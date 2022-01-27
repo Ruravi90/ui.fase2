@@ -1,0 +1,95 @@
+<div class="animated fadeIn">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            <h4>Usuarios
+              <button class="btn btn-sm btn-primary float-right" (click)="addUser()">Nuevo</button>
+            </h4>
+          </div>
+          <ul class="list-group">
+            <li class="list-group-item" *ngFor="let u of users">
+              {{u.initials + ' ' + u.name + ' ' + u.lastname}}
+
+              <button class="btn btn-sm btn-danger ml-2 float-right" (click)="deleteUser(u)">
+                  <i class="fa fa-trash"></i>
+              </button>
+              <button class="btn btn-sm btn-default float-right" (click)="editUser(u)">
+                  <i class="fa fa-edit"></i>
+              </button>
+            </li>
+          </ul>
+          <div class="card-footer justify-content-center">
+            <pagination [boundaryLinks]="true" [totalItems]="paginate.total" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
+                previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
+            </pagination>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="modalUser" tabindex="-1" role="dialog" aria-labelledby="modalUserLabel" aria-hidden="true">
+    <form class="modal-dialog" role="document" #UserForm="ngForm" (ngSubmit)="save()">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalUserLabel">{{(isEdit?'Editar usuario':'Agregar usuario')}}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-lg-4">
+                  <input class="form-control" [ngClass]="{'is-invalid':!existUser && !isEdit}" placeholder="Usuario" name="user" [disabled]="isEdit" [(ngModel)]="user.username" #username="ngModel" (ngModelChange)="onExistUser()" required>
+                </div>
+                <div class="col-lg-4">
+                  <input class="form-control" placeholder="Iniciales" name="initials" [(ngModel)]="user.initials" #initials="ngModel" required>
+                </div>
+                <div class="col-lg-4" *ngIf="!isEdit">
+                    <label class="text-danger" *ngIf="!existUser">El usuario ya existente</label>
+                    <label class="text-success" *ngIf="existUser">Usuario disponible</label>
+                </div>
+            </div>
+            <div class="row mt-1">
+              <div class="col-lg-4">
+                <input class="form-control" placeholder="Nombre(s)" name="name" [(ngModel)]="user.name" #name="ngModel" required>
+              </div>
+              <div class="col-lg-4">
+                <input class="form-control" placeholder="Paterno" name="lastname" [(ngModel)]="user.lastname" #lastname="ngModel" required>
+              </div>
+              <div class="col-lg-4">
+                <input class="form-control" placeholder="Materno" name="motherlastname" [(ngModel)]="user.motherlastname" #motherlastname="ngModel">
+              </div>
+            </div>
+            <div class="row mt-1">
+              <div class="col-lg-12">
+                <ng-select
+                  [items]="roles$ | async"
+                  [multiple]="true"
+                  [closeOnSelect]="false"
+                  [hideSelected]="true"
+                  bindLabel="name"
+                  placeholder="Seleciona los roles"
+                  name="roles"
+                  [(ngModel)]="user.roles"
+                  #roles="ngModel"
+                  required>
+                </ng-select>
+              </div>
+            </div>
+            <div class="row mt-1"  *ngIf="isEdit">
+              <div class="col-lg-5">
+                <input type="text" class="form-control" placeholder="Nueva contrasena" name="resetPassword" [(ngModel)]="user.reset_password" #resetPassword="ngModel">
+              </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="UserForm.invalid">Guardar</button>
+        </div>
+        </div>
+    </form>
+  </div>

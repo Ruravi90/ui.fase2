@@ -1,0 +1,61 @@
+@import url("../fonts/font-fase2spa/font-fase2.css");
+.title{
+  font-size: 14pt;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+}
+.subTitle{
+  font-size: 12pt;
+  font-weight: bold;
+}
+
+div {
+  margin: 0;
+  padding: 0;
+}
+
+.p-3{
+  padding: 1pt 2pt;
+}
+
+.fase-full-logo {
+  font-family: "FASE2SPA";
+  font-size: 20pt;
+}
+
+.content-department{
+  padding:0;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  height: auto;
+}
+
+.content-department:first-child{
+  border-bottom: 1pt dashed #000000;
+  margin-bottom: 10px;
+}
+
+.content-name{
+  width: 100%;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  margin-bottom: 5px;
+}
+
+.content-sale{
+  border-bottom: 1px  solid #000000;
+  padding:0px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  height: auto;
+}
+.content-products{
+  padding: 1px;
+}
+.content-total{
+  width: 100%;
+  text-align: center;
+  padding: 3px;
+}

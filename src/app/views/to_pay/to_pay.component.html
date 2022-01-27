@@ -1,0 +1,61 @@
+<div class="animated fadeIn">
+  <div class="card">
+    <div class="card-header p-2">
+      <div class="row">
+          <div class="col-lg-6">
+              <h4>Egresos pendientes por pagar</h4>
+          </div>
+          <div class="col-lg-6">
+            <div class="float-right">
+              <div class="form-check form-check-inline">
+                  <input class="form-check-input is-invalid" type="radio"
+                  id="isNotCompleted"
+                  name="optionsRadios" [value]="0"
+                  [(ngModel)]="filters.isPaid" (ngModelChange)="getCatlog()">
+                  <label class="form-check-label" for="isNotCompleted">Egresos pendientes</label>
+              </div>
+              <div class="form-check form-check-inline">
+                  <input class="form-check-input is-valid" type="radio"
+                  id="isCompleted"
+                  name="optionsRadios"
+                  [value]="1"
+                  [(ngModel)]="filters.isPaid" (ngModelChange)="getCatlog()">
+                  <label class="form-check-label" for="isCompleted">Egresos pagados</label>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <!-- List group -->
+    <ul class="list-group">
+      <li class="list-group-item p-1 disabled"  *ngFor="let purchase of purchases" style="padding-bottom:0px; margin-bottom: 5px;">
+        <div class="card m-0">
+          <div class="card-header p-2">
+            Compra registrada por {{  purchase.user.name }} el día {{ purchase.created_at | date:'dd/MM/yyyy hh:mm' }}
+          </div>
+          <ul class="list-group">
+            <li class="list-group-item p-1"  *ngFor="let _purchase of purchase.purchases">
+              <div class="row">
+                <div class="col" *ngIf="_purchase.department">Departamento: <br/>{{_purchase.department.name}}</div>
+                <div class="col" *ngIf="_purchase.provider">Provee: <br/>{{_purchase.provider.business_name}}</div>
+                <div class="col" *ngIf="_purchase.cat_concept">Concepto: <br/>{{_purchase.cat_concept.name}}</div>
+                <div class="col" *ngIf="_purchase.cat_expense">Tipo gasto: <br/>{{_purchase.cat_expense.name}}</div>
+                <div class="col" *ngIf="_purchase.cat_pill">Pastillas: <br/>{{_purchase.count}} {{_purchase.cat_pill.name}}</div>
+                <div class="col" *ngIf="_purchase.cat_product">Productos: <br/>{{_purchase.count}} {{_purchase.cat_product.name}}</div>
+                <div class="col">
+                    {{_purchase.amount | currency:'MXN ':true:'2.2-4'}}
+                    <button class="btn btn-success btn-sm float-right" *ngIf="_purchase.is_paid == 0" (click)="pay(_purchase)">Pagar</button>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+    <div class="card-footer">
+      <pagination [boundaryLinks]="true" [totalItems]="paginate.total" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
+        previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
+      </pagination>
+    </div>
+  </div>
+</div>

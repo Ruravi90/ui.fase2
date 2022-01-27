@@ -1,0 +1,57 @@
+<div class="animated fadeIn">
+    <div class="row">
+        <div class="col col-lg-2" *ngIf="salesChart.length > 0">
+            <ngx-charts-pie-chart
+                [view]="[1000,0]"
+                [legend]="true"
+                [explodeSlices]="false"
+                [labels]="true"
+                [doughnut]="false"
+                [gradient]="true"
+                [results]="salesChart"
+                [legendTitle]="'Ventas'"
+                [labelFormatting]="setLabelFormatting">
+                <ng-template #tooltipTemplate let-model="model" let-index="index">
+                    <span class="tooltip-val">{{getSaleName(model.value)}}</span>
+                </ng-template>
+            </ngx-charts-pie-chart>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12" *ngIf="packagesChart.length > 0">
+            <ngx-charts-pie-chart
+                [view]="[1000,0]"
+                [legend]="true"
+                [explodeSlices]="false"
+                [labels]="true"
+                [doughnut]="false"
+                [gradient]="true"
+                [results]="packagesChart"
+                [legendTitle]="'Paquetes'"
+                [labelFormatting]="setLabelFormatting">
+                <ng-template #tooltipTemplate let-model="model" let-index="index">
+                    <span class="tooltip-val">{{getPackageName(model.value)}}</span>
+                </ng-template>
+            </ngx-charts-pie-chart>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <ngx-charts-pie-chart *ngIf="servicesChart.length > 0"
+                [view]="[1000,0]"
+                [legend]="true"
+                [explodeSlices]="false"
+                [labels]="true"
+                [doughnut]="false"
+                [gradient]="true"
+                [results]="servicesChart"
+                [legendTitle]="'Servicios'"
+                [labelFormatting]="setLabelFormatting">
+                <ng-template #tooltipTemplate let-model="model" let-index="index">
+                    <span class="tooltip-val">{{getServiceName(model.value)}}</span>
+                </ng-template>
+            </ngx-charts-pie-chart>
+        </div>
+    </div>
+         
+</div>

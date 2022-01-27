@@ -1,0 +1,31 @@
+import { Base, Department, _Type, User, Creditor } from '.';
+export class Purchase  extends Base {
+    department_id?: number;
+    department?: Department;
+    product_id?: number;
+    product?: _Type;
+    name_product?: string;
+    product_count?: number;
+    pill_id?: number;
+    pill?: _Type;
+    name_pill?: string;
+    description?: number;
+    pill_count?: number;
+    amount?: number;
+    user_id?: number;
+    user?: User;
+    credito_id?: number;
+    creditor?: Creditor;
+    provider_id?: number;
+    provider?: Creditor;
+    purchase_id?: number;
+    purchase?: Purchase;
+    expense_id?: number;
+    expense?: _Type;
+    name_expense?: string;
+    concept_id?: number;
+    cat_expense?: _Type;
+    name_concept?: string;
+    purchases: Purchase[] = [];
+    is_paid = false;
+}

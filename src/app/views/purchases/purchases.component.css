@@ -1,0 +1,5 @@
+ng-select /deep/ ng-dropdown-panel{
+    width: auto;
+    min-width: 100%;
+  }
+  

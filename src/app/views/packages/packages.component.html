@@ -1,0 +1,242 @@
+<div class="animated fadeIn">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="card">
+          <div class="card-header">
+            <div class="row">
+              <div class="col-lg-6">
+                  <h4>Paquetes </h4>
+              </div>
+              <div class="col-lg-6">
+                  <div class="float-right">
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input is-invalid" type="radio"
+                          id="isNotCompleted"
+                          name="optionsRadios" [value]="0"
+                          [(ngModel)]="filters.isCompleted" (ngModelChange)="getPackages()">
+                          <label class="form-check-label" for="isNotCompleted">Paquetes pendientes</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input is-valid" type="radio"
+                          id="isCompleted"
+                          name="optionsRadios"
+                          [value]="1"
+                          [(ngModel)]="filters.isCompleted" (ngModelChange)="getPackages()">
+                          <label class="form-check-label" for="isCompleted">Paquetes completados</label>
+                      </div>
+                   </div>
+              </div>
+            </div>
+          </div>
+          <ul class="list-group" >
+            <li class="list-group-item" *ngFor="let p of packages">
+              <div class="row">
+                  <div class="col-lg-2">{{p.client ? p.client.name + ' ' + p.client.lastname:''}}</div>
+                  <div class="col-lg-3">{{ p.type? p.type.name:'' }}</div>
+                  <div class="col-lg-2">{{ 'Sesiones ' + (p.type? p.type.session_count : '')}}</div>
+                  <div class="col-lg-2">{{'Tomadas ' + p.tracking.length }}</div>
+                  <div class="col-lg-1">{{ getDateFinish(p) | date:'dd/MM/yy' }}</div>
+                  <div class="col-lg-2 text-right">
+                    <button class="btn btn-sm"
+                    [ngClass]="{'btn-success':p.sale != null && p.sale.is_paid == 1,'btn-danger':p.sale != null &&p.sale.is_paid != 1}"
+                    (click)="addPayment(p)">
+                      <i class="fas fa-dollar-sign"></i>
+                    </button>
+                    <button class="btn btn-primary btn-sm ml-1" (click)="addTracker(p)">
+                      <i class="fas fa-list-ul"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger btn-sm ml-1" (click)="delete(p)" *ngIf="env.getRoles('admin')">
+                      <i class="icofont icofont-trash"></i>
+                    </button>
+                  </div>
+              </div>
+            </li>
+          </ul>
+          <div class="card-footer">
+              <pagination [boundaryLinks]="true" [totalItems]="paginate.total" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
+                previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
+              </pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalTracker" tabindex="-1" role="dialog" aria-labelledby="modalTrackerLabel" aria-hidden="true">
+    <form class="modal-dialog" role="document" #tackerForm="ngForm" (ngSubmit)="saveTracking()">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h3 class="modal-title" id="modal-title">Registrar sesión</h3>
+          </div>
+          <div class="modal-body" id="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label class="text-danger" *ngIf="!disabledTracker">Los campos en rojo son requeridos.</label>
+                <h3 *ngIf="disabledTracker" class="col-md-12 text-center"><label class="label label-success" >Sesiones completadas</label></h3>
+              </div>
+            </div>
+            <div class="row" *ngIf="!disabledTracker">
+              <div class="form-group col-md-6">
+                  <input type="checkbox" name="is_taken" [(ngModel)]="tracker.is_taken" name="is_taken"> Fue tomada la sesión?
+                </div>
+            </div>
+            <div class="row" *ngIf="!disabledTracker">
+              <div class="form-group col-md-6">
+                <ng-select
+                  name="userId"
+                  [(ngModel)]="tracker.user_id"
+                  [items]="agents$ | async"
+                  bindLabel="name"
+                  labelForId="name"
+                  bindValue="id"
+                  [selectOnTab]="true"
+                  #userId="ngModel"
+                  placeholder="Selecciona el agente"
+                  required>
+                </ng-select>
+              </div>
+              <div class="form-group col-md-6">
+                <ng-datepicker [(ngModel)]="tracker.scheduled_date"  name="scheduled_date"  [options]="options"></ng-datepicker>
+              </div>
+            </div>
+            <div class="row" *ngIf="!disabledTracker">
+              <div class="form-group col-md-12">
+                  <textarea class="form-control" name="description" [(ngModel)]="tracker.description" required></textarea>
+                </div>
+            </div>
+            <ul class="list-group" style="max-height:150px;overflow-y: auto; overflow-x: hidden;">
+              <li class="list-group-item row"  *ngFor="let t of trackers | orderBy:'scheduled_date':true">
+                <div class="row">
+                    <span class="col-lg-2">{{ t.is_taken == 1 ? 'Tomada' : 'Perdida' }}</span>
+                    <span class="col-lg-3">{{ t.scheduled_date | date:'dd/MM/yyyy' }}</span>
+                    <span class="col-lg-7">{{ 'Agente: ' + t.user.name + ' ' + t.user.lastname }}</span>
+                </div>
+                <div class="row">
+                    <span class="col-lg-12">{{ 'Observaciones: ' + t.description }}</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" type="button" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-primary" type="submit" [disabled]="tackerForm.invalid" *ngIf="!disabledTracker">Guardar</button>
+          </div>
+      </div>
+    </form>
+</div>
+
+<div class="modal fade" id="modalPayment" tabindex="-1" role="dialog" aria-labelledby="modalPeymentLabel" aria-hidden="true">
+  <form class="modal-dialog" role="document" #paymentForm="ngForm" (ngSubmit)="savePayment()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title" *ngIf="!sale.is_paid">Registrar abonos/finiquitos</h3>
+        <h3 class="modal-title" id="modal-title" *ngIf="sale.is_paid">Paquete pagado</h3>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <div class="row" *ngIf="paymentForm.invalid">
+          <div class="col-md-12">
+            <label class="text-danger" >Los campos en rojo son requeridos.</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <label class="text-default">Costo del paquete: {{ sale.total | currency:'MX $':true:'2.2-4' }} </label>
+          </div>
+        </div>
+        <div class="row mt-1">
+          <div class="col-md-12">
+            <label class="text-danger">Saldo pendiente: {{ balance | currency:'MX $':true:'2.2-4' }} </label>
+          </div>
+        </div>
+        <div class="row mt-1"  *ngIf="!sale.is_paid">
+          <div class="col-lg-2">
+            Agente
+          </div>
+          <div class="col-lg-10">
+              <ng-select placeholder="Agente"
+              [items]="agents$ | async"
+              [(ngModel)]="payment.responsible_id"
+              bindValue="id"
+              bindLabel="name"
+              [selectOnTab]="true"
+              name="responsibleId"
+              #responsibleId="ngModel"
+              required>
+                <ng-template ng-label-tmp let-item="item">
+                    {{ item.name + ' ' + item.lastname}}
+                </ng-template>
+                  <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                      <div >{{item.name + ' ' + item.lastname}}</div>
+                  </ng-template>
+            </ng-select>
+          </div>
+        </div>
+        <div class="row mt-1"  *ngIf="!sale.is_paid">
+          <div class="col-lg-2">
+            Forma de pago
+          </div>
+          <div class="col-lg-10">
+            <ng-select
+              placeholder="Forma de pago"
+              name="typeSale$ | async"
+              [(ngModel)]="payment.type_sale_id"
+              [items]="typeSale$ | async"
+              bindLabel="name"
+              labelForId="name"
+              bindValue="id"
+              [selectOnTab]="true"
+              #typeSale="ngModel"
+              required>
+            </ng-select>
+          </div>
+        </div>
+        <div class="row mt-1" *ngIf="!sale.is_paid">
+          <div class="col-lg-2">
+            Monto
+          </div>
+          <div class="col-lg-10">
+            <input type="number" min="0" class="form-control" name="amount" [(ngModel)]="payment.amount" (ngModelChange)="onChangeAmount()" required>
+          </div>
+        </div>
+        <br>
+        <ul class="list-group" style="max-height:150px;overflow-y: auto; overflow-x: hidden;">
+          <li class="list-group-item row"  *ngFor="let p of payments | orderBy:'created_at':true">
+            <span class="col-md-2">{{ p.created_at | date:'dd/MM/yyyy' }}</span>
+            <span class="col-md-2">{{ p.amount | currency:'MX $ ':true:'2.2-4' }}</span>
+            <span class="col-md-8">{{ 'Agente por ' + p.responsible.name + ' ' + p.responsible.lastname}}</span>
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+      <button class="btn btn-default" type="button" data-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" type="submit" *ngIf="sale.is_paid == '0'">Guardar</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div id="printTicket" style="max-width: 219.212598425px;">
+  <img src="assets/img/logo-fase2.svg" height="100pt" width="100%" />
+  <br />
+  <br />
+  <div *ngIf="printPayment != null">
+    <span >Cliente: {{ printPayment.sale.client.name + ' ' + printPayment.sale.client.lastname }}</span><br />
+    <span >Agente: {{ printPayment.responsible.name + ' ' + printPayment.responsible.lastname }}</span><br />
+    <div >
+        <span *ngIf="printPayment.sale.product_id > 0">Producto: {{printPayment.sale.cat_product.name}} </span>
+        <span *ngIf="printPayment.sale.service_id > 0">Servicio: {{printPayment.sale.cat_service.name}}</span>
+        <span *ngIf="printPayment.sale.package_id > 0">Paquete: {{printPayment.sale.cat_package.name}}</span>
+        <span *ngIf="printPayment.sale.pill_id > 0">Pastillas: {{printPayment.sale.cat_pill.name}}</span>
+        <br />
+        <span >Precio: {{printPayment.sale.price | currency:'MXN ':true:'2.2-4'}} </span><br />
+        <span >Cantidad: {{ printPayment.sale.count }} </span><br />
+        <span *ngIf="printPayment.type_sale_id > 0">Forma pago: {{ printPayment.type.name}}</span><br *ngIf="printPayment.type_sale_id > 0" />
+        <span >Abono: {{printPayment.amount | currency:'MXN ':true:'2.2-4'}} </span><br />
+        <span >Pago: {{printPayment.sale.amount | currency:'MXN ':true:'2.2-4'}} </span><br />
+        <span >Saldo: {{printPayment.sale.balance | currency:'MXN ':true:'2.2-4'}} </span><br />
+    </div>
+    <small style="width: 100%; text-align: center;"><em>**** ESTIMADO CLIENTE ****</em></small><br>
+    <small style="width: 100%; text-align: center;"><em>ES IMPORTANTE VALIDAR QUE LOS DATOS IMPRESOS CORRESPONDEN A LA OPERECIOM SOLICITADA</em></small>
+  </div>
+  <small style="width: 100%; text-align: center;"></small>
+</div>

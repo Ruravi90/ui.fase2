@@ -1,0 +1,63 @@
+<div class="animated fadeIn">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header">
+            <h4>Inventario de productos
+              <button class="btn btn-sm btn-primary float-right" (click)="add()">Nuevo</button>
+            </h4>
+          </div>
+          <ul class="list-group">
+            <li class="list-group-item" *ngFor="let i of inventory">
+              <div class="row">
+                  <div class="col-lg-4">{{i.product.name}}</div>
+                  <div class="col-lg-3">Precio: {{i.product.price | currency:'MXN ':true:'4.2-2'}}</div>
+                  <div class="col-lg-3">En stock: {{i.count}}</div>
+                  <div class="col-lg-2">
+                    <button class="btn btn-sm btn-danger ml-2 float-right" (click)="delete(i)"><i class="fa fa-trash"></i></button>
+                    <button class="btn btn-sm btn-default float-right" (click)="update(i)"><i class="fa fa-edit"></i></button>
+                  </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+   <!-- Modal -->
+  <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <form class="modal-dialog" role="document" #form="ngForm" (ngSubmit)="save()">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel">{{(isEdit?'Editar':'Agregar')}} inventario</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-lg-8">
+              <ng-select
+                [items]="cmbProducts$ | async"
+                bindLabel="name"
+                bindId="id"
+                placeholder="Seleciona el producto"
+                name="pillId"
+                [(ngModel)]="item.product"
+                #pillId="ngModel"
+                required>
+              </ng-select>
+            </div>
+            <div class="col-lg-4">
+              <input type="numero" class="form-control" name="count" [(ngModel)]="item.count" #count="ngModel"/>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button>
+        </div>
+        </div>
+    </form>
+  </div>

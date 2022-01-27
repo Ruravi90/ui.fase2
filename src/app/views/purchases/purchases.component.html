@@ -1,0 +1,214 @@
+<div class="animated fadeIn">
+    <div class="row">
+        <div class="col-lg-6">
+            <form #providerForm="ngForm">
+                <div class="card">
+                    <div class="card-header with-border">
+                        <div class="row">
+                            Registrar egreso
+                        </div>
+                    </div>
+                    <!-- List group -->
+                    <div class="card-body">
+                        <div class="row mt-1">
+                            <div class="col-lg-6">
+                                <ng-select placeholder="Departamento"
+                                    name="departmentId"
+                                    [(ngModel)]="purchase.department_id"
+                                    [items]="cmbDepartment$ | async"
+                                    bindLabel="name"
+                                    bindValue="id"
+                                    [selectOnTab]="true"
+                                    #departmentId="ngModel"
+                                    required>
+                                </ng-select>
+                            </div>
+                            <div class="col-lg-6">
+                                <ng-select placeholder="Acreedor/Proveedor"
+                                    [items]="cmbCreditors$ | async"
+                                    [(ngModel)]="purchase.provider_id"
+                                    bindLabel="business_name"
+                                    bindValue="id"
+                                    [selectOnTab]="true"
+                                    name="clientId"
+                                    #clientId="ngModel"
+                                    required>
+                                </ng-select>
+                            </div>
+                        </div>
+                        <div class="row mt-1" >
+                            <div class="col-lg-6">
+                                <ng-select placeholder="Concepto"
+                                    [items]="cmbConcepts$ | async"
+                                    [(ngModel)]="purchase.concept_id"
+                                    bindLabel="name"
+                                    bindValue="id"
+                                    [selectOnTab]="true"
+                                    name="conceptId"
+                                    #conceptId="ngModel"
+                                    required>
+                                </ng-select>
+                            </div>
+                            <div class="col-lg-6" *ngIf="purchase.concept_id == -1">
+                                <input type="text" name="name_concept" class="form-control" placeholder="Nuevo concepto" [(ngModel)]="purchase.name_concept" [required]="purchase.concept_id == -1">
+                            </div>
+                        </div>
+                        <div class="row mt-1" >
+                            <div class="col-lg-6">
+                                <ng-select placeholder="Tipo de gasto"
+                                    [items]="cmbExpenses$ | async"
+                                    [(ngModel)]="purchase.expense_id"
+                                    bindLabel="name"
+                                    bindValue="id"
+                                    [selectOnTab]="true"
+                                    name="expenseId"
+                                    #expenseId="ngModel"
+                                    required>
+                                </ng-select>
+                            </div>
+                            <div class="col-lg-4" *ngIf="false">
+                                <input type="text"
+                                name="name_expense"
+                                class="form-control"
+                                placeholder="Nuevo tipo de gasto"
+                                #nameExpense="ngModel"
+                                [(ngModel)]="purchase.name_expense"
+                                [required]="purchase.expense_id == -1">
+                            </div>
+                            <div class="col-lg-6 pl-1 pr-1">
+                                <div class="input-group mb-2">
+                                  <div class="input-group-prepend">
+                                    <div class="input-group-text">$</div>
+                                  </div>
+                                  <input type="number"
+                                    name="amount"
+                                    class="form-control"
+                                    #amount="ngModel"
+                                    [(ngModel)]="purchase.amount"
+                                    placeholder="costo"
+                                    min="0"
+                                    required/>
+                                  <div class="input-group-prepend">
+                                    <div class="input-group-text">.00</div>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-1" *ngIf="purchase.expense_id == 12">
+                            <div class="col-lg-4">
+                                <ng-select placeholder="Pastilla"
+                                    [items]="cmbPills$ | async"
+                                    [(ngModel)]="purchase.pill_id"
+                                    bindLabel="name"
+                                    bindValue="id"
+                                    [selectOnTab]="true"
+                                    name="pillId"
+                                    #pillId="ngModel">
+                                </ng-select>
+                            </div>
+                            <div class="col-lg-4" *ngIf="purchase.pill_id == -1">
+                                <input type="text" name="name_pill" class="form-control" placeholder="Pastilla nueva" [(ngModel)]="purchase.name_pill">
+                            </div>
+                            <div class="col-lg-4" >
+                                <input type="number" name="pill_count" class="form-control" [(ngModel)]="purchase.pill_count" placeholder="Cantidad" min="0"/>
+                            </div>
+                        </div>
+                        <div class="row mt-1" *ngIf="purchase.expense_id == 12">
+                            <div class="col-lg-4">
+                                <ng-select placeholder="Productos"
+                                    [items]="cmbProducts$ | async"
+                                    [(ngModel)]="purchase.product_id"
+                                    bindLabel="name"
+                                    bindValue="id"
+                                    [selectOnTab]="true"
+                                    name="productId"
+                                    #productId="ngModel">
+                                </ng-select>
+                            </div>
+                            <div class="col-lg-4" *ngIf="purchase.product_id == -1">
+                                <input type="text" name="name_product" class="form-control" placeholder="Producto nuevo" [(ngModel)]="purchase.name_product">
+                            </div>
+                            <div class="col-lg-4">
+                                <input type="number" name="product_count" class="form-control" [(ngModel)]="purchase.product_count" placeholder="Cantidad" min="0"/>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-1 text-rigth">
+                            <div class="col-lg-6">
+                                <div class="pretty p-icon p-smooth p-curve mt-2">
+                                    <input type="checkbox" id="isPaid" class="styled" name="isPaid" [(ngModel)]="purchase.is_paid"  (change)="toggleIsPaid($event)" [checked]="purchase.is_paid"/>
+                                    <div class="state p-success">
+                                        <i class="icon fas fa-check"></i>
+                                        <label>Egreso pagado</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <button class="btn btn-primary float-right" type="button" (click)="addPurchare()" [disabled]="providerForm.invalid">Agregar a carrito</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-6">
+            <div class="card ">
+            <div class="card-header with-border">
+                <h5 class="card-title">Lista de compras
+                        <button class="btn btn-primary float-right" (click)="save()">Generar compra</button>
+                </h5>
+            </div>
+            <!-- List group -->
+            <ul class="list-group">
+                <li class="list-group-item" *ngFor="let purchase of _purchases; let i = index">
+                    <div class="row">
+                        <div class="col">{{purchase.department?purchase.department.name:''}}</div>
+                        <div class="col">{{purchase.cat_expense?purchase.cat_expense.name:''}}</div>
+                        <div class="col">{{purchase.amount | currency:'MXN ':true:'2.2-4'}}</div>
+                        <div class="col">
+                            <button class="btn btn-sm btn-danger float-right" (click)="delete(i)"><i class="fa fa-trash"></i></button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card ">
+                <div class="card-header with-border">
+                    <h5 class="card-title">Egresos registrados</h5>
+                </div>
+                <!-- List group -->
+                <ul class="list-group">
+                    <li class="list-group-item p-1 disabled"  *ngFor="let purchase of purchases" style="padding-bottom:0px; margin-bottom: 5px;">
+                        <div class="card m-0">
+                            <div class="card-header p-2">
+                                Compra registrada por {{  purchase.user.name }} el día {{ purchase.created_at | date:'dd/MM/yyyy hh:mm' }}
+                            </div>
+                            <ul class="list-group">
+                              <li class="list-group-item p-1"  *ngFor="let _purchase of purchase.purchases">
+                                <div class="row">
+                                    <div class="col" *ngIf="_purchase.department">Departamento: <br/>{{_purchase.department.name}}</div>
+                                    <div class="col" *ngIf="_purchase.provider">Provee: <br/>{{_purchase.provider.business_name}}</div>
+                                    <div class="col" *ngIf="_purchase.cat_concept">Concepto: <br/>{{_purchase.cat_concept.name}}</div>
+                                    <div class="col" *ngIf="_purchase.cat_expense">Tipo gasto: <br/>{{_purchase.cat_expense.name}}</div>
+                                    <div class="col" *ngIf="_purchase.cat_pill">Pastillas: <br/>{{_purchase.count}} {{_purchase.cat_pill.name}}</div>
+                                    <div class="col" *ngIf="_purchase.cat_product">Productos: <br/>{{_purchase.count}} {{_purchase.cat_product.name}}</div>
+                                    <div class="col">{{_purchase.amount | currency:'MXN ':true:'2.2-4'}}</div>
+                                </div>
+                              </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+                <div class="card-footer">
+                    <pagination [boundaryLinks]="true" [totalItems]="paginate.total" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
+                        previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
+                    </pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

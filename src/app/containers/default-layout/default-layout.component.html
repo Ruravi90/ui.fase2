@@ -1,0 +1,64 @@
+<app-header
+  [fixed]="true"
+  [navbarBrandFull]="{src: 'assets/img/logo-fase2.png', width: 89, height: 50, alt: 'Fase 2 spa'}"
+  [navbarBrandMinimized]="{src: 'assets/img/favicon.png', width: 40, height: 30, alt: 'Fase 2 spa'}"
+  [sidebarToggler]="false"
+  [asideMenuToggler]="false"
+  [mobileAsideMenuToggler]="false">
+  <ul class="nav navbar-nav d-md-down-none">
+    <li class="nav-item">
+
+    </li>
+  </ul>
+  <ul class="nav navbar-nav ml-auto">
+    <li class="nav-item">
+        {{'Hola ' + currentUser.name + '!'}}
+    </li>
+    <li class="nav-item dropdown" dropdown placement="bottom right">
+      <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle (click)="false">
+        <img src="assets/img/avatars/6.jpg" class="img-avatar" alt="admin@bootstrapmaster.com"/>
+      </a>
+      <div class="dropdown-menu dropdown-menu-right" *dropdownMenu aria-labelledby="simple-dropdown">
+        <div class="dropdown-header text-center"><strong>Account</strong></div>
+        <a class="dropdown-item" href="#"><i class="fa fa-tasks"></i> Tasks<span class="badge badge-danger">42</span></a>
+        <div class="dropdown-header text-center"><strong>Settings</strong></div>
+        <a class="dropdown-item" href="#"><i class="fa fa-user"></i> Profile</a>
+        <div class="divider"></div>
+        <a class="dropdown-item" (click)="logout()"><i class="fa fa-lock"></i> Cerrar sesion</a>
+      </div>
+    </li>
+    <li class="nav-item m-auto">
+    </li>
+  </ul>
+</app-header>
+<div class="app-body">
+  <app-sidebar [fixed]="true" [display]="'lg'" [minimized]="false">
+    <!-- <app-sidebar-minimizer></app-sidebar-minimizer>-->
+    <app-sidebar-nav
+      [navItems]="navItems"
+      [perfectScrollbar]
+      [disabled]="sidebarMinimized">
+    </app-sidebar-nav>
+  </app-sidebar>
+  <!-- Main content -->
+  <main class="main">
+    <!-- Breadcrumb -->
+    <ol class="breadcrumb">
+      <app-breadcrumb></app-breadcrumb>
+    </ol>
+    <div class="container-fluid">
+      <router-outlet></router-outlet>
+    </div><!-- /.container-fluid -->
+  </main>
+</div>
+<app-footer>
+  <span>FASE2SPA &copy; 2018.</span>
+  <span class="ml-auto">Powered by <a href="#">RuraviLabs</a></span>
+</app-footer>
+
+<ngx-spinner 
+  bdColor = "rgba(51, 51, 51, 0.8)"
+  size = "large"
+  color = "#fff"
+  type = "ball-clip-rotate-pulse">
+</ngx-spinner>

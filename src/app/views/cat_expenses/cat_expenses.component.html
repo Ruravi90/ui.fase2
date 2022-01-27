@@ -1,0 +1,74 @@
+<div class="animated fadeIn">
+    <div class="row justify-content-center">
+      <div class="col-lg-5">
+        <div class="card">
+          <div class="card-header">
+              <div class="row">
+                  <div class="col-9">
+                      <h3>Tipo de gastos</h3>
+                  </div>
+                  <div class="col-3">
+                      <button type="button" class="btn btn-sm btn-primary float-right"  (click)="addItem()">
+                          Nuevo
+                      </button>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col-10">
+                      <input class="form-control" placeholder="Buscar cliente" name="shared" [(ngModel)]="filters.name" #sharedModel="ngModel" (keyup)="filterName($event)"/>
+                  </div>
+                  <div class="col-2">
+                      <button type="button" class="btn btn-sm btn-danger ml-1" (click)="filters.name = '';getCatlog()" *ngIf="filters.name !== ''">
+                          <i class="fa fa-trash"></i>
+                      </button>
+                  </div>
+              </div>
+          </div>
+          <ul class="list-group">
+            <li class="list-group-item" *ngFor="let c of catalog">
+              {{ c.name }}
+              <button class="btn btn-sm btn-danger ml-2 float-right" (click)="deleteItem(c)">
+                  <i class="fa fa-trash"></i>
+              </button>
+              <button class="btn btn-sm btn-default float-right" (click)="updateItem(c)">
+                  <i class="fa fa-edit"></i>
+              </button>
+            </li>
+          </ul>
+          <div class="card-footer justify-content-center">
+              <pagination [boundaryLinks]="true" [totalItems]="paginate.total" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
+                  previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
+              </pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <form class="modal-dialog" role="document" #form="ngForm" (ngSubmit)="save()">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel">{{(isEdit?'Editar pastilla':'Agregar pastilla')}}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+              <div class="col-lg-6">
+                  <input class="form-control" placeholder="Nombre" name="name" [(ngModel)]="item.name" #name="ngModel" required>
+                </div>
+                <div class="col-lg-6">
+                  <input type="number" min="0" class="form-control" placeholder="Precio" name="price" [(ngModel)]="item.price" #price="ngModel" required>
+                </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button>
+        </div>
+        </div>
+    </form>
+  </div>

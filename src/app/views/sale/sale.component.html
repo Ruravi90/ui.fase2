@@ -1,0 +1,309 @@
+<div class="animated fadeIn">
+   <div class="row">
+     <div class="col-lg-7">
+       <form class="card" #saleForm="ngForm" (ngSubmit)="addSale(saleForm.valid)">
+         <div class="card-header"  [ngClass]="{'bg-danger':inventory != null && inventory.count <= 0}">
+           <div class="row">
+            <div class="col-lg-3">
+              <h4>Venta</h4>
+            </div>
+            <div class="col-lg-6">
+              <div class="row text-center" *ngIf="inventory == null">
+                <div class="col-lg-12 bg-warning text-white font-weight-bold p-1 rounded" *ngIf="sale.pill_id != null && inventory == null">
+                    Pastilla no registrada en inventario
+                </div>
+                <div class="col-lg-12 bg-warning text-white font-weight-bold p-1 rounded" *ngIf="sale.product_id != null && inventory == null">
+                    Producto no registrado en inventerio
+                </div>
+              </div>
+              <div class="row text-center" *ngIf="inventory != null && inventory.count <= 0">
+                  <div class="col-lg-12 bg-warning text-white font-weight-bold p-1 rounded" *ngIf="sale.pill_id != null || additional.pill_id != null">
+                      Pastilla agotada
+                  </div>fullname
+                  <div class="col-lg-12 bg-danger text-white font-weight-bold p-1 rounded" *ngIf="sale.product_id != null || additional.product_id != null">
+                      Producto agotado
+                  </div>
+              </div>
+              <div class="row text-center" *ngIf="inventory != null && inventory.count > 0">
+                  <div class="col-lg-12 bg-success text-white font-weight-bold p-1 rounded" *ngIf="sale.pill_id != null || additional.pill_id != null">
+                      Pastilla en stock ({{ inventory.count }})
+                  </div>
+                  <div class="col-lg-12 bg-success text-white font-weight-bold p-1 rounded" *ngIf="sale.product_id != null || additional.product_id != null">
+                      Producto en stock ({{ inventory.count }})
+                  </div>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <button *ngIf="saleForm.valid" class="btn btn-sm btn-danger float-right" (click)="clearForm()"><i class="icofont icofont-brush"></i></button>
+            </div>
+           </div>
+         </div>
+         <div class="card-body">
+          <div class="row">
+            <div class="col-lg-4">
+              <ng-select placeholder="Departamento"
+                name="departmentId"
+                [(ngModel)]="sale.department_id"
+                [items]="departments"
+                bindLabel="name"
+                bindValue="id"
+                [selectOnTab]="true"
+                #departmentId="ngModel"
+                required>
+              </ng-select>
+            </div>
+            <div class="col-lg-4">
+              <ng-select placeholder="Cliente"
+                [items]="clients"
+                [(ngModel)]="sale.client_id"
+                bindLabel="fullname"
+                bindValue="id"
+                [selectOnTab]="true"
+                name="clientId"
+                #clientId="ngModel"
+                required>
+                  <ng-template ng-label-tmp let-item="item">
+                      {{ item.fullname}}
+                  </ng-template>
+                  <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                      <div>{{item.fullname}}</div>
+                  </ng-template>
+              </ng-select>
+            </div>
+            <div class="col-lg-4">
+              <ng-select placeholder="Agente"
+                [items]="agents"
+                [(ngModel)]="sale.responsible_id"
+                bindValue="id"
+                bindLabel="name"
+                [selectOnTab]="true"
+                name="responsibleId"
+                #responsibleId="ngModel"
+                required>
+                  <ng-template ng-label-tmp let-item="item">
+                      {{ item.name + ' ' + item.lastname}}
+                  </ng-template>
+                    <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                        <div >{{item.name + ' ' + item.lastname}}</div>
+                    </ng-template>
+              </ng-select>
+            </div>
+          </div>
+          <div class="row mt-1">
+            <div class="col-lg-4">
+              <ng-select placeholder="Tipo de concepto"
+                name="typeConceptId"
+                [(ngModel)]="type_concept_id"
+                [items]="typeConcepts"
+                bindLabel="name"
+                bindValue="id"
+                [selectOnTab]="true"
+                #typeConceptId="ngModel"
+                (ngModelChange)="selectedTypeConcept()"
+                required>
+              </ng-select>
+            </div>
+            <div class="col-lg-4">
+              <ng-select placeholder="Concepto"
+                name="conceptId"
+                [(ngModel)]="concept_id"
+                [items]="concepts"
+                bindLabel="name"
+                bindValue="id"
+                [selectOnTab]="true"
+                #conceptId="ngModel"
+                (ngModelChange)="selectedConcept()"
+                required>
+              </ng-select>
+            </div>
+            <div class="col-lg-4">
+              <input type="number" min="1" max="100"
+              class="form-control"
+              placeholder="Cantidad"
+              name="count"
+              [(ngModel)]="sale.count"
+              (ngModelChange)="onDebounce()"
+              requited/>
+            </div>
+          </div>
+
+          <div class="row mt-1 text-right">
+            <div class="col-lg-4">
+              <label>Subtotal: {{ sale.price | currency:'MXN ':true:'2.2-4' }}</label>
+            </div>
+            <div class="col-lg-4">
+              <div class="input-group mb-2">
+                <input type="number" min="0"
+                class="form-control"
+                placeholder="Descuento"
+                name="discount"
+                [(ngModel)]="sale.discount"
+                (ngModelChange)="onDebounce()"/>
+                <div class="input-group-prepend">
+                  <div class="input-group-text">%</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <label>Total: {{ sale.total | currency:'MXN ':true:'2.2-4' }}</label>
+            </div>
+          </div>
+          <div class="row mt-1">
+            <div class="col-lg-8">
+              <textarea class="form-control" placeholder="Comentarios"></textarea>
+            </div>
+            <div class="col-lg-4">
+              <div class="row">
+                <div class="col-lg-12">
+                    <ng-select placeholder="Forma de pago"
+                    name="typeSalesId"
+                    [(ngModel)]="sale.type_sale_id"
+                    [items]="typeSales"
+                    bindLabel="name"
+                    bindValue="id"
+                    [selectOnTab]="true"
+                    #typeSalesId="ngModel"
+                    required>
+                  </ng-select>
+                </div>
+              </div>
+              <div class="row mt-1">
+                <div class="col-lg-12">
+                    <input type="number" min="0" class="form-control" placeholder="Monto" name="amount" [(ngModel)]="sale.amount" (ngModelChange)="onChangeAmount()" required/>
+                </div>
+              </div>
+              <div class="row mt-1" [hidden]="inventory != null && inventory.count <= 0">
+                  <button type="submit" class="col-lg-12 btn btn-primary" [disabled]="saleForm.invalid">
+                     Agregar al carrito
+                  </button>
+                </div>
+            </div>
+          </div>
+         </div>
+       </form>
+     </div>
+     <div class="col-lg-5">
+      <div class="card">
+        <div class="card-header">
+          <h4>Carrito
+            <button class="btn btn-primary float-right" (click)="saveSales()" [disabled]="sales.length == 0 || isBusy">Generar venta</button>
+          </h4>
+        </div>
+        <ul class="list-group" id="carShopping">
+          <li class="list-group-item" *ngFor="let s of sales; let i = index">
+            <label *ngIf="s.product_id > 0">{{s.cat_product.name}}</label>
+            <label *ngIf="s.service_id > 0">{{s.cat_service.name}}</label>
+            <label *ngIf="s.package_id > 0">{{s.cat_package.name}}</label>
+            <label *ngIf="s.pill_id > 0">{{s.cat_pill.name}}</label>
+            <button class="btn btn-danger btn-sm float-right" (click)="deleteSale(i)"><i class="fa fa-trash"></i></button>
+          </li>
+        </ul>
+      </div>
+     </div>
+   </div>
+  <div class="card">
+    <div class="card-header">
+      <h4>Ventas del d&iacute;a
+        <button class="btn btn-primary float-right" [disabled]="salesForDay.length == 0" (click)="getCuteSales()">Generar corte <i class="icofont icofont-printer"></i></button>
+      </h4>
+    </div>
+    <ul class="list-group" >
+      <li class="list-group-item p-1" *ngFor="let p of salesForDay  | orderBy: 'updated_at':true">
+        <div class="card m-1"  [ngClass]="{'bg-danger': p.is_cancel === 1 }">
+            <div class="card-header p-1">
+                <strong *ngIf="p.is_cancel === 1"><i class="fa fa-ban" aria-hidden="true"></i> Venta cancelada </strong>
+                {{p.client.name + ' ' + p.client.lastname}}
+                <small>{{p.updated_at | date:'HH:mm'}}</small>
+                <button class="btn btn-sm btn-danger float-right mr-2 ml-2" (click)="deleteSaleDB(p)" [hidden]="p.is_cancel === 1"><i class="fa fa-ban"></i></button>
+                <button class="btn btn-sm btn-primary float-right" [hidden]="p.is_cancel === 1" (click)="printCopyTicke(p)"><i class="icofont icofont-printer"></i></button>
+            </div>
+            <ul class="list-group">
+              <li class="list-group-item p-1" *ngFor="let s of p.sales"  [ngClass]="{'list-group-item-danger': s.is_cancel === 1 }">
+                <div class="row p-1">
+                  <div class="col">
+                    <label class="mb-0" *ngIf="s.product_id > 0">{{s.cat_product.name}}</label>
+                    <label class="mb-0" *ngIf="s.service_id > 0">{{s.cat_service.name}}</label>
+                    <label class="mb-0" *ngIf="s.package_id > 0">{{s.cat_package.name}}</label>
+                    <label class="mb-0" *ngIf="s.pill_id > 0">{{s.cat_pill.name}}</label>
+                  </div>
+                  <div class="col">Precio: {{s.price | currency:'MXN ':true:'2.2-4'}}</div>
+                  <div class="col">Forma pago: {{s.type.name}}</div>
+                  <div class="col">Pago: {{s.amount | currency:'MXN ':true:'2.2-4'}}</div>
+                  <div class="col">Saldo: {{s.balance | currency:'MXN ':true:'2.2-4'}} </div>
+                  <div class="col-1"> 
+                    <button class="btn btn-danger btn-sm float-right" (click)="deleteSaleDB(s)" [hidden]="s.is_cancel === 1"><i class="fa fa-ban"></i></button>
+                  </div>
+                </div>
+                <div class="row p-1">
+                  <div class="col-12">
+                    <div class="p-1" *ngFor="let pa of s.payments; let i = index">
+                      <span>--> Abono: {{pa.amount | currency:'MXN ':true:'2.2-4'}}</span>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<section id="printTicket" style="max-width: 219.212598425px;padding: 0;margin: 0">
+  <img src="assets/img/logo-fase2.svg" height="100pt" width="100%" />
+  <br />
+  <br />
+  <div *ngIf="printSale != null" class="content-sale">
+    <span >Cliente: {{ printSale.client.name + ' ' + printSale.client.lastname }}</span><br />
+    <span >Agente: {{ printSale.responsible.name + ' ' + printSale.responsible.lastname }}</span><br />
+    <div *ngFor="let s of printSale.sales" class="content-products">
+        <span *ngIf="s.product_id > 0">Producto: {{s.cat_product.name}} </span>
+        <span *ngIf="s.service_id > 0">Servicio: {{s.cat_service.name}}</span>
+        <span *ngIf="s.package_id > 0">Paquete: {{s.cat_package.name}}</span>
+        <span *ngIf="s.pill_id > 0">Pastillas: {{s.cat_pill.name}}</span>
+        <br />
+        <span >Precio: {{s.price | currency:'MXN ':true:'2.2-4'}} </span><br />
+        <span *ngIf="s.discount > 0">Descuento: {{s.discount}} % </span><br *ngIf="s.discount > 0" />
+        <span >Cantidad: {{s.count}} </span><br />
+        <span >SubTotal: {{s.subTotal}} </span><br />
+        <span *ngIf="s.type_sale_id > 0">Forma pago: {{s.type.name}}</span><br *ngIf="s.type_sale_id > 0" />
+        <span >Pago: {{s.amount | currency:'MXN ':true:'2.2-4'}} </span><br />
+        <span >Saldo: {{s.balance | currency:'MXN ':true:'2.2-4'}} </span><br />
+    </div>
+    <span >Total: {{printSale.sumTotal | currency:'MXN ':true:'2.2-4'}} </span>
+    <hr />
+    
+    <small style="width: 100%; text-align: center;"><em>**** ESTIMADO CLIENTE ****</em></small><br>
+    <small style="width: 100%; text-align: center;"><em>ES IMPORTANTE VALIDAR QUE LOS DATOS IMPRESOS CORRESPONDEN A LA OPERECIOM SOLICITADA</em></small>
+  </div>
+  <div *ngIf="cuteSales !== null && cuteSales.length > 0">
+    <div *ngFor="let d of cuteSales" class="content-department">
+      <h3 class="content-name">{{d.name}}</h3><br />
+      <div *ngFor="let p of d.sales" class="content-sale">
+        <span >Cliente: {{ p.client.name + ' ' + p.client.lastname }}</span><br />
+        <span >Agente: {{ p.responsible.name + ' ' + p.responsible.lastname }}</span><br />
+        <div *ngFor="let s of p.sales" class="content-products">
+            <span *ngIf="s.product_id > 0">Producto: <small>{{s.cat_product.name}}</small></span>
+            <span *ngIf="s.service_id > 0">Servicio: <small>{{s.cat_service.name}}</small></span>
+            <span *ngIf="s.package_id > 0">Paquete: <small>{{s.cat_package.name}}</small></span>
+            <span *ngIf="s.pill_id > 0">Pastillas: <small>{{s.cat_pill.name}}</small></span><br />
+
+            <span >Precio: <small>{{s.price | currency:'MXN ':true:'2.2-4'}}</small></span><br />
+            <span *ngIf="s.discount > 0">Descuento: <small>{{s.discount}} %</small></span><br *ngIf="s.discount > 0" />
+            <span >Cantidad: <small>{{s.count}}</small></span><br />
+            <span *ngIf="s.type_sale_id > 0">Forma pago: <small>{{s.type.name}}</small></span><br *ngIf="s.type_sale_id > 0" />
+            <div *ngFor="let pa of s.payments; let i = index">
+              <span >--> Pago: <small>{{pa.amount | currency:'MXN ':true:'2.2-4'}}</small></span>
+            </div>
+            <span >Pago total: <small>{{s.amount | currency:'MXN ':true:'2.2-4'}}</small></span><br />
+            <span >Saldo: <small>{{s.balance | currency:'MXN ':true:'2.2-4'}}</small></span>
+        </div>
+      </div>
+      <span class="content-total">Total Efectivo: <small>{{d.sumCashTotal | currency:'MXN ':true:'2.2-4'}}</small></span><br />
+      <span class="content-total">Total Tarjeta: <small>{{d.sumCardTotal | currency:'MXN ':true:'2.2-4'}}</small></span>
+    </div>
+  </div>
+  <div style="width: 100%; text-align: center;">
+    <small class="content-total" [innerHtml]="(dateNow | date: 'dd/MMM/yyyy') + (dateNow | date: 'HH:mm')"></small>
+  </div>
+</section>

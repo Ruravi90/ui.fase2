@@ -1,0 +1,65 @@
+<div class="animated fadeIn">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <h3 class="card-header">
+                    Acreedores / Proveedores
+                    <button type="button" class="btn btn-sm btn-primary float-right"  (click)="add()">
+                        Nuevo
+                    </button>
+                </h3>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" *ngFor="let c of creditors$ | async">
+                        {{ c.business_name }}
+                        <button type="button" class="btn btn-sm btn-danger float-right ml-2" (click)="delete(c)">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-default float-right" (click)="edit(c)">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <form class="modal-dialog" role="document" #form="ngForm" (ngSubmit)="save()">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">{{(isEdit?'Editar cliente':'Agregar cliente')}}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="form-group col-md-6">
+              <input type="text" name="business_name" class="form-control" #businessName="ngModel" [(ngModel)]="model.business_name" placeholder="Razón Comercial" required>
+            </div>
+            <div class="form-group col-md-6">
+              <input type="text" name="contact_name" class="form-control" #contactName="ngModel" [(ngModel)]="model.contact_name" placeholder="Nombre del contacto" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-6">
+              <input type="text" minlength="10" maxlength="10" name="office_phone" class="form-control" #phone="ngModel" [(ngModel)]="model.office_phone" placeholder="Telefono de contacto" pattern="[0-9]*" required>
+              <span class="text-danger" *ngIf="phone.hasError('minlength')">
+                Telefono a 10 numeros.
+              </span>
+              <span class="text-danger" *ngIf="phone.hasError('pattern')">
+                Solo numeros.
+              </span>
+              <!--{{phone.errors | json}}-->
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button>
+        </div>
+        </div>
+    </form>
+</div>

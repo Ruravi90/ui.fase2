@@ -1,0 +1,67 @@
+<div class="animated fadeIn">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-8">
+                            <h4>Balance</h4>
+                        </div>
+                        <div class="col-4">
+                            <ng-datepicker [(ngModel)]="filters.date"  name="date"  [options]="options" (ngModelChange)="getBalance()"></ng-datepicker>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col" *ngFor="let balance of balances">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="box-title">{{balance.name}}</h5>
+                                </div>
+                                <ul class="list-group" >
+                                    <li class="list-group-item list-group-item-info">
+                                        <div class="row">
+                                            <div class="col">
+                                                <strong>Ingreso</strong>
+                                            </div>
+                                            <div class="col text-right">
+                                                <strong>{{balance.salesTotal | currency:'MXN ':true:'2.2-4'}}</strong>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item list-group-item-warning">
+                                        <div class="row">
+                                            <div class="col">
+                                                <strong>Egreso</strong>
+                                            </div>
+                                            <div class="col text-right">
+                                                <strong>{{balance.purchaseTotal | currency:'MXN ':true:'2.2-4'}}</strong>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item list-group-item-success">
+                                        <div class="row">
+                                            <div class="col">
+                                                <strong>Utilidad</strong>
+                                            </div>
+                                            <div class="col text-right">
+                                                <strong>{{balance.total | currency:'MXN ':true:'2.2-4'}}</strong>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item" *ngFor="let c of balance.expenses">
+                                        <div class="row">
+                                            <div class="col">{{c.name}}:</div>
+                                            <div class="col"><strong>{{c.total | currency:'MXN $':true:'2.2-4'}}</strong></div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
