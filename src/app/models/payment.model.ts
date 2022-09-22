@@ -9,5 +9,5 @@ export class Payment  extends Base {
   type_sale_id?: number;
   type?: _Type;
   amount?: number;
-  is_paid?: string | boolean;
+  is_paid?: number | boolean;
 }

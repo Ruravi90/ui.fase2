@@ -7,6 +7,7 @@ import * as moment from 'moment';
 import { environment } from '../../../environments/environment';
 
 import { DatepickerOptions } from 'ng2-datepicker';
+import locale from 'date-fns/locale/en-US';
 
 declare var $: any, iziToast: any, printJS: any;
 
@@ -18,21 +19,22 @@ declare var $: any, iziToast: any, printJS: any;
 
 export class PackagesComponent implements OnInit {
   public env = environment;
+  private timeout?: number;
   public currentUser: User = new User();
   public filters: any = { isCompleted: 0, perPage:15 };
   public packages: Package [] = [];
-  public package: Package;
-  public agents$: Observable<User[]>;
+  public package: Package = new Package;
+  public agents$: Observable<User[]> =new Observable<User[]>();
   public tracker: PackageTracking = new PackageTracking();
-  public trackers: PackageTracking[];
+  public trackers: PackageTracking[] = [];
   public sale: Sale = new Sale();
-  public typeSale$: Observable<_Type[]>;
+  public typeSale$: Observable<_Type[]> =new Observable<_Type[]>();
   public payment: Payment = new Payment();
-  public printPayment?: Payment = null;
+  public printPayment: Payment =new Payment() ;
   public payments: Payment [] = [];
   // tslint:disable-next-line:no-inferrable-types
   public subTotal: number = 0;
-  public balance: number;
+  public balance: number = 0;
 
   public paginate: Paginate = new Paginate();
 
@@ -40,16 +42,18 @@ export class PackagesComponent implements OnInit {
   private amountChange: Subject<string> = new Subject();
 
   public options: DatepickerOptions = {
-    minYear: 1970,
-    displayFormat: 'D/MM/YYYY',
-    barTitleFormat: 'MMMM YYYY',
-    dayNamesFormat: 'dd',
+    minYear: 1970, // minimum available and selectable year
+    maxYear: Date.now(), // maximum available and selectable year
+    placeholder: '', // placeholder in case date model is null | undefined, example: 'Please pick a date'
+    format: 'LLLL do yyyy', // date format to display in input
+    formatTitle: 'LLLL yyyy',
+    formatDays: 'EEEEE',
     firstCalendarDay: 0, // 0 - Sunday, 1 - Monday
-    barTitleIfEmpty: 'Click para selecionar el dia',
-    placeholder: 'Click para selecionar el dia', // HTML input placeholder attribute (default: '')
-    addClass: 'form-control', // Optional, value to pass on to [ngClass] on the input field
-    fieldId: 'my-date-picker', // ID to assign to the input field. Defaults to datepicker-<counter>
-    useEmptyBarTitle: false, // Defaults to true. If set to false then barTitleIfEmpty will be disregarded and a date will always be shown
+    locale: locale, // date-fns locale
+    position: 'bottom',
+    inputClass: '', // custom input CSS class to be applied
+    calendarClass: 'datepicker-default', // custom datepicker calendar CSS class to be applied
+    scrollBarColor: '#dfe3e9', // in case you customize you theme, here you define scroll bar color
   };
 
 
@@ -62,7 +66,7 @@ export class PackagesComponent implements OnInit {
     private pagS: PaginateService,
     private sS: SaleService) {
       this.pagS.model = 'packages';
-      this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
       this.getPackages();
   }
 
@@ -71,25 +75,19 @@ export class PackagesComponent implements OnInit {
     this.typeSale$ = this.tS.getAll('cat_type_sales');
     const that = this;
 
-    $('#modalTracker').on('hidden.bs.modal', function (event) {
+    $('#modalTracker').on('hidden.bs.modal', function () {
       that.getPackages();
     });
 
-    $('#modalPayment').on('hidden.bs.modal', function (event) {
+    $('#modalPayment').on('hidden.bs.modal', function () {
       that.getPackages();
-    });
-
-    this.amountChange.debounceTime(300).subscribe(() => {
-      if (this.payment.amount > this.balance) {
-        this.payment.amount = this.balance;
-      }
     });
   }
 
   getPackages() {
     this.pagS.paginate(this.filters).subscribe(r => {
       this.paginate = r;
-      this.packages = r.data; 
+      this.packages = r.data;
     });
   }
 
@@ -99,7 +97,7 @@ export class PackagesComponent implements OnInit {
       this.packages = res.data;
     });
   }
-  
+
 
   async delete(p: Package){
     swal.fire({
@@ -113,7 +111,7 @@ export class PackagesComponent implements OnInit {
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
       if (result.value) {
-        this.pS.delete(p.id).subscribe((r) => {
+        this.pS.delete(p.id!).subscribe((r) => {
           const index = this.packages.findIndex(p => p.id === p.id);
           if (index > -1) {
             this.packages.splice(index, 1);
@@ -138,7 +136,7 @@ export class PackagesComponent implements OnInit {
   addPayment(p: Package) {
     this.payment = new Payment();
     this.payment.sale_id = p.sale_id;
-    this.sale = p.sale;
+    this.sale = p.sale!;
     this.onCalculateTotal();
     this.getPayments();
   }
@@ -157,24 +155,29 @@ export class PackagesComponent implements OnInit {
 
 
   getPayments() {
-    this.paS.geForSales(this.payment.sale_id).subscribe(r => {
+    this.paS.geForSales(this.payment.sale_id!).subscribe(r => {
       this.payments = r;
       this.subTotal = 0;
       r.forEach((e) => {
-          this.subTotal = this.subTotal + parseInt(e.amount.toString(), 10);
+          this.subTotal = this.subTotal + parseInt(e.amount!.toString(), 10);
       });
-      this.balance = (this.sale.subtotal - this.subTotal);
+      this.balance = (this.sale.subtotal! - this.subTotal);
       this.sale.is_paid = this.balance <= 0;
       $('#modalPayment').modal('show');
     });
   }
 
   onChangeAmount() {
-    this.amountChange.next();
+    window.clearTimeout(this.timeout);
+    this.timeout = window.setTimeout(() => {
+      if (this.payment.amount! > this.balance) {
+        this.payment.amount = this.balance;
+      }
+    }, 300);
   }
 
   savePayment() {
-    this.printPayment = null;
+    this.printPayment = new Payment();
     this.payment.user_id = this.currentUser.id;
     this.paS.post(this.payment).subscribe(r => {
       this.copyTicket(r);
@@ -197,8 +200,8 @@ export class PackagesComponent implements OnInit {
   }
 
   copyTicket(p: Payment) {
-    this.printPayment = null;
-    this.paS.getById(p.id).subscribe(r => {
+    this.printPayment = new Payment();
+    this.paS.getById(p.id!).subscribe(r => {
       this.printPayment = r;
     });
   }
@@ -224,7 +227,7 @@ export class PackagesComponent implements OnInit {
 
 
   addTracker(p: Package) {
-    this.disabledTracker = (p.type.session_count <= p.tracking.length);
+    this.disabledTracker = (p.type!.session_count! <= p.tracking!.length);
     this.tracker = new PackageTracking();
     this.package = p;
     this.tracker.is_taken = true;
@@ -235,7 +238,7 @@ export class PackagesComponent implements OnInit {
   }
 
   getTracking() {
-    this.ptS.geForPackage(this.tracker.package_id).subscribe(r => {
+    this.ptS.geForPackage(this.tracker.package_id!).subscribe(r => {
       this.trackers = r;
     });
   }
@@ -251,7 +254,7 @@ export class PackagesComponent implements OnInit {
   }
 
   getDateFinish(p: Package): Date {
-    const date = new Date(p.created_at);
+    const date = new Date(p.created_at!);
     date.setDate(date.getDate() + 84);
     return date;
  }

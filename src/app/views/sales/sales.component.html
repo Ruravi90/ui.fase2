@@ -12,7 +12,7 @@
                   <div class="form-check form-check-inline">
                       <input class="form-check-input" type="radio"
                         id="isPrintCute"
-                        name="optionsRadios" 
+                        name="optionsRadios"
                         [value]="2"
                         [(ngModel)]="filters.isPaid" (ngModelChange)="getSales()"/>
                       <label class="form-check-label" for="isPrintCute">Fechas de corte</label>
@@ -20,7 +20,7 @@
                   <div class="form-check form-check-inline">
                       <input class="form-check-input is-invalid" type="radio"
                         id="isNotPaid"
-                        name="optionsRadios" 
+                        name="optionsRadios"
                         [value]="0"
                         [(ngModel)]="filters.isPaid" (ngModelChange)="getSales()">
                       <label class="form-check-label" for="isNotPaid">Por pagar</label>
@@ -45,9 +45,9 @@
 
                     {{p.client ? p.client.name + ' ' + p.client.lastname : ''}}
                     {{p.updated_at | date:'dd/MM/yyyy'}}
-                    
+
                     <!--{{p.is_paid == '1' ? 'Pagado':'Saldo pendiente'}}-->
-                    <button class="btn btn-sm btn-danger float-right mr-2 ml-2" (click)="delete(p)" [hidden]="p.is_cancel === 1" *ngIf="env.getRoles('admin')"><i class="fa fa-ban"></i></button>
+                    <button class="btn btn-sm btn-danger float-right mr-2 ml-2" (click)="delete(p)" [hidden]="p.is_cancel === 1" *ngIf="env.getRoles('admin')!"><i class="fa fa-ban"></i></button>
                     <button class="btn btn-sm btn-primary float-right ml-2" (click)="copyTicket(p)" [hidden]="p.is_cancel === 1" *ngIf="!p.is_paid"><i class="icofont icofont-printer"></i></button>
                 </div>
                 <ul class="list-group" >
@@ -89,7 +89,7 @@
           </li>
         </ul>
         <div class="card-footer">
-          <pagination [boundaryLinks]="true" [totalItems]="paginate.total" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
+          <pagination [boundaryLinks]="true" [totalItems]="paginate.total!" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
             previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
           </pagination>
         </div>
@@ -103,8 +103,8 @@
     <form class="modal-dialog" role="document" #paymentForm="ngForm" (ngSubmit)="savePayment()">
       <div class="modal-content">
         <div class="modal-header">
-          <h3 class="modal-title" id="modal-title" *ngIf="sale.is_paid == '0'">Registrar abonos/finiquitos</h3>
-          <h3 class="modal-title" id="modal-title" *ngIf="sale.is_paid == '1'">Paquete pagado</h3>
+          <h3 class="modal-title" id="modal-title" *ngIf="sale.is_paid == 0">Registrar abonos/finiquitos</h3>
+          <h3 class="modal-title" id="modal-title" *ngIf="sale.is_paid == 1">Paquete pagado</h3>
         </div>
         <div class="modal-body" id="modal-body">
           <div class="row" *ngIf="paymentForm.invalid">
@@ -125,7 +125,7 @@
               <label class="text-danger">Saldo pendiente: {{ balance | currency:'MX $':true:'2.2-4' }} </label>
             </div>
           </div>
-          <div class="row mt-1"  *ngIf="sale.is_paid == '0'">
+          <div class="row mt-1"  *ngIf="sale.is_paid == 0">
             <div class="col-lg-2">
               Agente
             </div>
@@ -148,7 +148,7 @@
               </ng-select>
             </div>
           </div>
-          <div class="row mt-1"  *ngIf="sale.is_paid == '0'">
+          <div class="row mt-1"  *ngIf="sale.is_paid == 0">
             <div class="col-lg-2">
               Forma de pago
             </div>
@@ -167,7 +167,7 @@
               </ng-select>
             </div>
           </div>
-          <div class="row mt-1" *ngIf="sale.is_paid == '0'">
+          <div class="row mt-1" *ngIf="sale.is_paid == 0">
             <div class="col-lg-2">
               Monto
             </div>
@@ -177,16 +177,16 @@
           </div>
           <br>
           <ul class="list-group" style="max-height:150px;overflow-y: auto; overflow-x: hidden;">
-            <li class="list-group-item row"  *ngFor="let p of payments | orderBy:'created_at':true">
+            <li class="list-group-item row"  *ngFor="let p of payments">
               <span class="col-md-2">{{ p.created_at | date:'dd/MM/yyyy' }}</span>
               <span class="col-md-2">{{ p.amount | currency:'MX $ ':true:'2.2-4' }}</span>
-              <span class="col-md-8">{{ 'Agente por ' + p.responsible.name + ' ' + p.responsible.lastname}}</span>
+              <span class="col-md-8">{{ 'Agente por ' + p.responsible!.name + ' ' + p.responsible!.lastname}}</span>
             </li>
           </ul>
         </div>
         <div class="modal-footer">
           <button class="btn btn-default" type="button" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" type="submit" *ngIf="sale.is_paid == '0'">Guardar</button>
+          <button class="btn btn-primary" type="submit" *ngIf="sale.is_paid == 0">Guardar</button>
         </div>
       </div>
     </form>
@@ -197,38 +197,38 @@
     <br />
     <br />
     <div *ngIf="printPayment != null">
-        <span >Cliente: {{ printPayment.sale.client.name + ' ' + printPayment.sale.client.lastname }}</span><br />
-        <span >Agente: {{ printPayment.responsible.name + ' ' + printPayment.responsible.lastname }}</span><br />
+        <span >Cliente: {{ printPayment.sale!.client!.name + ' ' + printPayment.sale!.client!.lastname }}</span><br />
+        <span >Agente: {{ printPayment.responsible!.name + ' ' + printPayment.responsible!.lastname }}</span><br />
         <div >
-            <span *ngIf="printPayment.sale.product_id > 0">Producto: {{printPayment.sale.cat_product.name}} </span>
-            <span *ngIf="printPayment.sale.service_id > 0">Servicio: {{printPayment.sale.cat_service.name}}</span>
-            <span *ngIf="printPayment.sale.package_id > 0">Paquete: {{printPayment.sale.cat_package.name}}</span>
-            <span *ngIf="printPayment.sale.pill_id > 0">Pastillas: {{printPayment.sale.cat_pill.name}}</span>
+            <span *ngIf="printPayment.sale!.product_id! > 0">Producto: {{printPayment.sale!.cat_product!.name}} </span>
+            <span *ngIf="printPayment.sale!.service_id! > 0">Servicio: {{printPayment.sale!.cat_service!.name}}</span>
+            <span *ngIf="printPayment.sale!.package_id! > 0">Paquete: {{printPayment.sale!.cat_package!.name}}</span>
+            <span *ngIf="printPayment.sale!.pill_id! > 0">Pastillas: {{printPayment.sale!.cat_pill!.name}}</span>
             <br />
-            <span >Precio: {{printPayment.sale.price | currency:'MXN ':true:'2.2-4'}} </span><br />
-            <span >Cantidad: {{ printPayment.sale.count }} </span><br />
-            <span *ngIf="printPayment.type_sale_id > 0">Forma pago: {{ printPayment.type.name}}</span><br *ngIf="printPayment.type_sale_id > 0" />
+            <span >Precio: {{printPayment.sale!.price | currency:'MXN ':true:'2.2-4'}} </span><br />
+            <span >Cantidad: {{ printPayment.sale!.count }} </span><br />
+            <span *ngIf="printPayment.type_sale_id! > 0">Forma pago: {{ printPayment.type!.name}}</span><br *ngIf="printPayment.type_sale_id! > 0" />
             <span >Abono: {{printPayment.amount | currency:'MXN ':true:'2.2-4'}} </span><br />
-            <span >Pago: {{printPayment.sale.amount | currency:'MXN ':true:'2.2-4'}} </span><br />
-            <span >Saldo: {{printPayment.sale.balance | currency:'MXN ':true:'2.2-4'}} </span><br />
+            <span >Pago: {{printPayment.sale!.amount | currency:'MXN ':true:'2.2-4'}} </span><br />
+            <span >Saldo: {{printPayment.sale!.balance | currency:'MXN ':true:'2.2-4'}} </span><br />
         </div>
         <small style="width: 100%; text-align: center;"><em>**** ESTIMADO CLIENTE ****</em></small><br>
         <small style="width: 100%; text-align: center;"><em>ES IMPORTANTE VALIDAR QUE LOS DATOS IMPRESOS CORRESPONDEN A LA OPERECIOM SOLICITADA</em></small>
     </div>
     <div *ngIf="printSale != null">
-      <span >Cliente: {{ printSale.client.name + ' ' + printSale.client.lastname }}</span><br />
-      <span >Agente: {{ printSale.responsible.name + ' ' + printSale.responsible.lastname }}</span><br />
+      <span >Cliente: {{ printSale.client!.name + ' ' + printSale.client!.lastname }}</span><br />
+      <span >Agente: {{ printSale.responsible!.name + ' ' + printSale.responsible!.lastname }}</span><br />
       <div *ngFor="let s of printSale.sales">
-          <span *ngIf="s.product_id > 0">Producto: {{s.cat_product.name}} </span>
-          <span *ngIf="s.service_id > 0">Servicio: {{s.cat_service.name}}</span>
-          <span *ngIf="s.package_id > 0">Paquete: {{s.cat_package.name}}</span>
-          <span *ngIf="s.pill_id > 0">Pastillas: {{s.cat_pill.name}}</span>
+          <span *ngIf="s.product_id! > 0">Producto: {{s.cat_product!.name}} </span>
+          <span *ngIf="s.service_id! > 0">Servicio: {{s.cat_service!.name}}</span>
+          <span *ngIf="s.package_id! > 0">Paquete: {{s.cat_package!.name}}</span>
+          <span *ngIf="s.pill_id! > 0">Pastillas: {{s.cat_pill!.name}}</span>
           <br />
           <span >Precio: {{s.price | currency:'MXN ':true:'2.2-4'}} </span><br />
-          <span *ngIf="s.discount > 0">Descuento: {{s.discount}} % </span><br *ngIf="s.discount > 0" />
+          <span *ngIf="s.discount! > 0">Descuento: {{s.discount}} % </span><br *ngIf="s.discount! > 0" />
           <span >Cantidad: {{s.count}} </span><br />
           <span >SubTotal: {{s.total | currency:'MXN ':true:'2.2-4'}} </span><br />
-          <span *ngIf="s.type_sale_id > 0">Forma pago: {{s.type.name}}</span><br *ngIf="s.type_sale_id > 0" />
+          <span *ngIf="s.type_sale_id! > 0">Forma pago: {{s.type!.name}}</span><br *ngIf="s.type_sale_id! > 0" />
           <span >Pago: {{s.amount | currency:'MXN ':true:'2.2-4'}} </span><br />
           <span >Saldo: {{s.balance | currency:'MXN ':true:'2.2-4'}} </span><br />
       </div>
@@ -241,18 +241,18 @@
       <div *ngFor="let d of cuteSales" class="content-department">
         <h3 class="content-name">{{d.name}}</h3><br />
         <div *ngFor="let p of d.sales" class="content-sale">
-          <span >Cliente: {{ p.client.name + ' ' + p.client.lastname }}</span><br />
-          <span >Agente: {{ p.responsible.name + ' ' + p.responsible.lastname }}</span><br />
+          <span >Cliente: {{ p.client!.name + ' ' + p.client!.lastname }}</span><br />
+          <span >Agente: {{ p.responsible!.name + ' ' + p.responsible!.lastname }}</span><br />
           <div *ngFor="let s of p.sales" class="content-products">
-              <span *ngIf="s.product_id > 0">Producto: <small>{{s.cat_product.name}}</small></span>
-              <span *ngIf="s.service_id > 0">Servicio: <small>{{s.cat_service.name}}</small></span>
-              <span *ngIf="s.package_id > 0">Paquete: <small>{{s.cat_package.name}}</small></span>
-              <span *ngIf="s.pill_id > 0">Pastillas: <small>{{s.cat_pill.name}}</small></span><br />
-  
+              <span *ngIf="s.product_id! > 0">Producto: <small>{{s.cat_product!.name}}</small></span>
+              <span *ngIf="s.service_id! > 0">Servicio: <small>{{s.cat_service!.name}}</small></span>
+              <span *ngIf="s.package_id! > 0">Paquete: <small>{{s.cat_package!.name}}</small></span>
+              <span *ngIf="s.pill_id! > 0">Pastillas: <small>{{s.cat_pill!.name}}</small></span><br />
+
               <span >Precio: <small>{{s.price | currency:'MXN ':true:'2.2-4'}}</small></span><br />
-              <span *ngIf="s.discount > 0">Descuento: <small>{{s.discount}} %</small></span><br *ngIf="s.discount > 0" />
+              <span *ngIf="s.discount! > 0">Descuento: <small>{{s.discount}} %</small></span><br *ngIf="s.discount! > 0" />
               <span >Cantidad: <small>{{s.count}}</small></span><br />
-              <span *ngIf="s.type_sale_id > 0">Forma pago: <small>{{s.type.name}}</small></span><br *ngIf="s.type_sale_id > 0" />
+              <span *ngIf="s.type_sale_id! > 0">Forma pago: <small>{{s.type!.name}}</small></span><br *ngIf="s.type_sale_id! > 0" />
               <div *ngFor="let pa of s.payments; let i = index">
                 <span >--> Pago: <small>{{pa.amount | currency:'MXN ':true:'2.2-4'}}</small></span>
               </div>

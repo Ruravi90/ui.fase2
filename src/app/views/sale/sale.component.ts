@@ -1,9 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import Validation from '../../utils/validation';
+
 import { ClientService,
   DepartmentService,
   AgentService,
   TypeService,
-  QzTrayService,
   SaleService,
   PillsInventoryService,
   ProductsInventaryService
@@ -19,17 +21,14 @@ import { Client,
 import { NgSelectComponent  } from '@ng-select/ng-select';
 
 import swal from 'sweetalert2';
-import { isUndefined } from 'util';
 import { Subject, forkJoin } from 'rxjs';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/switchMap';
 import * as print from 'print-js';
 
 declare var $: any, iziToast: any, document: any;
 
 @Component({
   templateUrl: 'sale.component.html',
-  styleUrls: ['./sale.component.css']
+  styleUrls: ['./sale.component.css'],
 })
 
 export class SaleComponent implements OnInit {
@@ -38,14 +37,14 @@ export class SaleComponent implements OnInit {
   public sales: Sale[] = [];
   public salesForDay: Sale[] = [];
   public cuteSales: Department[] = [];
-  public printSale?: Sale = null;
+  public printSale?: Sale;
   public isCopyPrint = false;
   public sumSales = 0;
   public clients: Client[] = [];
   public departments: Department[] = [];
   public agents: User[] = [];
   public additional: SaleAdditional = new SaleAdditional();
-  public typeAdditionals: any[];
+  public typeAdditionals: any[] = [];
   public type_additional_id?: string;
   public conceptsAdditionals: _Type[] = [];
   // tslint:disable-next-line:no-inferrable-types
@@ -57,43 +56,79 @@ export class SaleComponent implements OnInit {
   public _selectedConcept: any = {};
   public typeSales: _Type[] = [];
 
-  public inventory: Inventory = null;
+  public inventory?: Inventory;
 
   public isBusy = false;
 
   public dateNow: Date = new Date();
 
-  @ViewChild('typeConceptId', {static: false}) public selectTypeConceptId: NgSelectComponent;
-  @ViewChild('conceptId', {static: false}) public selectConceptId: NgSelectComponent;
+  @ViewChild('typeConceptId')
+  public selectTypeConceptId: NgSelectComponent | undefined | null;
+  @ViewChild('conceptId')
+  public selectConceptId: NgSelectComponent | undefined | null;
 
   private subject: Subject<string> = new Subject();
   private amountChange: Subject<string> = new Subject();
 
-  constructor(private cS: ClientService,
+  formSale: FormGroup = new FormGroup({
+    fullname: new FormControl(''),
+    username: new FormControl(''),
+    email: new FormControl(''),
+    password: new FormControl(''),
+    confirmPassword: new FormControl(''),
+    acceptTerms: new FormControl(false),
+  });
+
+
+  constructor(private formBuilder: FormBuilder,
+    private cS: ClientService,
     private dS: DepartmentService,
     private aS: AgentService,
     private tS: TypeService,
     private sS: SaleService,
-    private qS: QzTrayService,
     private piS: PillsInventoryService,
     private prS: ProductsInventaryService,
     ) {
-      this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
       this.setCombos();
     }
 
   ngOnInit(): void {
-    this.subject.debounceTime(800)
-    .subscribe(() => this.onCalculateTotal());
+    this.formSale = this.formBuilder.group(
+      {
+        fullname: ['', Validators.required],
+        username: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(6),
+            Validators.maxLength(20)
+          ]
+        ],
+        email: ['', [Validators.required, Validators.email]],
+        password: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(6),
+            Validators.maxLength(40)
+          ]
+        ],
+        confirmPassword: ['', Validators.required],
+        acceptTerms: [false, Validators.requiredTrue]
+      },
+      {
+        validators: [Validation.match('password', 'confirmPassword')]
+      }
+    );
 
-    this.amountChange.debounceTime(800)
-      .subscribe(() => {
-        if (this.sale.amount > this.sale.total) {
-          this.sale.amount = this.sale.total;
-        }
-    });
+
 
     this.getSalesForDay();
+  }
+
+  get f(): { [key: string]: AbstractControl } {
+    return this.formSale.controls;
   }
 
   getSalesForDay() {
@@ -104,8 +139,8 @@ export class SaleComponent implements OnInit {
 
   setCombos() {
     forkJoin([
-      this.cS.get(), 
-      this.dS.get(), 
+      this.cS.get(),
+      this.dS.get(),
       this.aS.get(),
       this.tS.getAll('cat_type_sales')
     ]).subscribe(r => {
@@ -135,10 +170,10 @@ export class SaleComponent implements OnInit {
   selectedTypeConcept() {
     let url = '';
     this.selectConceptId = null;
-    this.concept_id = null;
-    this.inventory = null;
-    this.sale.product_id = null;
-    this.sale.pill_id = null;
+    this.concept_id = undefined;
+    this.inventory = undefined;
+    this.sale.product_id = undefined;
+    this.sale.pill_id = undefined;
     switch (this.type_concept_id) {
       case 'product':
           url = 'cat_products';
@@ -158,7 +193,7 @@ export class SaleComponent implements OnInit {
         this.concepts = r;
       });
     } else {
-      this.type_concept_id = null;
+      this.type_concept_id = undefined;
       this.concepts = [new _Type()];
     }
   }
@@ -168,13 +203,13 @@ export class SaleComponent implements OnInit {
     let index = this.concepts.findIndex(i => i.id === this.concept_id);
     // tslint:disable-next-line:prefer-const
     this._selectedConcept = this.concepts[index];
-    this.inventory = null;
+    this.inventory = undefined;
     this.onCalculateTotal();
     switch (this.type_concept_id) {
       case 'product':
           this.sale.product_id = this.concept_id;
           this.sale.cat_product =  this._selectedConcept;
-          this.prS.getForProduct(this.concept_id).subscribe(r => {
+          this.prS.getForProduct(this.concept_id!).subscribe(r => {
             this.inventory = r;
           });
           break;
@@ -189,24 +224,24 @@ export class SaleComponent implements OnInit {
       case 'pill':
           this.sale.pill_id = this.concept_id;
           this.sale.cat_pill =  this._selectedConcept;
-          this.piS.getForPill(this.concept_id).subscribe(r => {
+          this.piS.getForPill(this.concept_id!).subscribe(r => {
             this.inventory = r;
           });
           break;
     }
-    this.inventory.count = Number(this.inventory.count);
+    this.inventory!.count = Number(this.inventory!.count);
   }
 
   addSale(isValid: boolean) {
     if (!isValid) {
-      return false;
+      return ;
     }
 
     if(this.sale.pill_id != null && this.inventory == null){
-      return false;
+      return ;
     }
     if(this.sale.product_id != null && this.inventory == null){
-      return false;
+      return ;
     }
 
 
@@ -242,7 +277,7 @@ export class SaleComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, cancelar!'
     }).then((result) => {
-      this.sS.cancel(s.id).subscribe(r => {
+      this.sS.cancel(s.id!).subscribe(r => {
         this.getSalesForDay();
         iziToast.show({
           message: 'Registro cancelado correctamente'
@@ -253,8 +288,8 @@ export class SaleComponent implements OnInit {
 
   selectedTypeAdditional() {
     let url = '';
-    this.additional.pill_id = null;
-    this.additional.product_id = null;
+    this.additional.pill_id = undefined;
+    this.additional.product_id = undefined;
     switch (this.type_additional_id) {
       case 'product':
           url = 'cat_products';
@@ -268,26 +303,26 @@ export class SaleComponent implements OnInit {
         this.conceptsAdditionals = r;
       });
     } else {
-      this.type_additional_id = null;
-      this.conceptsAdditionals = null;
+      this.type_additional_id = undefined;
+      this.conceptsAdditionals = [];
     }
   }
 
   selectedAdditional() {
     let index = 0;
-    this.inventory = null;
+    this.inventory = undefined;
     switch (this.type_additional_id) {
       case 'product':
           index = this.conceptsAdditionals.findIndex(i => i.id === this.additional.product_id);
           this.additional.cat_product = this.conceptsAdditionals[index];
-          this.prS.getForProduct(this.additional.product_id).subscribe(r => {
+          this.prS.getForProduct(this.additional.product_id!).subscribe(r => {
             this.inventory = r;
           });
           break;
       case 'pill':
           index = this.conceptsAdditionals.findIndex(i => i.id === this.additional.pill_id);
           this.additional.cat_pill = this.conceptsAdditionals[index];
-          this.piS.getForPill(this.additional.pill_id).subscribe(r => {
+          this.piS.getForPill(this.additional.pill_id!).subscribe(r => {
             this.inventory = r;
           });
           break;
@@ -297,7 +332,7 @@ export class SaleComponent implements OnInit {
   addAdditional() {
     this.sale.additionals.push(this.additional);
     this.additional = new SaleAdditional();
-    this.type_additional_id = null;
+    this.type_additional_id = undefined;
     this.conceptsAdditionals = [];
   }
 
@@ -318,7 +353,7 @@ export class SaleComponent implements OnInit {
 
   onCalculateTotal() {
     this.sale.price = Number(this._selectedConcept.price);
-    this.sale.subtotal =  this.sale.price * this.sale.count;
+    this.sale.subtotal =  this.sale.price * this.sale.count!;
     if (typeof this.sale.discount !== 'undefined') {
       this._selectedConcept.discount = ((Number(this.sale.discount) * this.sale.subtotal) / 100);
     } else {
@@ -330,29 +365,35 @@ export class SaleComponent implements OnInit {
   }
 
   onDebounce() {
-    this.subject.next();
+    window.setTimeout(() => {
+      this.onCalculateTotal();
+    }, 800);
   }
 
   onChangeAmount() {
-    this.amountChange.next();
+    window.setTimeout(() => {
+      if (this.sale.amount! > this.sale.total!) {
+        this.sale.amount = this.sale.total;
+      }
+    }, 800);
   }
 
   clearForm() {
     this.sale = new Sale();
     this.sale.user_id = this.currentUser.id;
-    this.type_concept_id = null;
-    this.typeConcepts = null;
+    this.type_concept_id = undefined;
+    this.typeConcepts = [];
     this.selectConceptId = null;
-    this.concept_id = null;
-    this.type_additional_id = null;
-    this.conceptsAdditionals = null;
+    this.concept_id = undefined;
+    this.type_additional_id = undefined;
+    this.conceptsAdditionals = [];
 
     this.setCombos();
   }
 
   saveSales() {
     if(this.isBusy)
-      return false;
+      return;
 
     this.isBusy = true;
     this.sS.post(this.sales).subscribe(r => {
@@ -360,7 +401,7 @@ export class SaleComponent implements OnInit {
       this.isCopyPrint = true;
       this.getSalesForDay();
       this.copyTicket(r);
-      
+
       this.isBusy = false;
     });
   }
@@ -371,12 +412,12 @@ export class SaleComponent implements OnInit {
   }
 
   copyTicket(s: Sale) {
-    this.sS.getById(s.id).subscribe(res => {
+    this.sS.getById(s.id!).subscribe(res => {
       this.cuteSales = [];
       this.printSale = res;
       this.printSale.sumTotal = 0;
       this.printSale.sales.forEach((e, i) => {
-        this.printSale.sumTotal =  this.printSale.sumTotal + Number(e.amount);
+        this.printSale!.sumTotal =  this.printSale!.sumTotal! + Number(e.amount);
       });
 
       setTimeout(() => {
@@ -391,7 +432,7 @@ export class SaleComponent implements OnInit {
 
   async getCuteSales() {
     if(this.isBusy)
-      return false;
+      return;
     this.isBusy = true;
 
     let that = this;
@@ -406,26 +447,26 @@ export class SaleComponent implements OnInit {
       confirmButtonText: 'Generar corte!'
     }).then((result) => {
       this.sS.getCuteSales().subscribe(r => {
-        this.printSale = null;
+        this.printSale = undefined;
         this.cuteSales = r;
         this.cuteSales.forEach((d, i) => {
           this.cuteSales[i].sumCardTotal = 0;
           this.cuteSales[i].sumCashTotal = 0;
-          d.sales.forEach((s, i2) => {
-            this.cuteSales[i].sales[i2].sumCashTotal = 0;
-            this.cuteSales[i].sales[i2].sumCardTotal = 0;
+          d.sales!.forEach((s, i2) => {
+            this.cuteSales[i].sales![i2].sumCashTotal = 0;
+            this.cuteSales[i].sales![i2].sumCardTotal = 0;
             s.sales.forEach((ss, i3) => {
               ss.payments.forEach((p, i4) => {
-                if(p.type.id === 1){
-                  this.cuteSales[i].sales[i2].sumCashTotal = this.cuteSales[i].sales[i2].sumCashTotal + Number(p.amount);
+                if(p.type!.id === 1){
+                  this.cuteSales[i].sales![i2].sumCashTotal = this.cuteSales[i].sales![i2].sumCashTotal! + Number(p.amount);
                 }
                 else{
-                  this.cuteSales[i].sales[i2].sumCardTotal = this.cuteSales[i].sales[i2].sumCardTotal + Number(p.amount);
+                  this.cuteSales[i].sales![i2].sumCardTotal = this.cuteSales[i].sales![i2].sumCardTotal! + Number(p.amount);
                 }
               });
             });
-            this.cuteSales[i].sumCardTotal = this.cuteSales[i].sumCardTotal + this.cuteSales[i].sales[i2].sumCardTotal;
-            this.cuteSales[i].sumCashTotal = this.cuteSales[i].sumCashTotal + this.cuteSales[i].sales[i2].sumCashTotal;
+            this.cuteSales[i].sumCardTotal = this.cuteSales[i].sumCardTotal! + this.cuteSales[i].sales![i2].sumCardTotal!;
+            this.cuteSales[i].sumCashTotal = this.cuteSales[i].sumCashTotal! + this.cuteSales[i].sales![i2].sumCashTotal!;
           });
         });
 

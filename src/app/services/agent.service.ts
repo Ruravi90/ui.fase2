@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable,map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { User } from '../models';
 
@@ -9,24 +9,24 @@ export class AgentService {
     private url: string = environment.urlApi + 'agents';
     private currentUser: User = new User();
     constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
     }
     get(): Observable<User[]> {
-        return this.http.get<User[]>(this.url).map(r => r);
+        return this.http.get<User[]>(this.url).pipe(map((r:any)=> r));
     }
     getById(id: number): Observable<User> {
-        return this.http.get<User>(this.url + '/' + id).map(r => r);
+        return this.http.get<User>(this.url + '/' + id).pipe(map((r:any)=> r));
     }
     getExist(username: string): Observable<Boolean> {
-        return this.http.post<Boolean>(this.url + '/exist_user', { username: username }).map(r => r);
+        return this.http.post<Boolean>(this.url + '/exist_user', { username: username }).pipe(map((r:any)=> r));
     }
     post(model: User): Observable<any> {
-      return this.http.post<any>(this.url, model).map(r => r);
+      return this.http.post<any>(this.url, model).pipe(map((r:any)=> r));
     }
     put(model: User): Observable<any> {
-      return this.http.put<any>(this.url + '/' + model.id, model ).map(r => r);
+      return this.http.put<any>(this.url + '/' + model.id, model ).pipe(map((r:any)=> r));
     }
     delete(id: number): Observable<any> {
-      return this.http.delete<any>(this.url + '/' + id).map(r => r);
+      return this.http.delete<any>(this.url + '/' + id).pipe(map((r:any)=> r));
     }
 }

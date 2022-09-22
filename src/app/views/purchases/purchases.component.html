@@ -132,7 +132,7 @@
                                 <input type="number" name="product_count" class="form-control" [(ngModel)]="purchase.product_count" placeholder="Cantidad" min="0"/>
                             </div>
                         </div>
-                        
+
                         <div class="row mt-1 text-rigth">
                             <div class="col-lg-6">
                                 <div class="pretty p-icon p-smooth p-curve mt-2">
@@ -185,17 +185,17 @@
                     <li class="list-group-item p-1 disabled"  *ngFor="let purchase of purchases" style="padding-bottom:0px; margin-bottom: 5px;">
                         <div class="card m-0">
                             <div class="card-header p-2">
-                                Compra registrada por {{  purchase.user.name }} el día {{ purchase.created_at | date:'dd/MM/yyyy hh:mm' }}
+                                Compra registrada por {{  purchase.user!.name }} el día {{ purchase.created_at | date:'dd/MM/yyyy hh:mm' }}
                             </div>
                             <ul class="list-group">
                               <li class="list-group-item p-1"  *ngFor="let _purchase of purchase.purchases">
                                 <div class="row">
                                     <div class="col" *ngIf="_purchase.department">Departamento: <br/>{{_purchase.department.name}}</div>
                                     <div class="col" *ngIf="_purchase.provider">Provee: <br/>{{_purchase.provider.business_name}}</div>
-                                    <div class="col" *ngIf="_purchase.cat_concept">Concepto: <br/>{{_purchase.cat_concept.name}}</div>
+                                    <!--<div class="col" *ngIf="_purchase!.cat_concept!">Concepto: <br/>{{_purchase.cat_concept.name}}</div>-->
                                     <div class="col" *ngIf="_purchase.cat_expense">Tipo gasto: <br/>{{_purchase.cat_expense.name}}</div>
-                                    <div class="col" *ngIf="_purchase.cat_pill">Pastillas: <br/>{{_purchase.count}} {{_purchase.cat_pill.name}}</div>
-                                    <div class="col" *ngIf="_purchase.cat_product">Productos: <br/>{{_purchase.count}} {{_purchase.cat_product.name}}</div>
+                                    <!--<div class="col" *ngIf="_purchase.cat_pill">Pastillas: <br/>{{_purchase.count}} {{_purchase.cat_pill.name}}</div>-->
+                                    <!--<div class="col" *ngIf="_purchase.cat_product">Productos: <br/>{{_purchase.count}} {{_purchase.cat_product.name}}</div>-->
                                     <div class="col">{{_purchase.amount | currency:'MXN ':true:'2.2-4'}}</div>
                                 </div>
                               </li>
@@ -204,7 +204,7 @@
                     </li>
                 </ul>
                 <div class="card-footer">
-                    <pagination [boundaryLinks]="true" [totalItems]="paginate.total" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
+                    <pagination [boundaryLinks]="true" [totalItems]="paginate.total!" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
                         previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
                     </pagination>
                 </div>

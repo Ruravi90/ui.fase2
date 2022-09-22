@@ -1,55 +1,5 @@
 // Here you can add other styles
 
-.ng-select .ng-dropdown-panel-items{
-  width: auto;
-  min-width: 100%;
-}
-
-
-.ng-invalid.form-control {
-  border-color: var(--danger);
-  &:focus {
-    box-shadow: 0 0 0 0.2rem rgba(216, 32, 32, 0.25);
-  }
-}
-
-.ng-invalid {
-  .ng-select-container {
-    border-color: var(--danger);
-  }
-}
-.ng-invalid.ng-select-opened {
-  .ng-select-container {
-    box-shadow: 0 0 0 0.2rem rgba(216, 32, 32, 0.25);
-    &:hover{
-      box-shadow: 0 0 0 0.2rem rgba(216, 32, 32, 0.25);
-    }
-  }
-}
-
-.ng-valid {
-  .ng-select-container.ng-has-value {
-    border-color: #e4e7ea;
-  }
-}
-
-.ng-valid.ng-select-focused:not(.ng-select-opened) {
-  .ng-select-container {
-    border-color: var(--info);
-  }
-}
-
-.ng-valid.ng-select-opened {
-  .ng-select-container {
-    box-shadow: 0 0 0 0.2rem rgba(32, 168, 216, 0.25);
-  }
-}
-
-[hidden] {
-  display: none !important;
-}
-
-
 /*
 Loading
 */

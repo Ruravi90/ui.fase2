@@ -11,8 +11,9 @@ declare var $: any, iziToast: any;
 })
 export class CatServicesComponent implements OnInit {
   public nameCalog = 'cat_services';
-  public catalog: _Type[];
+  public catalog: _Type[] = [];
   public item: _Type = new _Type();
+  private timeout?: number;
   public isEdit = false;
   public filterChanged: Subject<string> = new Subject<string>();
   public paginate: Paginate =  new Paginate();
@@ -22,10 +23,6 @@ export class CatServicesComponent implements OnInit {
   };
 
   constructor(private tS: TypeService) {
-    this.filterChanged
-    .debounceTime(500) // wait 300ms after the last event before emitting last event
-    .distinctUntilChanged() // only emit if value is different from previous value
-    .subscribe(() => this.getCatlog());
   }
 
   ngOnInit(): void {
@@ -33,7 +30,7 @@ export class CatServicesComponent implements OnInit {
     this.getCatlog();
     // tslint:disable-next-line:prefer-const
     let that = this;
-    $('#modal').on('hidden.bs.modal', function (event) {
+    $('#modal').on('hidden.bs.modal', function () {
       that.getCatlog();
     });
   }
@@ -53,9 +50,10 @@ export class CatServicesComponent implements OnInit {
   }
 
   filterName(event: any){
-    this.filterChanged.next(event);
+    window.clearTimeout(this.timeout);
+    this.timeout = window.setTimeout(() => this.getCatlog() , 300);
   }
-  
+
   addItem() {
     this.isEdit = false;
     this.item = new _Type();
@@ -64,7 +62,7 @@ export class CatServicesComponent implements OnInit {
 
   updateItem(_item: _Type) {
     this.isEdit = true;
-    this.tS.getById(this.nameCalog, _item.id).subscribe(r => {
+    this.tS.getById(this.nameCalog, _item.id!).subscribe(r => {
       this.item = r;
       $('#modal').modal('show');
     });
@@ -100,7 +98,7 @@ export class CatServicesComponent implements OnInit {
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
       if (result.value) {
-        this.tS.delete(this.nameCalog, _item.id).subscribe(r => {
+        this.tS.delete(this.nameCalog, _item.id!).subscribe(r => {
           this.getCatlog();
           iziToast.show({
             message: 'Registro eliminado'

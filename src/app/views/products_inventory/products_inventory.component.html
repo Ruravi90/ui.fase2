@@ -10,8 +10,8 @@
           <ul class="list-group">
             <li class="list-group-item" *ngFor="let i of inventory">
               <div class="row">
-                  <div class="col-lg-4">{{i.product.name}}</div>
-                  <div class="col-lg-3">Precio: {{i.product.price | currency:'MXN ':true:'4.2-2'}}</div>
+                  <div class="col-lg-4">{{i.product!.name}}</div>
+                  <div class="col-lg-3">Precio: {{i.product!.price | currency:'MXN ':true:'4.2-2'}}</div>
                   <div class="col-lg-3">En stock: {{i.count}}</div>
                   <div class="col-lg-2">
                     <button class="btn btn-sm btn-danger ml-2 float-right" (click)="delete(i)"><i class="fa fa-trash"></i></button>
@@ -27,7 +27,7 @@
 
    <!-- Modal -->
   <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-    <form class="modal-dialog" role="document" #form="ngForm" (ngSubmit)="save()">
+    <form class="modal-dialog" role="document" [formGroup]="formProduct" (ngSubmit)="save()">
         <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="modalLabel">{{(isEdit?'Editar':'Agregar')}} inventario</h5>
@@ -38,25 +38,23 @@
         <div class="modal-body">
           <div class="row">
             <div class="col-lg-8">
-              <ng-select
-                [items]="cmbProducts$ | async"
-                bindLabel="name"
-                bindId="id"
-                placeholder="Seleciona el producto"
-                name="pillId"
-                [(ngModel)]="item.product"
-                #pillId="ngModel"
-                required>
-              </ng-select>
+              <select
+                class="form-control mb-3"
+                formControlName="product" >
+                <option value="">Choose City</option>
+                <option *ngFor="let cmb of cmbProducts$ | async" [ngValue]="cmb.id">
+                  {{ cmb.name }}
+                </option>
+              </select>
             </div>
             <div class="col-lg-4">
-              <input type="numero" class="form-control" name="count" [(ngModel)]="item.count" #count="ngModel"/>
+              <input type="numero" class="form-control" name="count" formControlName="count"/>
             </div>
           </div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-            <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!formProduct.valid">Guardar</button>
         </div>
         </div>
     </form>

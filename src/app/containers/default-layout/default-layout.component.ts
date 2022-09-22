@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { User} from '../../models';
-import { isArray, isString } from 'util';
 import { Router } from '@angular/router';
 
 
@@ -11,12 +10,19 @@ import { Router } from '@angular/router';
 })
 export class DefaultLayoutComponent {
   public currentUser: User;
-  public navItems = [];
+
+  public navItems = new Array();
+
+  public perfectScrollbarConfig = {
+    suppressScrollX: true,
+  };
+
   public sidebarMinimized = true;
   private changes: MutationObserver;
   public element: HTMLElement = document.body;
   constructor(private router: Router) {
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    let user = localStorage.getItem('currentUser');
+    this.currentUser = JSON.parse(user!);
     this.getMenu();
 
     this.changes = new MutationObserver((mutations) => {
@@ -35,11 +41,7 @@ export class DefaultLayoutComponent {
           name: 'Dashboard',
           url: '/page/dashboard',
           icon: 'icon-speedometer',
-          children: null
-          /*badge: {
-            variant: 'info',
-            text: 'NEW'
-          }*/
+          children:null
         },
       );
     }
@@ -198,15 +200,15 @@ export class DefaultLayoutComponent {
       return false;
     }
     let result = false;
-    if (isArray(p)) {
+    if (Array.isArray(p)) {
       p.forEach(v => {
-        const i = this.currentUser.roles.findIndex(r => r.slug === v);
+        const i = this.currentUser.roles!.findIndex((r:any) => r.slug === v);
         if (i !== -1) {
           result = true;
         }
       });
-    } else if (isString(p)) {
-      const i = this.currentUser.roles.findIndex(r => r.slug === p);
+    } else if (typeof(p) === "string") {
+      const i = this.currentUser.roles!.findIndex((r:any) => r.slug === p);
       if (i !== -1) {
         result = true;
       }

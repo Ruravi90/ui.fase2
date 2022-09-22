@@ -3,9 +3,9 @@ export class Sale extends Base {
     department_id?: number;
     department?: Department;
     responsible_id?: number;
-    responsible?: User = null;
+    responsible?: User;
     client_id?: number;
-    client?: Client = null;
+    client?: Client;
     user_id?: number;
     type_sale_id?: number;
     type?: _Type;
@@ -26,18 +26,19 @@ export class Sale extends Base {
     sumCashTotal?: number;
     sumCardTotal?: number;
     primary_id?: number;
-    is_paid?: string | boolean;
-    is_cute?: string;
+    is_paid?: number | boolean;
+    is_cute?: number| boolean;
+    is_cancel?: number| boolean;
     // tslint:disable-next-line:no-inferrable-types
     description?: string;
     product_id?: number;
-    cat_product?: _Type = null;
+    cat_product?: _Type ;
     service_id?: number;
-    cat_service?: _Type = null;
+    cat_service?: _Type;
     package_id?: number;
-    cat_package?: _Type = null;
+    cat_package?: _Type;
     pill_id?: number;
-    cat_pill?: _Type = null;
+    cat_pill?: _Type;
     sales: Sale[] = [];
     additionals: SaleAdditional[] = [];
     payments:Payment[] = [];

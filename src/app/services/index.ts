@@ -1,7 +1,6 @@
 // tslint:disable-next-line:eofline
 export * from './client.service';
 export * from './type.service';
-export * from './qz-tray.service';
 export * from './agent.service';
 export * from './department.service';
 export * from './sale.service';

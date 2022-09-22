@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProductsInventaryService, TypeService } from '../../services';
 import { ProductsInventory, _Type } from '../../models';
 
@@ -7,22 +8,39 @@ import { Observable } from 'rxjs';
 declare var $: any, iziToast: any;
 
 @Component({
-  templateUrl: 'products_inventory.component.html'
+  templateUrl: 'products_inventory.component.html',
 })
 export class ProductsInventoryComponent implements OnInit {
-  public inventory: ProductsInventory[];
-  public cmbProducts$: Observable<_Type[]>;
-  public item: ProductsInventory = new ProductsInventory();
+  public inventory: ProductsInventory[] = [];
+  public cmbProducts$: Observable<_Type[]> =new Observable<_Type[]>();
+  public formProduct: FormGroup = new FormGroup({
+    product: new FormControl(''),
+    count: new FormControl(''),
+  });
+  public product: ProductsInventory = new ProductsInventory();
   public isEdit = false;
-  constructor(private pS: ProductsInventaryService, private tS: TypeService) {
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private pS: ProductsInventaryService,
+    private tS: TypeService) {
   }
 
   ngOnInit(): void {
+
+    this.formProduct = this.formBuilder.group(
+      {
+        product: ['', Validators.required],
+        count: ['',Validators.required],
+      }
+    );
+
+
     // generate random values for mainChart
     this.getCatlog();
     // tslint:disable-next-line:prefer-const
     let that = this;
-    $('#modal').on('hidden.bs.modal', function (event) {
+    $('#modal').on('hidden.bs.modal', function () {
       that.getCatlog();
     });
   }
@@ -35,7 +53,10 @@ export class ProductsInventoryComponent implements OnInit {
 
   add() {
     this.isEdit = false;
-    this.item = new ProductsInventory();
+    this.formProduct =new FormGroup({
+      product: new FormControl('', Validators.required),
+      count: new FormControl('', Validators.required),
+    });
     this.cmbProducts$ = this.tS.getAll('cat_products');
     $('#modal').modal('show');
   }
@@ -43,25 +64,30 @@ export class ProductsInventoryComponent implements OnInit {
   update(_item: ProductsInventory) {
     this.isEdit = true;
     this.cmbProducts$ = this.tS.getAll('cat_products');
-    this.pS.getById(_item.id).subscribe(r => {
-      this.item = r;
+    this.pS.getById(_item.id!).subscribe(r => {
+      this.product = _item;
+      this.formProduct =new FormGroup({
+        product: new FormControl(_item.product, Validators.required),
+        count: new FormControl(_item.count, Validators.required),
+      });
       $('#modal').modal('show');
     });
   }
 
   save() {
-    this.item.product_id = this.item.product.id;
+    //this.item.product_id = this.item.product.id;
+    this.product.product = this.formProduct.value.product;
+    this.product.count = this.formProduct.value.count;
+
     if (this.isEdit) {
-      this.pS.put(this.item).subscribe(r => {
-        this.item = r;
+      this.pS.put(this.product).subscribe(r => {
         $('#modal').modal('hide');
         iziToast.show({
           message: 'Registro actualizado'
         });
       });
     } else {
-      this.pS.post(this.item).subscribe(r => {
-        this.item = r;
+      this.pS.post(this.product).subscribe(r => {
         $('#modal').modal('hide');
         iziToast.show({
           message: 'Registro creado'
@@ -82,7 +108,7 @@ export class ProductsInventoryComponent implements OnInit {
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
       if (result.value) {
-        this.pS.delete(_item.id).subscribe(r => {
+        this.pS.delete(_item.id!).subscribe(r => {
           this.getCatlog();
           iziToast.show({
             message: 'Registro eliminado'

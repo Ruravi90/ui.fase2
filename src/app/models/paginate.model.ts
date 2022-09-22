@@ -8,5 +8,5 @@ export class Paginate {
    from?: number;
    to?: number;
    pages?: number[] = [];
-   data: any[];
+   data: any[] = [];
 }

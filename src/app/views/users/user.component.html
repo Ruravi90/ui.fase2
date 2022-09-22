@@ -20,7 +20,7 @@
             </li>
           </ul>
           <div class="card-footer justify-content-center">
-            <pagination [boundaryLinks]="true" [totalItems]="paginate.total" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
+            <pagination [boundaryLinks]="true" [totalItems]="paginate.total!" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
                 previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
             </pagination>
         </div>
@@ -43,7 +43,7 @@
         <div class="modal-body">
             <div class="row">
                 <div class="col-lg-4">
-                  <input class="form-control" [ngClass]="{'is-invalid':!existUser && !isEdit}" placeholder="Usuario" name="user" [disabled]="isEdit" [(ngModel)]="user.username" #username="ngModel" (ngModelChange)="onExistUser()" required>
+                  <input class="form-control" [ngClass]="{'is-invalid':!existUser && !isEdit}" placeholder="Usuario" name="user" [readonly]="isEdit" [(ngModel)]="user.username" #username="ngModel" (ngModelChange)="onExistUser()" required>
                 </div>
                 <div class="col-lg-4">
                   <input class="form-control" placeholder="Iniciales" name="initials" [(ngModel)]="user.initials" #initials="ngModel" required>

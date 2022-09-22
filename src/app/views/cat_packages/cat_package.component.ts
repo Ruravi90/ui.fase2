@@ -4,9 +4,6 @@ import { _Type, CatPackage, ComplementPackage, Paginate } from '../../models';
 
 import swal from 'sweetalert2';
 import { Observable, Subject } from 'rxjs';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/distinctUntilChanged';
-import { isArray, isString } from 'util';
 declare var $: any, iziToast: any;
 
 @Component({
@@ -14,9 +11,10 @@ declare var $: any, iziToast: any;
 })
 export class CatPackageComponent implements OnInit {
   public nameCalog = 'cat_packages';
-  public catalog: CatPackage[];
+  public catalog: CatPackage[]=[];
   public elements: _Type[] = [];
-  public element: _Type;
+  private timeout?: number;
+  public element: _Type = new _Type();
   public item: CatPackage = new CatPackage();
   public isEdit = false;
   public optElements = 'na';
@@ -28,12 +26,6 @@ export class CatPackageComponent implements OnInit {
   };
 
   constructor(private tS: TypeService) {
-    this.filterChanged
-    .debounceTime(500) // wait 300ms after the last event before emitting last event
-    //.distinctUntilChanged() // only emit if value is different from previous value
-    .subscribe(() => {
-      this.getCatlog();
-    });
   }
 
   ngOnInit(): void {
@@ -41,7 +33,7 @@ export class CatPackageComponent implements OnInit {
     this.getCatlog();
     // tslint:disable-next-line:prefer-const
     let that = this;
-    $('#modal').on('hidden.bs.modal', function (event) {
+    $('#modal').on('hidden.bs.modal', function () {
       that.getCatlog();
     });
   }
@@ -61,7 +53,8 @@ export class CatPackageComponent implements OnInit {
   }
 
   filterName(event: any){
-    this.filterChanged.next(event);
+    window.clearTimeout(this.timeout);
+    this.timeout = window.setTimeout(() => this.getCatlog() , 300);
   }
 
   addItem() {
@@ -72,7 +65,7 @@ export class CatPackageComponent implements OnInit {
 
   updateItem(_item: _Type) {
     this.isEdit = true;
-    this.tS.getById(this.nameCalog, _item.id).subscribe(r => {
+    this.tS.getById(this.nameCalog, _item.id!).subscribe(r => {
       this.item = r;
       $('#modal').modal('show');
     });
@@ -110,22 +103,13 @@ export class CatPackageComponent implements OnInit {
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
       if (result.value) {
-        this.tS.delete(this.nameCalog, _item.id).subscribe(r => {
+        this.tS.delete(this.nameCalog, _item.id!).subscribe(r => {
           this.getCatlog();
           iziToast.show({
             message: 'Registro eliminado'
           });
         });
-      // For more information about handling dismissals please visit
-      // https://sweetalert2.github.io/#handling-dismissals
       }
-      // else if (result.dismiss === swal.DismissReason.cancel) {
-      //  swal.fire(
-      //    'Cancelled',
-      //    'Your imaginary file is safe :)',
-      //    'error'
-      //  );
-      //}
     });
   }
 
@@ -141,7 +125,7 @@ export class CatPackageComponent implements OnInit {
     } else if (this.optElements === 'products') {
       _name += 'cat_products';
     } else {
-        return false;
+        return;
     }
 
     this.tS.getAll(_name).subscribe(r => {
@@ -150,7 +134,7 @@ export class CatPackageComponent implements OnInit {
   }
 
   addElements() {
-    if (!isArray(this.item.complements)) {
+    if (!Array.isArray(this.item.complements)) {
       this.item.complements = [];
     }
 
@@ -167,13 +151,13 @@ export class CatPackageComponent implements OnInit {
         count: this.element.count,
       });
     } else {
-      return false;
+      return;
     }
 
     this.element = new _Type();
   }
 
-  async deleteElements(index) {
+  async deleteElements(index : number) {
     swal.fire({
       title: 'Alerta!',
       text: 'Estas seguro de continuar',
@@ -185,17 +169,8 @@ export class CatPackageComponent implements OnInit {
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
       if (result.value) {
-        this.item.complements.splice(index, 1);
-      // For more information about handling dismissals please visit
-      // https://sweetalert2.github.io/#handling-dismissals
+        this.item.complements!.splice(index, 1);
       }
-      // else if (result.dismiss === swal.DismissReason.cancel) {
-      //  swal.fire(
-      //    'Cancelled',
-      //    'Your imaginary file is safe :)',
-      //    'error'
-      //  );
-      //}
     });
   }
 

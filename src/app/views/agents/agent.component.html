@@ -10,7 +10,7 @@
         <ul class="list-group">
           <li class="list-group-item" *ngFor="let u of agents">
             {{u.initials + ' ' + u.name + ' ' + u.lastname}}
-            
+
             <button class="btn btn-sm btn-danger ml-2 float-right" (click)="deleteAgent(u)">
                 <i class="fa fa-trash"></i>
             </button>
@@ -38,7 +38,7 @@
       <div class="modal-body">
           <div class="row">
               <div class="col-lg-4">
-                <input class="form-control" [ngClass]="{'is-invalid':!existUser && !isEdit}" placeholder="Usuario" name="user" [disabled]="isEdit" [(ngModel)]="agent.username" #username="ngModel" (ngModelChange)="onExistUser()" required>
+                <input class="form-control" [ngClass]="{'is-invalid':!existUser && !isEdit}" placeholder="Usuario" name="user" [readonly]="isEdit" [(ngModel)]="agent.username" #username="ngModel" (ngModelChange)="onExistUser()" required>
               </div>
               <div class="col-lg-4">
                 <input class="form-control" placeholder="Iniciales" name="initials" [(ngModel)]="agent.initials" #initials="ngModel" required>

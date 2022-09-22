@@ -25,7 +25,11 @@ export class Purchase  extends Base {
     name_expense?: string;
     concept_id?: number;
     cat_expense?: _Type;
+    cat_concept?: _Type;
+    cat_pill?: _Type;
+    cat_product?: _Type;
     name_concept?: string;
     purchases: Purchase[] = [];
-    is_paid = false;
+    is_paid?: number | boolean;
+    count?:number;
 }

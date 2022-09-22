@@ -10,10 +10,10 @@ declare var $: any, iziToast: any;
   templateUrl: 'to_pay.component.html'
 })
 export class ToPayComponent implements OnInit {
-  public purchases: Purchase[];
+  public purchases: Purchase[] = [];
   public paginate: Paginate = new Paginate();
   public filters: any = { isPaid: 0, perPage:15 };
-  
+
   constructor(private pS: PurchaseService, private tS: TypeService) {
   }
 

@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {ClientService, TypeService} from '../../services';
 import { Client, _Type, Paginate, Address } from '../../models';
 import swal from 'sweetalert2';
-import { Observable } from 'rxjs';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 declare var $: any, iziToast: any;
@@ -15,13 +14,13 @@ declare var $: any, iziToast: any;
 export class ClientsComponent implements OnInit {
   public clients: Client[] = [];
   public client: Client = new Client();
-  public cmbReferences$: _Type[];
+  public cmbReferences$: _Type[] = [];
   public isEdit: Boolean = false;
   public isBusy: Boolean = false;
 
   public paginate: Paginate = new Paginate();
   public perPage = 15;
-  public shared: string;
+  public shared: string | undefined;
   private sharedChange = new Subject();
 
   constructor(
@@ -37,10 +36,10 @@ export class ClientsComponent implements OnInit {
     this.getClients();
     const that = this;
     // generate random values for mainChart
-    $('#modalClient').on('show.bs.modal', function (event) {
+    $('#modalClient').on('show.bs.modal', function () {
     });
 
-    $('#modalClient').on('hidden.bs.modal', function (event) {
+    $('#modalClient').on('hidden.bs.modal', function () {
       that.getClients();
     });
   }
@@ -67,7 +66,7 @@ export class ClientsComponent implements OnInit {
 
   getPages() {
     this.paginate.pages = [];
-    for (let _i = 1; _i <= (this.paginate.total / this.perPage); _i++) {
+    for (let _i = 1; _i <= (this.paginate.total! / this.perPage); _i++) {
       this.paginate.pages.push(_i);
     }
   }
@@ -118,10 +117,10 @@ export class ClientsComponent implements OnInit {
     this.isEdit = true;
     this.getTypes();
     setTimeout(() => {
-      this.clientService.getById(c.id).subscribe(r => {
+      this.clientService.getById(c.id!).subscribe(r => {
         this.client = r;
         this.client.reference_id = Number(this.client.reference_id);
-        if (this.client.address.length === 0) {
+        if (this.client.address!.length === 0) {
           this.client.address = [new Address()];
         }
         $('#modalClient').modal('show');
@@ -141,7 +140,7 @@ export class ClientsComponent implements OnInit {
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
       if (result.value) {
-        this.clientService.delete(c.id).subscribe(r => {
+        this.clientService.delete(c.id!).subscribe(r => {
           const index = this.clients.findIndex(cl => cl.id === c.id);
           if (index > -1) {
             this.clients.splice(index, 1);

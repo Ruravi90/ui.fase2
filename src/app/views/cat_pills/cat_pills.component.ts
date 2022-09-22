@@ -11,7 +11,8 @@ declare var $: any, iziToast: any;
 })
 export class CatPillsComponent implements OnInit {
   public nameCalog = 'cat_pills';
-  public catalog: _Type[];
+  public catalog: _Type[] = [];
+  private timeout?: number;
   public item: _Type = new _Type();
   public isEdit = false;
   public filterChanged: Subject<string> = new Subject<string>();
@@ -22,18 +23,14 @@ export class CatPillsComponent implements OnInit {
   };
 
   constructor(private tS: TypeService) {
-    this.filterChanged
-    .debounceTime(500) // wait 300ms after the last event before emitting last event
-    .distinctUntilChanged() // only emit if value is different from previous value
-    .subscribe(() => this.getCatlog());
   }
 
   ngOnInit(): void {
     // generate random values for mainChart
     this.getCatlog();
-    // tslint:disable-next-line:prefer-const 
+    // tslint:disable-next-line:prefer-const
     let that = this;
-    $('#modal').on('hidden.bs.modal', function (event) {
+    $('#modal').on('hidden.bs.modal', function () {
       that.getCatlog();
     });
   }
@@ -53,7 +50,8 @@ export class CatPillsComponent implements OnInit {
   }
 
   filterName(event: any){
-    this.filterChanged.next(event);
+    window.clearTimeout(this.timeout);
+    this.timeout = window.setTimeout(() => this.getCatlog() , 300);
   }
 
   addItem() {
@@ -64,7 +62,7 @@ export class CatPillsComponent implements OnInit {
 
   updateItem(_item: _Type) {
     this.isEdit = true;
-    this.tS.getById(this.nameCalog, _item.id).subscribe(r => {
+    this.tS.getById(this.nameCalog, _item.id!).subscribe(r => {
       this.item = r;
       $('#modal').modal('show');
     });
@@ -102,22 +100,13 @@ export class CatPillsComponent implements OnInit {
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
       if (result.value) {
-        this.tS.delete(this.nameCalog, _item.id).subscribe(r => {
+        this.tS.delete(this.nameCalog, _item.id!).subscribe(r => {
           this.getCatlog();
           iziToast.show({
             message: 'Registro eliminado'
           });
         });
-      // For more information about handling dismissals please visit
-      // https://sweetalert2.github.io/#handling-dismissals
       }
-      // else if (result.dismiss === swal.DismissReason.cancel) {
-      //  swal.fire(
-      //    'Cancelled',
-      //    'Your imaginary file is safe :)',
-      //    'error'
-      //  );
-      //}
     });
   }
 }

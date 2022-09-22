@@ -1,47 +1,17 @@
-//import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { LOCALE_ID, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
+import { FormsModule,ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
-import { LocationStrategy, HashLocationStrategy } from '@angular/common';
+import { HashLocationStrategy, LocationStrategy, PathLocationStrategy } from '@angular/common';
+import { BrowserModule, Title } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
-import { registerLocaleData } from '@angular/common';
-import localeMx from '@angular/common/locales/es-MX';
-import localeMxExtra from '@angular/common/locales/extra/es-MX';
-
-registerLocaleData(localeMx, 'es-MX', localeMxExtra);
-
-import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
-import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
-import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
-
-const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
-  suppressScrollX: true
-};
-
-import { NgxSpinnerModule } from 'ngx-spinner';
-import { AppComponent } from './app.component';
-
-// Import containers
-import { DefaultLayoutComponent } from './containers';
-
-import { P404Component } from './views/error/404.component';
-import { P500Component } from './views/error/500.component';
-import { LoginComponent } from './views/login/login.component';
-import { RegisterComponent } from './views/register/register.component';
-
-const APP_CONTAINERS = [
-  DefaultLayoutComponent
-];
-
 import {
-  AppAsideModule,
-  AppBreadcrumbModule,
-  AppHeaderModule,
-  AppFooterModule,
-  AppSidebarModule,
-} from '@coreui/angular';
+  PERFECT_SCROLLBAR_CONFIG,
+  PerfectScrollbarConfigInterface,
+  PerfectScrollbarModule,
+} from 'ngx-perfect-scrollbar';
+
 
 import { AlwaysAuthGuard } from './aunth/AlwaysAuthGuard';
 import { TokenInterceptor } from './aunth/token.interceptor';
@@ -51,22 +21,18 @@ export const httpInterceptorProviders = [
 ];
 
 // Import routing module
-import { AppRoutingModule } from './app.routing';
+import { AppRoutingModule } from './app-routing.module';
 
-// Import 3rd party components
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { TabsModule } from 'ngx-bootstrap/tabs';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { NgDatepickerModule } from 'ng2-datepicker';
-import { OrderModule } from 'ngx-order-pipe';
-import { PaginationModule } from 'ngx-bootstrap';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
-
+// Import app component
+import { AppComponent } from './app.component';
+import { P404Component } from './views/error/404.component';
+import { P500Component } from './views/error/500.component';
+import { LoginComponent } from './views/login/login.component';
+import { RegisterComponent } from './views/register/register.component';
 
 // Import Services
 import { ClientService,
   TypeService,
-  QzTrayService,
   DepartmentService,
   AgentService,
   UserService,
@@ -84,61 +50,135 @@ import { ClientService,
   PaginateService
 } from './services';
 
+const APP_Services = [
+  ClientService,
+  TypeService,
+  DepartmentService,
+  AgentService,
+  UserService,
+  SaleService,
+  RoleService,
+  PermissionService,
+  PackageService,
+  PaymentService,
+  PackageTrackingService,
+  CreditorService,
+  PillsInventoryService,
+  ProductsInventaryService,
+  BalanceService,
+  PurchaseService,
+  PaginateService
+];
+
+
+
+
+// Import containers
+import {
+  DefaultFooterComponent,
+  DefaultHeaderComponent,
+  DefaultLayoutComponent,
+} from './containers';
+
+import {
+  AvatarModule,
+  BadgeModule,
+  BreadcrumbModule,
+  ButtonGroupModule,
+  ButtonModule,
+  CardModule,
+  DropdownModule,
+  FooterModule,
+  FormModule,
+  GridModule,
+  HeaderModule,
+  ListGroupModule,
+  NavModule,
+  ProgressModule,
+  SharedModule,
+  SidebarModule,
+  TabsModule,
+  UtilitiesModule,
+} from '@coreui/angular';
+
+import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
+import { DatepickerModule } from 'ng2-datepicker';
+import { Ng2IziToastModule } from 'ng2-izitoast';//<-- this line
+
+import { IconModule, IconSetService } from '@coreui/icons-angular';
+
+const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
+  suppressScrollX: true,
+};
+
+const APP_CONTAINERS = [
+  DefaultFooterComponent,
+  DefaultHeaderComponent,
+  DefaultLayoutComponent,
+];
+
 @NgModule({
-  imports: [
-    BrowserAnimationsModule,
-    HttpClientModule,
-    FormsModule,
-    AppRoutingModule,
-    AppAsideModule,
-    AppBreadcrumbModule.forRoot(),
-    AppFooterModule,
-    AppHeaderModule,
-    AppSidebarModule,
-    PerfectScrollbarModule,
-    BsDropdownModule.forRoot(),
-    TabsModule.forRoot(),
-    PaginationModule.forRoot(),
-    NgSelectModule,
-    NgDatepickerModule,
-    NgxSpinnerModule,
-    OrderModule,
-    NgxChartsModule
-  ],
   declarations: [
     AppComponent,
-    ...APP_CONTAINERS,
     P404Component,
     P500Component,
     LoginComponent,
     RegisterComponent,
+    ...APP_CONTAINERS
+  ],
+  imports: [
+    HttpClientModule,
+    FormsModule,
+    BrowserModule,
+    BrowserAnimationsModule,
+    AppRoutingModule,
+    AvatarModule,
+    BreadcrumbModule,
+    FooterModule,
+    DropdownModule,
+    GridModule,
+    HeaderModule,
+    SidebarModule,
+    IconModule,
+    PerfectScrollbarModule,
+    NavModule,
+    ButtonModule,
+    FormModule,
+    UtilitiesModule,
+    ButtonGroupModule,
+    ReactiveFormsModule,
+    SidebarModule,
+    SharedModule,
+    TabsModule,
+    ListGroupModule,
+    ProgressModule,
+    BadgeModule,
+    ListGroupModule,
+    CardModule,
+    SweetAlert2Module.forRoot(),
+    DatepickerModule,
+    Ng2IziToastModule
   ],
   providers: [
-    ClientService,
-    TypeService,
-    QzTrayService,
-    DepartmentService,
-    AgentService,
-    SaleService,
-    UserService,
-    RoleService,
-    PermissionService,
-    PackageService,
-    PaymentService,
-    PackageTrackingService,
-    CreditorService,
-    PillsInventoryService,
-    ProductsInventaryService,
-    BalanceService,
-    PurchaseService,
+    APP_Services,
     AlwaysAuthGuard,
-    PaginateService,
+    {
+      provide: LocationStrategy,
+      useClass: HashLocationStrategy,
+    },
     httpInterceptorProviders,
     {
       provide: LocationStrategy,
       useClass: HashLocationStrategy,
-    }
+    },
+    {
+      provide: PERFECT_SCROLLBAR_CONFIG,
+      useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG,
+    },
+    IconSetService,
+    Title
   ],
-  bootstrap: [ AppComponent ]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {
+}

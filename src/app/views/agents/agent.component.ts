@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { AgentService } from '../../services';
 import { User } from '../../models';
 import { Subject } from 'rxjs';
-import swal from "sweetalert2";
+import Swal from 'sweetalert2';
+import { debounceTime } from "rxjs/operators";
 
 declare var $: any, iziToast: any;
 
@@ -13,6 +14,7 @@ declare var $: any, iziToast: any;
 
 export class AgentComponent implements OnInit {
   public agents: User[] = [];
+  private timeout?: number;
   public agent: User = new User();
   public isEdit: Boolean = false;
   public existUser: Boolean = false;
@@ -26,17 +28,11 @@ export class AgentComponent implements OnInit {
     const that = this;
     that.getAgents();
     // generate random values for mainChart
-    $('#modalAgent').on('show.bs.modal', function (event) {
+    $('#modalAgent').on('show.bs.modal', function () {
     });
 
-    $('#modalAgent').on('hidden.bs.modal', function (event) {
+    $('#modalAgent').on('hidden.bs.modal', function () {
       that.getAgents();
-    });
-
-    this.usernameChange.debounceTime(300).subscribe(() => {
-      this.aS.getExist(this.agent.username).subscribe((r) => {
-        this.existUser = r;
-      });
     });
   }
 
@@ -47,7 +43,12 @@ export class AgentComponent implements OnInit {
   }
 
   onExistUser() {
-    this.usernameChange.next();
+    window.clearTimeout(this.timeout);
+    this.timeout = window.setTimeout(() => {
+      this.aS.getExist(this.agent.username!).subscribe((r) => {
+        this.existUser = r;
+      });
+    } , 300);
   }
 
   addAgent(): void {
@@ -59,7 +60,7 @@ export class AgentComponent implements OnInit {
   editAgent(c: User): void {
     this.isEdit = true;
     setTimeout(() => {
-      this.aS.getById(c.id).subscribe(r => {
+      this.aS.getById(c.id!).subscribe(r => {
         this.agent = r;
         $('#modalAgent').modal('show');
       });
@@ -67,7 +68,7 @@ export class AgentComponent implements OnInit {
   }
 
   async deleteAgent(c: User) {
-    swal.fire({
+    Swal.fire({
       title: 'Alerta!',
       text: 'Estas seguro de continuar',
       icon: 'question',
@@ -76,9 +77,9 @@ export class AgentComponent implements OnInit {
       showCancelButton: true,
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
-    }).then((result) => {
+    }).then((result:any) => {
       if (result.value) {
-        this.aS.delete(c.id).subscribe(r => {
+        this.aS.delete(c.id!).subscribe(r => {
           this.getAgents();
           iziToast.show({
             title: 'Registro eliminado'
@@ -86,8 +87,8 @@ export class AgentComponent implements OnInit {
         });
       // For more information about handling dismissals please visit
       // https://sweetalert2.github.io/#handling-dismissals
-      } else if (result.dismiss === swal.DismissReason.cancel) {
-        swal.fire(
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire(
           'Cancelled',
           'Your imaginary file is safe :)',
           'error'

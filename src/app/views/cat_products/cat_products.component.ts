@@ -11,7 +11,8 @@ declare var $: any, iziToast: any;
 })
 export class CatProductsComponent implements OnInit {
   public nameCalog = 'cat_products';
-  public catalog: _Type[];
+  public catalog: _Type[]=[];
+  private timeout?: number;
   public item: _Type = new _Type();
   public isEdit = false;
   public filterChanged: Subject<string> = new Subject<string>();
@@ -22,10 +23,6 @@ export class CatProductsComponent implements OnInit {
   };
 
   constructor(private tS: TypeService) {
-    this.filterChanged
-    .debounceTime(500) // wait 300ms after the last event before emitting last event
-    .distinctUntilChanged() // only emit if value is different from previous value
-    .subscribe(() => this.getCatlog());
   }
 
   ngOnInit(): void {
@@ -33,7 +30,7 @@ export class CatProductsComponent implements OnInit {
     this.getCatlog();
     // tslint:disable-next-line:prefer-const
     let that = this;
-    $('#modal').on('hidden.bs.modal', function (event) {
+    $('#modal').on('hidden.bs.modal', function () {
       that.getCatlog();
     });
   }
@@ -53,7 +50,8 @@ export class CatProductsComponent implements OnInit {
   }
 
   filterName(event: any) {
-    this.filterChanged.next(event);
+    window.clearTimeout(this.timeout);
+    this.timeout = window.setTimeout(() => this.getCatlog() , 300);
   }
 
   addItem() {
@@ -64,7 +62,7 @@ export class CatProductsComponent implements OnInit {
 
   updateItem(_item: _Type) {
     this.isEdit = true;
-    this.tS.getById(this.nameCalog, _item.id).subscribe(r => {
+    this.tS.getById(this.nameCalog, _item.id!).subscribe(r => {
       this.item = r;
       $('#modal').modal('show');
     });
@@ -102,7 +100,7 @@ export class CatProductsComponent implements OnInit {
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
       if (result.value) {
-        this.tS.delete(this.nameCalog, _item.id).subscribe(r => {
+        this.tS.delete(this.nameCalog, _item.id!).subscribe(r => {
           this.getCatlog();
           iziToast.show({
             message: 'Registro eliminado'

@@ -2,6 +2,8 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+
 // Tabs Component
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { CarouselModule } from 'ngx-bootstrap/carousel';
@@ -12,9 +14,7 @@ import { PopoverModule } from 'ngx-bootstrap/popover';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { NgDatepickerModule } from 'ng2-datepicker';
-import { OrderModule } from 'ngx-order-pipe';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { DatepickerModule } from 'ng2-datepicker';
 
 import { BaseRoutingModule } from './base-route.module';
 import { DashboardComponent } from '../../views/dashboard/dashboard.component';
@@ -24,8 +24,11 @@ import { SalesComponent } from '../../views/sales/sales.component';
 import { PackagesComponent } from '../../views/packages/packages.component';
 import { BoxComponent } from '../../views/box/box.component';
 
+
+
 @NgModule({
   imports: [
+    ReactiveFormsModule,
     CommonModule,
     FormsModule,
     BaseRoutingModule,
@@ -38,9 +41,7 @@ import { BoxComponent } from '../../views/box/box.component';
     ProgressbarModule.forRoot(),
     TooltipModule.forRoot(),
     NgSelectModule,
-    NgDatepickerModule,
-    OrderModule,
-    NgxChartsModule
+    DatepickerModule
   ],
   declarations: [
     DashboardComponent,

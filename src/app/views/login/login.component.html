@@ -1,43 +1,63 @@
-<div class="app-body">
-  <main class="main d-flex align-items-center">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-5">
-          <div class="card-group">
-            <div class="card p-4">
-              <form class="card-body" #loginForm="ngForm" (submit)="login()">
-                <h1>Fase 2 spa</h1>
-                <p class="text-muted">login</p>
-                <div class="input-group mb-3">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="icon-user"></i></span>
-                  </div>
-                  <input type="text" class="form-control" placeholder="Username" [(ngModel)]="user.username" #username="ngModel" name="username">
-                </div>
-                <div class="input-group mb-2">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="icon-lock"></i></span>
-                  </div>
-                  <input type="password" class="form-control" placeholder="Password"  [(ngModel)]="user.password"  #password="ngModel" name="password">
-                </div>
-                <div class="row mb-2" *ngIf="isAuthorized == false">
-                  <div class="col-lg-12">
-                    <span class="text-danger"> <i class="icon-lock"></i> Usuario o contraseña incorrecta</span>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-6">
-                    <button type="submit" class="btn btn-primary px-4" [disabled]="isBusy" ><i *ngIf="isBusy" class="fa fa-spinner fa-pulse fa-fw"></i> Iniciar sesión</button>
-                  </div>
-                  <div class="col-6 text-right">
-                    <button type="sub" class="btn btn-link px-0">olvidaste tu contrase&ntilde;a?</button>
-                  </div>
-                </div>
+<div class="bg-light min-vh-100 d-flex flex-row align-items-center app-body">
+  <c-container>
+    <c-row class="justify-content-center">
+      <c-col md="8">
+        <c-card-group>
+          <c-card class="p-4">
+            <c-card-body>
+              <form cForm  [formGroup]="formUser" (submit)="login()">
+                <h1>Login</h1>
+                <p class="text-medium-emphasis">Sign In to your account</p>
+                <c-input-group class="mb-3">
+                  <span cInputGroupText>
+                    <svg cIcon name="cilUser"></svg>
+                  </span>
+                  <input autoComplete="username" cFormControl  formControlName="username" placeholder="Username" />
+                </c-input-group>
+                <c-input-group class="mb-4">
+                  <span cInputGroupText>
+                    <svg cIcon name="cilLockLocked"></svg>
+                  </span>
+                  <input
+                    autoComplete="current-password"
+                    cFormControl
+                    formControlName="password"
+                    placeholder="Password"
+                    type="password"
+                  />
+                </c-input-group>
+                <c-row>
+                  <c-col xs="6">
+                    <button type="submit" cButton class="px-4" color="primary" >
+                      <i *ngIf="isBusy" class="fa fa-spinner fa-pulse fa-fw"></i>
+                      Login
+                    </button>
+                  </c-col>
+                  <c-col class="text-right" xs="6">
+                    <button cButton class="px-0" color="link">
+                      Forgot password?
+                    </button>
+                  </c-col>
+                </c-row>
               </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
+            </c-card-body>
+          </c-card>
+          <c-card [ngStyle]="{'width.%': 44}" class="text-white bg-primary py-5">
+            <c-card-body class="text-center">
+              <div>
+                <h2>Sign up</h2>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                  tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+                <button [active]="true"  cButton class="mt-3" color="primary" routerLink="/register">
+                  Register Now!
+                </button>
+              </div>
+            </c-card-body>
+          </c-card>
+        </c-card-group>
+      </c-col>
+    </c-row>
+  </c-container>
 </div>

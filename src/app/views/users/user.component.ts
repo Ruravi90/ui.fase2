@@ -3,8 +3,6 @@ import { UserService, RoleService, PaginateService } from '../../services';
 import { User, Role, Paginate } from '../../models';
 import { Subject, Observable } from 'rxjs';
 import swal from 'sweetalert2';
-import { isObject } from 'util';
-import 'rxjs/add/operator/debounceTime';
 
 declare var $: any, iziToast: any;
 
@@ -13,8 +11,9 @@ declare var $: any, iziToast: any;
 })
 
 export class UserComponent implements OnInit {
+  private timeout?: number;
   public users: User[] = [];
-  public roles$: Observable<Role[]>;
+  public roles$: Observable<Role[]> = new Observable<Role[]>();
   public user: User = new User();
   public isEdit: Boolean = false;
   public existUser: Boolean = false;
@@ -25,9 +24,9 @@ export class UserComponent implements OnInit {
   };
 
   private usernameChange: Subject<string> = new Subject();
-  
+
   constructor(
-    private aS: UserService, 
+    private aS: UserService,
     private rS: RoleService,
     private pS: PaginateService) {
       this.pS.model = 'users';
@@ -39,18 +38,13 @@ export class UserComponent implements OnInit {
     const that = this;
     that.getUsers();
     // generate random values for mainChart
-    $('#modalUser').on('show.bs.modal', function (event) {
+    $('#modalUser').on('show.bs.modal', function () {
     });
 
-    $('#modalUser').on('hidden.bs.modal', function (event) {
+    $('#modalUser').on('hidden.bs.modal', function () {
       that.getUsers();
     });
 
-    this.usernameChange.debounceTime(300).subscribe(() => {
-      this.aS.getExist(this.user.username).subscribe((r) => {
-        this.existUser = r;
-      });
-    });
   }
 
   getUsers() {
@@ -68,7 +62,12 @@ export class UserComponent implements OnInit {
   }
 
   onExistUser() {
-    this.usernameChange.next();
+    window.clearTimeout(this.timeout);
+    this.timeout = window.setTimeout(() => {
+      this.aS.getExist(this.user.username!).subscribe((r) => {
+        this.existUser = r;
+      });
+    } , 300);
   }
 
   addUser(): void {
@@ -80,7 +79,7 @@ export class UserComponent implements OnInit {
   editUser(c: User): void {
     this.isEdit = true;
     setTimeout(() => {
-      this.aS.getById(c.id).subscribe(r => {
+      this.aS.getById(c.id!).subscribe(r => {
         this.user = r;
         $('#modalUser').modal('show');
       });
@@ -98,7 +97,7 @@ export class UserComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      this.aS.delete(c.id).subscribe(r => {
+      this.aS.delete(c.id!).subscribe(r => {
         this.getUsers();
         iziToast.show({
           title: 'Registro eliminado'
@@ -124,7 +123,7 @@ export class UserComponent implements OnInit {
        });
     } else {
       this.aS.post(this.user).subscribe(r => {
-        if (isObject(r)) {
+        if (r != null) {
           $('#modalUser').modal('hide');
           iziToast.show({
               message: 'Registro creado'

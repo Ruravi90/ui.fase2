@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Inventory, User } from '../models';
 
@@ -9,24 +9,24 @@ export class PillsInventoryService {
   private url: string =  environment.urlApi + 'pills_inventory';
   private currentUser: User = new User();
   constructor(private http: HttpClient) {
-      this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
   }
   public getAll(): Observable<Inventory[]> {
-      return this.http.get<Inventory[]>(this.url).map(r => r);
+      return this.http.get<Inventory[]>(this.url).pipe(map((r:any)=> r));
   }
   getById(id: number): Observable<Inventory> {
-    return this.http.get<Inventory>(this.url + '/' + id).map(r => r);
+    return this.http.get<Inventory>(this.url + '/' + id).pipe(map((r:any)=> r));
   }
   getForPill(id: number): Observable<Inventory> {
-    return this.http.get<Inventory>(this.url + '/pill/' + id).map(r => r);
+    return this.http.get<Inventory>(this.url + '/pill/' + id).pipe(map((r:any)=> r));
   }
   post(models: Inventory): Observable<any> {
-    return this.http.post<any>(this.url, models).map(r => r);
+    return this.http.post<any>(this.url, models).pipe(map((r:any)=> r));
   }
   put(model: Inventory): Observable<any> {
-    return this.http.put<any>(this.url + '/' + model.id, model ).map(r => r);
+    return this.http.put<any>(this.url + '/' + model.id, model ).pipe(map((r:any)=> r));
   }
   delete(id: number): Observable<any> {
-    return this.http.delete<any>(this.url + '/' + id).map(r => r);
+    return this.http.delete<any>(this.url + '/' + id).pipe(map((r:any)=> r));
   }
 }

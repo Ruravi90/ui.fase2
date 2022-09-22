@@ -36,7 +36,7 @@
                     </li>
                 </ul>
                 <div class="card-footer justify-content-center">
-                    <pagination [boundaryLinks]="true" [totalItems]="paginate.total" [maxSize]="9" [itemsPerPage]="perPage"  (pageChanged)="pageChanged($event)"
+                    <pagination [boundaryLinks]="true" [totalItems]="paginate.total!" [maxSize]="9" [itemsPerPage]="perPage"  (pageChanged)="pageChanged($event)"
                         previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
                     </pagination>
                 </div>
@@ -75,7 +75,7 @@
                     </span>
                 </div>
                 <div class="col-lg-6">
-                  <input class="form-control" placeholder="Colonia" name="suburb" [(ngModel)]="client.address[0].suburb" #suburb="ngModel" required>
+                  <input class="form-control" placeholder="Colonia" name="suburb" [(ngModel)]="client.address![0].suburb" #suburb="ngModel" required>
                 </div>
             </div>
             <div class="row mt-1">

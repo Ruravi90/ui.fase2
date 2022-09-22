@@ -6,5 +6,5 @@ export class PackageTracking extends Base {
   user?: User;
   description?: string;
   scheduled_date?: Date | string;
-  is_taken: Boolean = false;
+  is_taken: number | Boolean = false;
 }

@@ -4,29 +4,26 @@ import { Department, User, Sale, _Type, Paginate, Payment } from '../../models';
 import { environment } from '../../../environments/environment';
 
 import swal from 'sweetalert2';
-import { isUndefined } from 'util';
 import { Subject, Observable } from 'rxjs';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/switchMap';
-import { DatePipe } from '@angular/common';
 declare var $: any, iziToast: any;
 import * as print from 'print-js';
 
-@Component({ 
+@Component({
   templateUrl: 'sales.component.html',
   styleUrls: ['./sales.component.css']
 })
 
 export class SalesComponent implements OnInit {
   public env = environment;
+  private timeout?: number;
   public currentUser: User = new User();
-  public sales: Sale[] | any = []; 
+  public sales: Sale[] | any = [];
   public sale:  Sale = new Sale();
   public payment:  Payment = new Payment();
   public payments: Payment[] = [];
-  public printPayment: Payment;
+  public printPayment: Payment = new Payment;
   public cuteSales: Department[] = [];
-  public printSale: Sale;
+  public printSale: Sale = new Sale;
   public dateNow: Date = new Date();
   public paginate: Paginate = new Paginate();
   public isBusy: boolean = false;
@@ -37,8 +34,8 @@ export class SalesComponent implements OnInit {
     isPaid: 0
   };
 
-  public typeSale$: Observable<_Type[]>;
-  public agents$: Observable<User[]>;
+  public typeSale$!: Observable<_Type[]>;
+  public agents$!: Observable<User[]>;
 
   public subTotal = 0;
   public balance = 0;
@@ -54,20 +51,15 @@ export class SalesComponent implements OnInit {
   ) {
     this.pS.model = 'sales';
 
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
   }
 
   ngOnInit(): void {
     this.getSales();
     this.agents$ = this.aS.get();
     this.typeSale$ = this.tS.getAll('cat_type_sales');
-    this.amountChange.debounceTime(300).subscribe(() => {
-      if (this.payment.amount > this.balance) {
-        this.payment.amount = this.balance;
-      }
-    });
     const that = this;
-    $('#modalPayment').on('hidden.bs.modal', function (event) {
+    $('#modalPayment').on('hidden.bs.modal', function () {
       that.getSales();
     });
   }
@@ -97,8 +89,8 @@ export class SalesComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, Cancelar!'
     }).then((result) => {
-      this.sS.cancel(s.id).subscribe((r)=>{
-        const index = this.sales.findIndex(r=> r.id === s.id);
+      this.sS.cancel(s.id!).subscribe((r)=>{
+        const index = this.sales.findIndex((r:any)=> r.id === s.id);
         if (index > -1) {
           this.sales.splice(index, 1);
         }
@@ -110,7 +102,12 @@ export class SalesComponent implements OnInit {
   }
 
   onChangeAmount() {
-    this.amountChange.next();
+    window.clearTimeout(this.timeout);
+    this.timeout = window.setTimeout(() => {
+      if (this.payment.amount! > this.balance) {
+        this.payment.amount = this.balance;
+      }
+    } , 300);
   }
 
   addPayment(s: Sale) {
@@ -136,20 +133,20 @@ export class SalesComponent implements OnInit {
   }
 
   getPayments() {
-    this.paS.geForSales(this.payment.sale_id).subscribe(r => {
+    this.paS.geForSales(this.payment.sale_id!).subscribe(r => {
       this.payments = r;
       this.subTotal = 0;
       r.forEach((e) => {
           this.subTotal = this.subTotal + Number(e.amount);
       });
-      this.balance = (this.sale.subtotal - this.subTotal);
+      this.balance = (this.sale.subtotal! - this.subTotal);
       this.sale.is_paid = this.balance <= 0;
       $('#modalPayment').modal('show');
     });
   }
 
   savePayment() {
-    this.printSale = null;
+    this.printSale = new Sale();
     this.payment.user_id = this.currentUser.id;
     this.paS.post(this.payment).subscribe(r => {
       this.printTicket(r.id);
@@ -161,27 +158,27 @@ export class SalesComponent implements OnInit {
   }
 
   async printCute(date: any){
-    this.printPayment = null;
-    this.printSale = null;
+    this.printPayment = new Payment();
+    this.printSale = new Sale();
     this.sS.getCuteDay(date).subscribe(r => {
       this.cuteSales = r;
       this.cuteSales.forEach((d, i) => {
         this.cuteSales[i].sumCardTotal = 0;
           this.cuteSales[i].sumCashTotal = 0;
-          d.sales.forEach((s, i2) => {
-          this.cuteSales[i].sales[i2].sumCashTotal = 0;
-          this.cuteSales[i].sales[i2].sumCardTotal = 0;
+          d.sales!.forEach((s, i2) => {
+          this.cuteSales[i].sales![i2].sumCashTotal = 0;
+          this.cuteSales[i].sales![i2].sumCardTotal = 0;
           s.sales.forEach((ss, i3) => {
             ss.payments.forEach((p, i4) => {
-              if (p.type.id === 1){
-                this.cuteSales[i].sales[i2].sumCashTotal = this.cuteSales[i].sales[i2].sumCashTotal + Number(p.amount);
+              if (p.type!.id === 1){
+                this.cuteSales[i].sales![i2].sumCashTotal = this.cuteSales[i].sales![i2].sumCashTotal! + Number(p.amount);
               } else {
-                this.cuteSales[i].sales[i2].sumCardTotal = this.cuteSales[i].sales[i2].sumCardTotal + Number(p.amount);
+                this.cuteSales[i].sales![i2].sumCardTotal = this.cuteSales[i].sales![i2].sumCardTotal! + Number(p.amount);
               }
             });
           });
-          this.cuteSales[i].sumCardTotal = this.cuteSales[i].sumCardTotal + this.cuteSales[i].sales[i2].sumCardTotal;
-          this.cuteSales[i].sumCashTotal = this.cuteSales[i].sumCashTotal + this.cuteSales[i].sales[i2].sumCashTotal;
+          this.cuteSales[i].sumCardTotal = this.cuteSales[i].sumCardTotal! + this.cuteSales[i].sales![i2].sumCardTotal!;
+          this.cuteSales[i].sumCashTotal = this.cuteSales[i].sumCashTotal! + this.cuteSales[i].sales![i2].sumCashTotal!;
         });
       });
 
@@ -213,8 +210,8 @@ export class SalesComponent implements OnInit {
 
 
   async printTicket(id: number) {
-    this.printSale = null;
-    this.cuteSales = null;
+    this.printSale = new Sale();
+    this.cuteSales = [];
     this.paS.getById(id).subscribe(r => {
       this.printPayment = r;
       setTimeout(() => {
@@ -227,13 +224,13 @@ export class SalesComponent implements OnInit {
   }
 
   copyTicket(s: Sale) {
-    this.printPayment = null;
-    this.cuteSales = null;
-    this.sS.getById(s.id).subscribe(r => {
+    this.printPayment = new Payment();
+    this.cuteSales = [];
+    this.sS.getById(s.id!).subscribe(r => {
       this.printSale = r;
       this.printSale.sumTotal = 0;
       this.printSale.sales.forEach((e, i) => {
-        this.printSale.sumTotal =  this.printSale.sumTotal + Number(e.amount);
+        this.printSale.sumTotal =  this.printSale.sumTotal! + Number(e.amount);
       });
       setTimeout(() => {
         setTimeout(() => {
