@@ -3,7 +3,7 @@ import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from
 import { Router } from '@angular/router';
 import { UserService } from '../../services';
 import { User } from '../../models';
-import { Ng2IzitoastService } from 'ng2-izitoast';//<-- this line
+//import { Ng2IzitoastService } from 'ng2-izitoast';//<-- this line
 import { freeSet } from '@coreui/icons/js/free';
 
 @Component({
@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
   isBusy: Boolean = false;
   isAuthorized: Boolean | null = null;
   constructor(
-    public iziToast: Ng2IzitoastService,
+    //public iziToast: Ng2IzitoastService,
     private formBuilder: FormBuilder,
     private uS: UserService, private router: Router) {
     localStorage.removeItem('currentUser');
@@ -57,10 +57,7 @@ export class LoginComponent implements OnInit {
     }, error => {
       this.isBusy = false;
       this.isAuthorized = false;
-      this.iziToast.show({
-        message: 'Usuario no autorizado',
-        color: 'red', // blue, red, green, yellow
-      });
+      
     });
   }
 }

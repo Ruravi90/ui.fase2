@@ -103,7 +103,6 @@ import {
 
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { DatepickerModule } from 'ng2-datepicker';
-import { Ng2IziToastModule } from 'ng2-izitoast';//<-- this line
 
 import { IconModule, IconSetService } from '@coreui/icons-angular';
 
@@ -156,8 +155,7 @@ const APP_CONTAINERS = [
     ListGroupModule,
     CardModule,
     SweetAlert2Module.forRoot(),
-    DatepickerModule,
-    Ng2IziToastModule
+    DatepickerModule
   ],
   providers: [
     APP_Services,
