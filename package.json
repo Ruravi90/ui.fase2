@@ -37,7 +37,6 @@
     "izitoast": "^1.4.0",
     "moment": "^2.29.4",
     "ng2-datepicker": "^12.0.0",
-    "ng2-izitoast": "^2.0.0",
     "ngx-bootstrap": "^9.0.0",
     "ngx-order-pipe": "^2.2.0",
     "ngx-perfect-scrollbar": "^10.1.1",
