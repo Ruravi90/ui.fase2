@@ -8,9 +8,6 @@ $enable-rtl: true;
 // Import styles with default layout.
 @import "~@coreui/coreui/scss/coreui";
 
-// Import Chart.js custom tooltips styles
-@import "~@coreui/chartjs/scss/coreui-chartjs";
-
 @import "~@ng-select/ng-select/themes/default.theme.css";
 //@import "~@ng-select/ng-select/themes/material.theme.css";
 
