@@ -35,14 +35,10 @@
               "src/assets"
             ],
             "styles": [
-              "src/scss/styles.scss",
-              "izitoast/dist/css/iziToast.min.css"
+              "src/scss/styles.scss"
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-              "chart.js",
-              "@coreui/chartjs/dist/js/coreui-chartjs.js",
-              "izitoast/dist/js/iziToast.min.js"
             ]
           },
           "configurations": {
