@@ -8,7 +8,13 @@
                             <h4>Balance</h4>
                         </div>
                         <div class="col-4">
-                            <ngx-datepicker [(ngModel)]="filters.date"  name="date"  [options]="options" (ngModelChange)="getBalance()"></ngx-datepicker>
+                            <!--<ngx-datepicker [(ngModel)]="filters.date"  name="date"  [options]="options" (ngModelChange)="getBalance()"></ngx-datepicker>-->
+                            <input type="text"
+                            placeholder="DD/MM/YYYY"
+                            class="form-control"
+                            [(ngModel)]="filters.date"  name="date"
+                            bsDatepicker
+                            [bsConfig]="{ adaptivePosition: true , dateInputFormat: 'DD/MM/YYYY'}">
                         </div>
                     </div>
                 </div>

@@ -62,7 +62,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalTracker" tabindex="-1" role="dialog" aria-labelledby="modalTrackerLabel" aria-hidden="true">
+<div class="modal fade" bsModal #modalTracker="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modalTrackerLabel" aria-hidden="true">
     <form class="modal-dialog" role="document" #tackerForm="ngForm" (ngSubmit)="saveTracking()">
       <div class="modal-content">
           <div class="modal-header">
@@ -96,7 +96,12 @@
                 </ng-select>
               </div>
               <div class="form-group col-md-6">
-                <ngx-datepicker [(ngModel)]="tracker.scheduled_date"  name="scheduled_date"  [options]="options"></ngx-datepicker>
+                <!--<ngx-datepicker [(ngModel)]="tracker.scheduled_date"  name="scheduled_date"  [options]="options"></ngx-datepicker>-->
+                <input type="text"
+                            placeholder="Datepicker"
+                            class="form-control"
+                            bsDatepicker
+                            [bsConfig]="{ adaptivePosition: true }">
               </div>
             </div>
             <div class="row" *ngIf="!disabledTracker">
@@ -118,14 +123,14 @@
             </ul>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-default" type="button" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-default" type="button" data-dismiss="modal" (click)="modalTracker.hide()">Cancel</button>
             <button class="btn btn-primary" type="submit" [disabled]="tackerForm.invalid" *ngIf="!disabledTracker">Guardar</button>
           </div>
       </div>
     </form>
 </div>
 
-<div class="modal fade" id="modalPayment" tabindex="-1" role="dialog" aria-labelledby="modalPeymentLabel" aria-hidden="true">
+<div class="modal fade" bsModal #modalPayment="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modalPeymentLabel" aria-hidden="true">
   <form class="modal-dialog" role="document" #paymentForm="ngForm" (ngSubmit)="savePayment()">
     <div class="modal-content">
       <div class="modal-header">
@@ -208,7 +213,7 @@
         </ul>
       </div>
       <div class="modal-footer">
-      <button class="btn btn-default" type="button" data-dismiss="modal">Cancel</button>
+      <button class="btn btn-default" type="button" data-dismiss="modal" (click)="modalPayment.hide()">Cancel</button>
         <button class="btn btn-primary" type="submit" *ngIf="sale.is_paid! == 0">Guardar</button>
       </div>
     </div>
@@ -219,7 +224,7 @@
   <img src="assets/img/logo-fase2.svg" height="100pt" width="100%" />
   <br />
   <br />
-  <div *ngIf="printPayment != null">
+  <div *ngIf="printPayment.id != null">
     <span >Cliente: {{ printPayment.sale!.client!.name + ' ' + printPayment.sale!.client!.lastname }}</span><br />
     <span >Agente: {{ printPayment.responsible!.name + ' ' + printPayment.responsible!.lastname }}</span><br />
     <div >

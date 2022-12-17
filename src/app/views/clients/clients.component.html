@@ -8,7 +8,7 @@
                             <h3>Clientes</h3>
                         </div>
                         <div class="col-3">
-                            <button type="button" class="btn btn-sm btn-primary float-right"  (click)="addClient()">
+                            <button type="button" class="btn btn-sm btn-primary float-end"  (click)="addClient()">
                                 Nuevo
                             </button>
                         </div>
@@ -27,10 +27,10 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item" *ngFor="let c of clients">
                         {{c.name + ' ' + c.lastname}}
-                        <button type="button" class="btn btn-sm btn-danger float-right ml-2" (click)="deleteClient(c)">
+                        <button type="button" class="btn btn-sm btn-danger float-end ms-2" (click)="deleteClient(c)">
                             <i class="fa fa-trash"></i>
                         </button>
-                        <button type="button" class="btn btn-sm btn-secondary float-right" (click)="editClient(c)">
+                        <button type="button" class="btn btn-sm btn-light float-end" (click)="editClient(c)">
                             <i class="fa fa-edit"></i>
                         </button>
                     </li>
@@ -46,12 +46,12 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="modalClient" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade"   bsModal #modalClient="bs-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <form class="modal-dialog" role="document" #clientForm="ngForm" (ngSubmit)="save()">
         <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">{{(isEdit?'Editar cliente':'Agregar cliente')}}</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modalClient.hide()">
             <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -99,7 +99,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modalClient.hide()">Cerrar</button>
             <button type="submit" class="btn btn-primary" [disabled]="clientForm.invalid || isBusy">Guardar</button>
         </div>
         </div>

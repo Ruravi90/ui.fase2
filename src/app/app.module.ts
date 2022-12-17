@@ -104,8 +104,6 @@ import {
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { DatepickerModule } from 'ng2-datepicker';
 
-import { IconModule, IconSetService } from '@coreui/icons-angular';
-
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: true,
 };
@@ -138,7 +136,6 @@ const APP_CONTAINERS = [
     GridModule,
     HeaderModule,
     SidebarModule,
-    IconModule,
     PerfectScrollbarModule,
     NavModule,
     ButtonModule,
@@ -173,7 +170,6 @@ const APP_CONTAINERS = [
       provide: PERFECT_SCROLLBAR_CONFIG,
       useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG,
     },
-    IconSetService,
     Title
   ],
   bootstrap: [AppComponent],

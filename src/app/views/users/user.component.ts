@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { UserService, RoleService, PaginateService } from '../../services';
 import { User, Role, Paginate } from '../../models';
 import { Subject, Observable } from 'rxjs';
 import swal from 'sweetalert2';
-
-declare var $: any, iziToast: any;
+import { ModalDirective } from 'ngx-bootstrap/modal';
 
 @Component({
   templateUrl: './user.component.html'
@@ -18,10 +17,19 @@ export class UserComponent implements OnInit {
   public isEdit: Boolean = false;
   public existUser: Boolean = false;
   public paginate: Paginate = new Paginate();
+  @ViewChild('modalUser', { static: false }) modalUser?: ModalDirective;
   public filters: any = {
     perPage: 15,
     isPaid: 0
   };
+
+  toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
 
   private usernameChange: Subject<string> = new Subject();
 
@@ -37,13 +45,6 @@ export class UserComponent implements OnInit {
     this.roles$ =  this.rS.get();
     const that = this;
     that.getUsers();
-    // generate random values for mainChart
-    $('#modalUser').on('show.bs.modal', function () {
-    });
-
-    $('#modalUser').on('hidden.bs.modal', function () {
-      that.getUsers();
-    });
 
   }
 
@@ -73,7 +74,7 @@ export class UserComponent implements OnInit {
   addUser(): void {
     this.isEdit = false;
     this.user = new User();
-    $('#modalUser').modal('show');
+    this.modalUser?.show();
   }
 
   editUser(c: User): void {
@@ -81,7 +82,7 @@ export class UserComponent implements OnInit {
     setTimeout(() => {
       this.aS.getById(c.id!).subscribe(r => {
         this.user = r;
-        $('#modalUser').modal('show');
+        this.modalUser?.show();
       });
     }, 300);
   }
@@ -97,12 +98,15 @@ export class UserComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      this.aS.delete(c.id!).subscribe(r => {
-        this.getUsers();
-        iziToast.show({
-          title: 'Registro eliminado'
+      if(result.isConfirmed){
+        this.aS.delete(c.id!).subscribe(r => {
+          this.getUsers();
+          this.toast.fire({
+            icon: 'success',
+            title: 'Registro eliminado'
+          });
         });
-      });
+      }
     });
   }
 
@@ -110,34 +114,36 @@ export class UserComponent implements OnInit {
     if (this.isEdit && !this.existUser) {
       this.aS.put(this.user).subscribe(r => {
         if (r === 200) {
-          $('#modalUser').modal('hide');
-          iziToast.show({
+          this.modalUser?.hide();
+          this.toast.fire({
+            icon: 'success',
               title: 'Registro actualizado'
           });
         } else {
-          iziToast.show({
-            message: 'No fue posible actualizar el registro',
-              color: 'red'
+          this.toast.fire({
+            icon: 'error',
+            title: 'No fue posible actualizar el registro',
           });
         }
        });
     } else {
       this.aS.post(this.user).subscribe(r => {
         if (r != null) {
-          $('#modalUser').modal('hide');
-          iziToast.show({
-              message: 'Registro creado'
+          this.modalUser?.hide();
+          this.toast.fire({
+            icon: 'success',
+            title: 'Registro creado'
           });
         } else {
-          iziToast.show({
+          this.toast.fire({
+            icon: 'error',
             title: 'No fue posible crear el registro',
-            color: 'red'
           });
         }
        },error=>{
-          iziToast.show({
+        this.toast.fire({
+            icon: 'error',
             title: error.msj,
-            color: 'red'
           });
        });
     }

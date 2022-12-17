@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { TypeService } from '../../services';
 import { _Type, CatPackage, ComplementPackage, Paginate } from '../../models';
 
 import swal from 'sweetalert2';
 import { Observable, Subject } from 'rxjs';
+import { ModalDirective } from 'ngx-bootstrap/modal';
 declare var $: any, iziToast: any;
 
 @Component({
@@ -24,17 +25,24 @@ export class CatPackageComponent implements OnInit {
     perPage: 15,
     name: ''
   };
+  @ViewChild('modalCatPackages', { static: false }) modalCatPackages?: ModalDirective;
+
+  toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
+
 
   constructor(private tS: TypeService) {
   }
 
   ngOnInit(): void {
-    // generate random values for mainChart
     this.getCatlog();
-    // tslint:disable-next-line:prefer-const
-    let that = this;
-    $('#modal').on('hidden.bs.modal', function () {
-      that.getCatlog();
+    this.modalCatPackages?.onHidden.subscribe(()=>{
+      this.getCatlog();
     });
   }
 
@@ -60,14 +68,14 @@ export class CatPackageComponent implements OnInit {
   addItem() {
     this.isEdit = false;
     this.item = new CatPackage();
-    $('#modal').modal('show');
+    this.modalCatPackages?.show();
   }
 
   updateItem(_item: _Type) {
     this.isEdit = true;
     this.tS.getById(this.nameCalog, _item.id!).subscribe(r => {
       this.item = r;
-      $('#modal').modal('show');
+      this.modalCatPackages?.show();
     });
   }
 
@@ -75,17 +83,19 @@ export class CatPackageComponent implements OnInit {
     if (this.isEdit) {
       this.tS.put(this.nameCalog, this.item).subscribe(r => {
         this.item = r;
-        $('#modal').modal('hide');
-        iziToast.show({
-          message: 'Registro actualizado'
+        this.modalCatPackages?.hide();
+        this.toast.fire({
+          icon:'success',
+          title: 'Registro actualizado'
         });
       });
     } else {
       this.tS.post(this.nameCalog, this.item).subscribe(r => {
         this.item = r;
-        $('#modal').modal('hide');
-        iziToast.show({
-          message: 'Registro creado'
+        this.modalCatPackages?.hide();
+        this.toast.fire({
+          icon:'success',
+          title: 'Registro creado'
         });
       });
     }
@@ -102,11 +112,12 @@ export class CatPackageComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      if (result.value) {
+      if (result.isConfirmed) {
         this.tS.delete(this.nameCalog, _item.id!).subscribe(r => {
           this.getCatlog();
-          iziToast.show({
-            message: 'Registro eliminado'
+          this.toast.fire({
+            icon:'success',
+            title: 'Registro eliminado'
           });
         });
       }
@@ -168,7 +179,7 @@ export class CatPackageComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      if (result.value) {
+      if (result.isConfirmed) {
         this.item.complements!.splice(index, 1);
       }
     });

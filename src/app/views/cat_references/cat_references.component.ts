@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { TypeService } from '../../services';
 import { _Type, Paginate } from '../../models';
 
 import swal from 'sweetalert2';
 import { Subject } from 'rxjs';
+import { ModalDirective } from 'ngx-bootstrap/modal';
 declare var $: any, iziToast: any;
 
 
@@ -22,17 +23,24 @@ export class CatReferencesComponent implements OnInit {
     perPage: 15,
     name: ''
   };
+  @ViewChild('modalCatReferences', { static: false }) modalCatReferences?: ModalDirective;
+
+  toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
 
   constructor(private tS: TypeService) {
 
   }
 
   ngOnInit(): void {
-    // generate random values for mainChart
     this.getCatlog();
-    // tslint:disable-next-line:prefer-const
     let that = this;
-    $('#modal').on('hidden.bs.modal', function () {
+    this.modalCatReferences?.onHidden.subscribe(()=>{
       that.getCatlog();
     });
   }
@@ -59,14 +67,14 @@ export class CatReferencesComponent implements OnInit {
   addItem() {
     this.isEdit = false;
     this.item = new _Type();
-    $('#modal').modal('show');
+    this.modalCatReferences?.show();
   }
 
   updateItem(_item: _Type) {
     this.isEdit = true;
     this.tS.getById(this.nameCalog, _item.id!).subscribe(r => {
       this.item = r;
-      $('#modal').modal('show');
+      this.modalCatReferences?.show();
     });
   }
 
@@ -74,15 +82,17 @@ export class CatReferencesComponent implements OnInit {
     if (this.isEdit) {
       this.tS.put(this.nameCalog, this.item).subscribe(r => {
         this.item = r;
-        iziToast.show({
-          message: 'Registro actualizado'
+        this.toast.fire({
+          icon:'success',
+          title: 'Registro actualizado'
         });
       });
     } else {
       this.tS.post(this.nameCalog, this.item).subscribe(r => {
         this.item = r;
-        iziToast.show({
-          message: 'Registro creado'
+        this.toast.fire({
+          icon:'success',
+          title: 'Registro creado'
         });
       });
     }
@@ -99,23 +109,15 @@ export class CatReferencesComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      if (result.value) {
+      if (result.isConfirmed) {
         this.tS.delete(this.nameCalog, _item.id!).subscribe(r => {
           this.getCatlog();
-          iziToast.show({
-            message: 'Registro eliminado'
+          this.toast.fire({
+            icon:'success',
+            title: 'Registro eliminado'
           });
         });
-      // For more information about handling dismissals please visit
-      // https://sweetalert2.github.io/#handling-dismissals
       }
-      // else if (result.dismiss === swal.DismissReason.cancel) {
-      //  swal.fire(
-      //    'Cancelled',
-      //    'Your imaginary file is safe :)',
-      //    'error'
-      //  );
-      //}
     });
   }
 }

@@ -5,7 +5,6 @@ import { UserComponent } from '../../views/users/user.component';
 import { AgentComponent } from '../../views/agents/agent.component';
 import { DepartmentsComponent } from '../../views/departments/departments.component';
 import { CreditorsComponent } from '../../views/creditors/creditors.component';
-import { RolesComponent } from '../../views/roles/roles.component';
 
 const routes: Routes = [
   {
@@ -40,13 +39,6 @@ const routes: Routes = [
         component: CreditorsComponent,
         data: {
           title: 'Acreedores - Proveedores'
-        }
-      },
-      {
-        path: 'roles',
-        component: RolesComponent,
-        data: {
-          title: 'Roles y permisos'
         }
       },
     ]

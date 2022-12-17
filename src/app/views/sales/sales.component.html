@@ -98,105 +98,110 @@
   </div>
 </div>
 
-
-<div class="modal fade" id="modalPayment" tabindex="-1" role="dialog" aria-labelledby="modalPeymentLabel" aria-hidden="true">
-    <form class="modal-dialog" role="document" #paymentForm="ngForm" (ngSubmit)="savePayment()">
-      <div class="modal-content">
-        <div class="modal-header">
+<div class="modal fade" bsModal #modalPayment="bs-modal" tabindex="-1" role="dialog" aria-labelledby="dialog-nested-name2">
+  <form class="modal-dialog" role="document" #paymentForm="ngForm" (ngSubmit)="savePayment()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">
           <h3 class="modal-title" id="modal-title" *ngIf="sale.is_paid == 0">Registrar abonos/finiquitos</h3>
           <h3 class="modal-title" id="modal-title" *ngIf="sale.is_paid == 1">Paquete pagado</h3>
-        </div>
-        <div class="modal-body" id="modal-body">
-          <div class="row" *ngIf="paymentForm.invalid">
-            <div class="col-md-12">
-              <label class="text-danger" >Los campos en rojo son requeridos.</label>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-12">
-              <label class="text-default">
-                Costo del {{sale.service_id?'servicio':''}} {{sale.package_id?'paquete':''}}:
-                {{ sale.price | currency:'MX $':true:'2.2-4' }}
-              </label>
-            </div>
-          </div>
-          <div class="row mt-1">
-            <div class="col-md-12">
-              <label class="text-danger">Saldo pendiente: {{ balance | currency:'MX $':true:'2.2-4' }} </label>
-            </div>
-          </div>
-          <div class="row mt-1"  *ngIf="sale.is_paid == 0">
-            <div class="col-lg-2">
-              Agente
-            </div>
-            <div class="col-lg-10">
-                <ng-select placeholder="Agente"
-                [items]="agents$ | async"
-                [(ngModel)]="payment.responsible_id"
-                bindValue="id"
-                bindLabel="name"
-                [selectOnTab]="true"
-                name="responsibleId"
-                #responsibleId="ngModel"
-                required>
-                  <ng-template ng-label-tmp let-item="item">
-                      {{ item.name + ' ' + item.lastname}}
-                  </ng-template>
-                    <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
-                        <div >{{item.name + ' ' + item.lastname}}</div>
-                    </ng-template>
-              </ng-select>
-            </div>
-          </div>
-          <div class="row mt-1"  *ngIf="sale.is_paid == 0">
-            <div class="col-lg-2">
-              Forma de pago
-            </div>
-            <div class="col-lg-10">
-              <ng-select
-                placeholder="Forma de pago"
-                name="typeSale$ | async"
-                [(ngModel)]="payment.type_sale_id"
-                [items]="typeSale$ | async"
-                bindLabel="name"
-                labelForId="name"
-                bindValue="id"
-                [selectOnTab]="true"
-                #typeSale="ngModel"
-                required>
-              </ng-select>
-            </div>
-          </div>
-          <div class="row mt-1" *ngIf="sale.is_paid == 0">
-            <div class="col-lg-2">
-              Monto
-            </div>
-            <div class="col-lg-10">
-              <input type="number" min="0" class="form-control" name="amount" [(ngModel)]="payment.amount" (ngModelChange)="onChangeAmount()" required>
-            </div>
-          </div>
-          <br>
-          <ul class="list-group" style="max-height:150px;overflow-y: auto; overflow-x: hidden;">
-            <li class="list-group-item row"  *ngFor="let p of payments">
-              <span class="col-md-2">{{ p.created_at | date:'dd/MM/yyyy' }}</span>
-              <span class="col-md-2">{{ p.amount | currency:'MX $ ':true:'2.2-4' }}</span>
-              <span class="col-md-8">{{ 'Agente por ' + p.responsible!.name + ' ' + p.responsible!.lastname}}</span>
-            </li>
-          </ul>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-default" type="button" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" type="submit" *ngIf="sale.is_paid == 0">Guardar</button>
-        </div>
+        </h4>
+        <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalPayment.hide()">
+          <span aria-hidden="true" class="visually-hidden">&times;</span>
+        </button>
       </div>
-    </form>
-  </div>
+      <div class="modal-body">
+        <div class="row" *ngIf="paymentForm.invalid">
+          <div class="col-md-12">
+            <label class="text-danger" >Los campos en rojo son requeridos.</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <label class="text-default">
+              Costo del {{sale.service_id?'servicio':''}} {{sale.package_id?'paquete':''}}:
+              {{ sale.price | currency:'MX $':true:'2.2-4' }}
+            </label>
+          </div>
+        </div>
+        <div class="row mt-1">
+          <div class="col-md-12">
+            <label class="text-danger">Saldo pendiente: {{ balance | currency:'MX $':true:'2.2-4' }} </label>
+          </div>
+        </div>
+        <div class="row mt-1"  *ngIf="sale.is_paid == 0">
+          <div class="col-lg-2">
+            Agente
+          </div>
+          <div class="col-lg-10">
+              <ng-select placeholder="Agente"
+              [items]="agents$ | async"
+              [(ngModel)]="payment.responsible_id"
+              bindValue="id"
+              bindLabel="name"
+              [selectOnTab]="true"
+              name="responsibleId"
+              #responsibleId="ngModel"
+              required>
+                <ng-template ng-label-tmp let-item="item">
+                    {{ item.name + ' ' + item.lastname}}
+                </ng-template>
+                  <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                      <div >{{item.name + ' ' + item.lastname}}</div>
+                  </ng-template>
+            </ng-select>
+          </div>
+        </div>
+        <div class="row mt-1"  *ngIf="sale.is_paid == 0">
+          <div class="col-lg-2">
+            Forma de pago
+          </div>
+          <div class="col-lg-10">
+            <ng-select
+              placeholder="Forma de pago"
+              name="typeSale$ | async"
+              [(ngModel)]="payment.type_sale_id"
+              [items]="typeSale$ | async"
+              bindLabel="name"
+              labelForId="name"
+              bindValue="id"
+              [selectOnTab]="true"
+              #typeSale="ngModel"
+              required>
+            </ng-select>
+          </div>
+        </div>
+        <div class="row mt-1" *ngIf="sale.is_paid == 0">
+          <div class="col-lg-2">
+            Monto
+          </div>
+          <div class="col-lg-10">
+            <input type="number" min="0" class="form-control" name="amount" [(ngModel)]="payment.amount" (ngModelChange)="onChangeAmount()" required>
+          </div>
+        </div>
+        <br>
+        <ul class="list-group" style="max-height:150px;overflow-y: auto; overflow-x: hidden;">
+          <li class="list-group-item row"  *ngFor="let p of payments">
+            <span class="col-md-2">{{ p.created_at | date:'dd/MM/yyyy' }}</span>
+            <span class="col-md-2">{{ p.amount | currency:'MX $ ':true:'2.2-4' }}</span>
+            <span class="col-md-8">{{ 'Agente por ' + p.responsible!.name + ' ' + p.responsible!.lastname}}</span>
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" type="button" data-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" type="submit" *ngIf="sale.is_paid == 0">Guardar</button>
+      </div>
+    </div>
+  </form>
+</div>
+
 
 <div id="printTicket" style="max-width: 219.212598425px;">
     <img src="assets/img/logo-fase2.svg" height="100pt" width="100%" />
     <br />
     <br />
-    <div *ngIf="printPayment != null">
+    <div *ngIf="printPayment.id != null">
         <span >Cliente: {{ printPayment.sale!.client!.name + ' ' + printPayment.sale!.client!.lastname }}</span><br />
         <span >Agente: {{ printPayment.responsible!.name + ' ' + printPayment.responsible!.lastname }}</span><br />
         <div >
@@ -215,7 +220,7 @@
         <small style="width: 100%; text-align: center;"><em>**** ESTIMADO CLIENTE ****</em></small><br>
         <small style="width: 100%; text-align: center;"><em>ES IMPORTANTE VALIDAR QUE LOS DATOS IMPRESOS CORRESPONDEN A LA OPERECIOM SOLICITADA</em></small>
     </div>
-    <div *ngIf="printSale != null">
+    <div *ngIf="printSale.id != null">
       <span >Cliente: {{ printSale.client!.name + ' ' + printSale.client!.lastname }}</span><br />
       <span >Agente: {{ printSale.responsible!.name + ' ' + printSale.responsible!.lastname }}</span><br />
       <div *ngFor="let s of printSale.sales">

@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProductsInventaryService, TypeService } from '../../services';
 import { ProductsInventory, _Type } from '../../models';
 
 import swal from 'sweetalert2';
 import { Observable } from 'rxjs';
-declare var $: any, iziToast: any;
+import { ModalDirective } from 'ngx-bootstrap/modal';
 
 @Component({
   templateUrl: 'products_inventory.component.html',
@@ -18,7 +18,16 @@ export class ProductsInventoryComponent implements OnInit {
     count: new FormControl(''),
   });
   public product: ProductsInventory = new ProductsInventory();
+  @ViewChild('modalProduct', { static: false }) modalProduct?: ModalDirective;
   public isEdit = false;
+
+  toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
 
   constructor(
     private formBuilder: FormBuilder,
@@ -35,14 +44,7 @@ export class ProductsInventoryComponent implements OnInit {
       }
     );
 
-
-    // generate random values for mainChart
     this.getCatlog();
-    // tslint:disable-next-line:prefer-const
-    let that = this;
-    $('#modal').on('hidden.bs.modal', function () {
-      that.getCatlog();
-    });
   }
 
   getCatlog() {
@@ -58,7 +60,7 @@ export class ProductsInventoryComponent implements OnInit {
       count: new FormControl('', Validators.required),
     });
     this.cmbProducts$ = this.tS.getAll('cat_products');
-    $('#modal').modal('show');
+    this.modalProduct?.show();
   }
 
   update(_item: ProductsInventory) {
@@ -70,7 +72,7 @@ export class ProductsInventoryComponent implements OnInit {
         product: new FormControl(_item.product, Validators.required),
         count: new FormControl(_item.count, Validators.required),
       });
-      $('#modal').modal('show');
+      this.modalProduct?.show();
     });
   }
 
@@ -81,16 +83,18 @@ export class ProductsInventoryComponent implements OnInit {
 
     if (this.isEdit) {
       this.pS.put(this.product).subscribe(r => {
-        $('#modal').modal('hide');
-        iziToast.show({
-          message: 'Registro actualizado'
+        this.modalProduct?.hide();
+        this.toast.fire({
+          icon:'success',
+          title: 'Registro actualizado'
         });
       });
     } else {
       this.pS.post(this.product).subscribe(r => {
-        $('#modal').modal('hide');
-        iziToast.show({
-          message: 'Registro creado'
+        this.modalProduct?.hide();
+        this.toast.fire({
+          icon:'success',
+          title: 'Registro creado'
         });
       });
     }
@@ -107,11 +111,12 @@ export class ProductsInventoryComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      if (result.value) {
+      if (result.isConfirmed) {
         this.pS.delete(_item.id!).subscribe(r => {
           this.getCatlog();
-          iziToast.show({
-            message: 'Registro eliminado'
+          this.toast.fire({
+            icon:'success',
+            title: 'Registro eliminado'
           });
         });
       }

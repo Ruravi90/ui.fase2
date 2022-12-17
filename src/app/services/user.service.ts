@@ -17,7 +17,7 @@ export class UserService {
         return this.http.post<Paginate>(this.url + '/paginate?page=' + page, { per_page: perPage}).pipe(map((r:any)=> r));
     }
     login(model: User): Observable<any> {
-        return this.http.post<any>(this.url + '/login', model).pipe(map((r:any)=> r));
+        return this.http.post<any>(environment.urlApi + 'auth/login', model).pipe(map((r:any)=> r));
     }
     isLogin(): boolean {
         if (!localStorage.getItem('currentUser')) {

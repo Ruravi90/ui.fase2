@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { TypeService } from '../../services';
 import { _Type,Paginate } from '../../models';
 
 import swal from 'sweetalert2';
 import { Subject } from 'rxjs';
+import { ModalDirective } from 'ngx-bootstrap/modal';
 declare var $: any, iziToast: any;
 
 @Component({
@@ -20,17 +21,24 @@ export class CatExpensesComponent implements OnInit {
     perPage: 15,
     name: ''
   };
+  @ViewChild('modalCatExpenses', { static: false }) modalCatExpenses?: ModalDirective;
+
+  toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
+
 
   constructor(private tS: TypeService) {
   }
 
   ngOnInit(): void {
-    // generate random values for mainChart
     this.getCatlog();
-    // tslint:disable-next-line:prefer-const
-    let that = this;
-    $('#modal').on('hidden.bs.modal', function () {
-      that.getCatlog();
+    this.modalCatExpenses?.onHidden.subscribe(()=>{
+      this.getCatlog();
     });
   }
 
@@ -56,14 +64,14 @@ export class CatExpensesComponent implements OnInit {
   addItem() {
     this.isEdit = false;
     this.item = new _Type();
-    $('#modal').modal('show');
+    this.modalCatExpenses?.show();
   }
 
   updateItem(_item: _Type) {
     this.isEdit = true;
     this.tS.getById(this.nameCalog, _item.id!).subscribe(r => {
       this.item = r;
-      $('#modal').modal('show');
+      this.modalCatExpenses?.show();
     });
   }
 
@@ -71,17 +79,19 @@ export class CatExpensesComponent implements OnInit {
     if (this.isEdit) {
       this.tS.put(this.nameCalog, this.item).subscribe(r => {
         this.item = r;
-        $('#modal').modal('hide');
-        iziToast.show({
-          message: 'Registro actualizado'
+        this.modalCatExpenses?.hide();
+        this.toast.fire({
+          icon:'success',
+          title: 'Registro actualizado'
         });
       });
     } else {
       this.tS.post(this.nameCalog, this.item).subscribe(r => {
         this.item = r;
-        $('#modal').modal('hide');
-        iziToast.show({
-          message: 'Registro creado'
+        this.modalCatExpenses?.hide();
+        this.toast.fire({
+          icon:'success',
+          title: 'Registro creado'
         });
       });
     }
@@ -98,11 +108,12 @@ export class CatExpensesComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      if (result.value) {
+      if (result.isConfirmed) {
         this.tS.delete(this.nameCalog, _item.id!).subscribe(r => {
           this.getCatlog();
-          iziToast.show({
-            message: 'Registro eliminado'
+          this.toast.fire({
+            icon:'success',
+            title: 'Registro eliminado'
           });
         });
       }

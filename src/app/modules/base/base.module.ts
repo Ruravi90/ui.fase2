@@ -13,8 +13,10 @@ import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { PopoverModule } from 'ngx-bootstrap/popover';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { ModalModule } from 'ngx-bootstrap/modal';
+
 import { NgSelectModule } from '@ng-select/ng-select';
-import { DatepickerModule } from 'ng2-datepicker';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 
 import { BaseRoutingModule } from './base-route.module';
 import { DashboardComponent } from '../../views/dashboard/dashboard.component';
@@ -24,7 +26,7 @@ import { SalesComponent } from '../../views/sales/sales.component';
 import { PackagesComponent } from '../../views/packages/packages.component';
 import { BoxComponent } from '../../views/box/box.component';
 
-
+import { IconModule, IconSetService } from '@coreui/icons-angular';
 
 @NgModule({
   imports: [
@@ -40,8 +42,10 @@ import { BoxComponent } from '../../views/box/box.component';
     PopoverModule.forRoot(),
     ProgressbarModule.forRoot(),
     TooltipModule.forRoot(),
+    ModalModule.forRoot(),
     NgSelectModule,
-    DatepickerModule
+    BsDatepickerModule.forRoot(),
+    IconModule
   ],
   declarations: [
     DashboardComponent,
@@ -50,6 +54,9 @@ import { BoxComponent } from '../../views/box/box.component';
     PackagesComponent,
     BoxComponent,
     SalesComponent
-  ]
+  ],
+  providers: [
+    IconSetService
+  ],
 })
 export class BaseModule { }

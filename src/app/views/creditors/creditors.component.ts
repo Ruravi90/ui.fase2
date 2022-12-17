@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CreditorService } from '../../services';
 import { Creditor} from '../../models';
 
 import swal from 'sweetalert2';
 import { Subject, Observable } from 'rxjs';
+import { ModalDirective } from 'ngx-bootstrap/modal';
 declare var $: any, iziToast: any;
 
 @Component({
@@ -14,6 +15,16 @@ export class CreditorsComponent implements OnInit {
   public creditors$: Observable<Creditor[]> = new Observable<Creditor[]>();
   public model: Creditor = new Creditor();
   public isEdit: Boolean = false;
+  @ViewChild('modalCreditor', { static: false }) modalCreditor?: ModalDirective;
+
+  toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
+
 
   constructor(
     private cS: CreditorService) {
@@ -22,9 +33,10 @@ export class CreditorsComponent implements OnInit {
   ngOnInit(): void {
     this.getCreditors();
     const that = this;
-    $('#modal').on('hidden.bs.modal', function () {
+    this.modalCreditor?.onShow.subscribe(() => {
       that.getCreditors();
     });
+
   }
 
   getCreditors() {
@@ -35,27 +47,29 @@ export class CreditorsComponent implements OnInit {
     if (this.isEdit) {
       this.cS.put(this.model).subscribe(r => {
         this.getCreditors();
-        $('#modal').modal('hide');
-        iziToast.show({
-            title: 'Registro actualizado'
+        this.modalCreditor?.hide();
+        this.toast.fire({
+          icon:'success',
+          title: 'Registro actualizado'
         });
        }, e =>{
-        iziToast.show({
-          title: 'No fue posible actualizar el registro',
-          color: 'red'
-      });
+        this.toast.fire({
+          icon:'error',
+          title: 'No fue posible actualizar el registro'
+        });
        });
     } else {
       this.cS.post(this.model).subscribe(r => {
         this.getCreditors();
-        $('#modal').modal('hide');
-        iziToast.show({
-            title: 'Registro creado'
+        this.modalCreditor?.hide();
+        this.toast.fire({
+          icon:'success',
+          title: 'Registro creado'
         });
        },e =>{
-        iziToast.show({
+        this.toast.fire({
+          icon:'error',
           title: 'No fue posible crear el registro',
-          color: 'red'
         });
        });
     }
@@ -64,7 +78,7 @@ export class CreditorsComponent implements OnInit {
   add(): void {
     this.isEdit = false;
     this.model = new Creditor();
-    $('#modal').modal('show');
+    this.modalCreditor?.show();
   }
 
   edit(c: Creditor): void {
@@ -72,7 +86,7 @@ export class CreditorsComponent implements OnInit {
     setTimeout(() => {
       this.cS.getById(c.id!).subscribe(r => {
         this.model = r;
-        $('#modal').modal('show');
+        this.modalCreditor?.show();
       });
     }, 300);
   }
@@ -88,23 +102,15 @@ export class CreditorsComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      if (result.value) {
+      if (result.isConfirmed) {
         this.cS.delete(c.id!).subscribe(r => {
           this.getCreditors();
-          iziToast.show({
+          this.toast.fire({
+            icon:'success',
             title: 'Registro eliminado'
           });
         });
-      // For more information about handling dismissals please visit
-      // https://sweetalert2.github.io/#handling-dismissals
       }
-      // else if (result.dismiss === swal.DismissReason.cancel) {
-      //  swal.fire(
-      //    'Cancelled',
-      //    'Your imaginary file is safe :)',
-      //    'error'
-      //  );
-      //}
     });
   }
 }

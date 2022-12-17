@@ -22,7 +22,7 @@ export class DefaultLayoutComponent {
   public element: HTMLElement = document.body;
   constructor(private router: Router) {
     let user = localStorage.getItem('currentUser');
-    this.currentUser = JSON.parse(user!);
+    this.currentUser = JSON.parse(user!).claims;
     this.getMenu();
 
     this.changes = new MutationObserver((mutations) => {
@@ -35,17 +35,7 @@ export class DefaultLayoutComponent {
   }
 
   getMenu() {
-    if (this.getRoles(['super_admin','admin'])) {
-      this.navItems.push(
-        {
-          name: 'Dashboard',
-          url: '/page/dashboard',
-          icon: 'icon-speedometer',
-          children:null
-        },
-      );
-    }
-    if (this.getRoles(['admin','user'])) {
+    if (this.getRoles(['admin','agent'])) {
       this.navItems.push(
         {
           name: 'Clientes',
@@ -73,7 +63,7 @@ export class DefaultLayoutComponent {
         }
       );
     }
-    if (this.getRoles(['super_admin','admin'])) {
+    if (this.getRoles('admin')) {
       this.navItems.push(
         {
           name: 'Balance',
@@ -100,56 +90,41 @@ export class DefaultLayoutComponent {
         },
         {
           name: 'Administración',
-          icon: 'icon-settings',
+          icon: 'fas fa-gear',
           url: '/admin',
           children: [
             {
-              name: 'Departamentos',
-              url: '/admin/departments',
-              icon: 'icon-briefcase '
-            },
-            {
               name: 'Prov./Acreedores',
               url: '/admin/creditors',
-              icon: 'fas fa-user-tag'
+              icon: 'fas fa-handshake'
             },
             {
               name: 'Usuarios',
               url: '/admin/users',
-              icon: 'fas fa-users'
+              icon: 'fas fa-user-pen'
             },
             {
               name: 'Agentes',
               url: '/admin/agents',
-              icon: 'icofont icofont-users-social'
+              icon: 'fas fa-user-gear'
             },
-            {
-              name: 'Roles/Permisos',
-              url: '/admin/roles',
-              icon: 'icon-lock-open '
-            }
           ]
         },
         {
           name: 'Inventario',
-          icon: 'fas fa-list-ul',
+          icon: 'fas fa-barcode',
           url: '/inventory',
           children: [
             {
               name: 'Productos',
               url: '/inventory/products_inventory',
               icon: 'fas fa-shapes'
-            },
-            {
-              name: 'Pastillas',
-              url: '/inventory/pills_inventory',
-              icon: 'icofont icofont-pills'
             }
           ]
         },
         {
           name: 'Catalogos',
-          icon: 'icon-notebook',
+          icon: 'fas fa-database',
           url: '/catalogs',
           children: [
             {
@@ -160,11 +135,6 @@ export class DefaultLayoutComponent {
             {
               name: 'Productos',
               url: '/catalog/cat_products',
-              icon: 'icofont icofont-sub-listing'
-            },
-            {
-              name: 'Pastillas',
-              url: '/catalog/cat_pills',
               icon: 'icofont icofont-sub-listing'
             },
             {
@@ -202,14 +172,12 @@ export class DefaultLayoutComponent {
     let result = false;
     if (Array.isArray(p)) {
       p.forEach(v => {
-        const i = this.currentUser.roles!.findIndex((r:any) => r.slug === v);
-        if (i !== -1) {
+        if (this.currentUser.profile == v) {
           result = true;
         }
       });
     } else if (typeof(p) === "string") {
-      const i = this.currentUser.roles!.findIndex((r:any) => r.slug === p);
-      if (i !== -1) {
+      if (this.currentUser.profile == p) {
         result = true;
       }
     }

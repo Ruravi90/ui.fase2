@@ -1,4 +1,5 @@
-import { Component, OnInit, InjectionToken, Inject } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ModalDirective } from 'ngx-bootstrap/modal';
 import { PaginateService, SaleService, PaymentService, AgentService, TypeService } from '../../services';
 import { Department, User, Sale, _Type, Paginate, Payment } from '../../models';
 import { environment } from '../../../environments/environment';
@@ -27,6 +28,15 @@ export class SalesComponent implements OnInit {
   public dateNow: Date = new Date();
   public paginate: Paginate = new Paginate();
   public isBusy: boolean = false;
+  @ViewChild('modalPayment', { static: false }) modalPayment?: ModalDirective;
+
+  toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
 
   public isCopyPrint = false;
   public filters: any = {
@@ -58,11 +68,9 @@ export class SalesComponent implements OnInit {
     this.getSales();
     this.agents$ = this.aS.get();
     this.typeSale$ = this.tS.getAll('cat_type_sales');
-    const that = this;
-    $('#modalPayment').on('hidden.bs.modal', function () {
-      that.getSales();
-    });
+    this.getSales();
   }
+
 
   getSales() {
     this.pS.paginate(this.filters).subscribe(res => {
@@ -89,15 +97,18 @@ export class SalesComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, Cancelar!'
     }).then((result) => {
-      this.sS.cancel(s.id!).subscribe((r)=>{
-        const index = this.sales.findIndex((r:any)=> r.id === s.id);
-        if (index > -1) {
-          this.sales.splice(index, 1);
-        }
-        iziToast.show({
-          message: 'Registro cancelado correctamente'
+      if(result.isConfirmed){
+        this.sS.cancel(s.id!).subscribe((r)=>{
+          const index = this.sales.findIndex((r:any)=> r.id === s.id);
+          if (index > -1) {
+            this.sales.splice(index, 1);
+          }
+          this.toast.fire({
+            icon:'success',
+            title: 'Registro cancelado correctamente'
+          });
         });
-      });
+      }
     });
   }
 
@@ -117,7 +128,7 @@ export class SalesComponent implements OnInit {
     this.payment.sale_id = s.id;
     this.onCalculateTotal();
     this.getPayments();
-    $('#modalPayment').modal('show');
+    this.modalPayment?.show();
   }
 
   onCalculateTotal() {
@@ -141,7 +152,7 @@ export class SalesComponent implements OnInit {
       });
       this.balance = (this.sale.subtotal! - this.subTotal);
       this.sale.is_paid = this.balance <= 0;
-      $('#modalPayment').modal('show');
+      this.modalPayment?.show();
     });
   }
 
@@ -150,9 +161,10 @@ export class SalesComponent implements OnInit {
     this.payment.user_id = this.currentUser.id;
     this.paS.post(this.payment).subscribe(r => {
       this.printTicket(r.id);
-      $('#modalPayment').modal('hide');
-      iziToast.show({
-        message: 'Registro creado'
+      this.modalPayment?.hide();
+      this.toast.fire({
+        icon:'success',
+        title: 'Registro creado'
       });
     });
   }

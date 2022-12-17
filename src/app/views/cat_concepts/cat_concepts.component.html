@@ -8,17 +8,17 @@
                     <h3>Conceptos</h3>
                 </div>
                 <div class="col-3">
-                    <button type="button" class="btn btn-sm btn-primary float-right"  (click)="addItem()">
+                    <button type="button" class="btn btn-sm btn-primary float-end"  (click)="addItem()">
                         Nuevo
                     </button>
                 </div>
             </div>
             <div class="row">
                 <div class="col-10">
-                    <input class="form-control" placeholder="Buscar cliente" name="shared" [(ngModel)]="filters.name" #sharedModel="ngModel" (keyup)="filterName($event)"/>
+                    <input class="form-control" placeholder="Buscar conceptos" name="shared" [(ngModel)]="filters.name" #sharedModel="ngModel" (keyup)="filterName($event)"/>
                 </div>
                 <div class="col-2">
-                    <button type="button" class="btn btn-sm btn-danger ml-1" (click)="filters.name = '';getCatlog()" *ngIf="filters.name !== ''">
+                    <button type="button" class="btn btn-sm btn-danger float-end ms-1" (click)="filters.name = '';getCatlog()" *ngIf="filters.name !== ''">
                         <i class="fa fa-trash"></i>
                     </button>
                 </div>
@@ -27,10 +27,10 @@
         <ul class="list-group">
           <li class="list-group-item" *ngFor="let c of catalog">
             {{ c.name }}
-            <button class="btn btn-sm btn-danger ml-2 float-right" (click)="deleteItem(c)">
+            <button class="btn btn-sm btn-danger ms-2 float-end" (click)="deleteItem(c)">
                 <i class="fa fa-trash"></i>
             </button>
-            <button class="btn btn-sm btn-default float-right" (click)="updateItem(c)">
+            <button class="btn btn-sm btn-light float-end" (click)="updateItem(c)">
                 <i class="fa fa-edit"></i>
             </button>
           </li>
@@ -46,12 +46,12 @@
 </div>
 
   <!-- Modal -->
-  <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal fade" bsModal #modalCatConcepts="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
     <form class="modal-dialog" role="document" #form="ngForm" (ngSubmit)="save()">
         <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="modalLabel">{{(isEdit?'Editar pastilla':'Agregar pastilla')}}</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modalCatConcepts.hide()">
             <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -66,7 +66,7 @@
           </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modalCatConcepts.hide()">Cerrar</button>
             <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button>
         </div>
         </div>

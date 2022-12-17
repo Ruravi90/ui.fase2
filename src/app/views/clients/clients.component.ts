@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import {ClientService, TypeService} from '../../services';
 import { Client, _Type, Paginate, Address } from '../../models';
 import swal from 'sweetalert2';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-
-declare var $: any, iziToast: any;
+import { ModalDirective } from 'ngx-bootstrap/modal';
 
 @Component({
   templateUrl: 'clients.component.html',
@@ -22,6 +21,15 @@ export class ClientsComponent implements OnInit {
   public perPage = 15;
   public shared: string | undefined;
   private sharedChange = new Subject();
+  @ViewChild('modalClient', { static: false }) modalClient?: ModalDirective;
+
+  toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
 
   constructor(
     private clientService: ClientService,
@@ -36,12 +44,10 @@ export class ClientsComponent implements OnInit {
     this.getClients();
     const that = this;
     // generate random values for mainChart
-    $('#modalClient').on('show.bs.modal', function () {
-    });
-
-    $('#modalClient').on('hidden.bs.modal', function () {
+    this.modalClient?.onHide.subscribe(()=>{
       that.getClients();
     });
+
   }
 
   sharedClient(event:any) {
@@ -83,23 +89,24 @@ export class ClientsComponent implements OnInit {
     if (this.isEdit) {
       this.clientService.put(this.client).subscribe(r => {
         this.isBusy = false;
-        $('#modalClient').modal('hide');
-          iziToast.show({
-              title: 'Registro actualizado'
+        this.modalClient?.hide();
+        this.toast.fire({
+          icon:'success',
+          title: 'Registro actualizado'
         });
       });
     } else {
       this.clientService.post(this.client).subscribe(r => {
         this.isBusy = false;
-        $('#modalClient').modal('hide');
-        iziToast.show({
-            title: 'Registro creado'
+        this.modalClient?.hide();
+        this.toast.fire({
+          icon:'success',
+          title: 'Registro creado'
         });
       },e =>{
         this.isBusy = false;
-        iziToast.show({
-          color: 'yellow', // blue, red, green, yellow,
-          position: 'topCenter', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter, center
+        this.toast.fire({
+          icon:'warning',
           title: e.error
         });
       });
@@ -110,7 +117,7 @@ export class ClientsComponent implements OnInit {
     this.isEdit = false;
     this.getTypes();
     this.client = new Client();
-    $('#modalClient').modal('show');
+    this.modalClient?.show();
   }
 
   editClient(c: Client): void {
@@ -123,7 +130,7 @@ export class ClientsComponent implements OnInit {
         if (this.client.address!.length === 0) {
           this.client.address = [new Address()];
         }
-        $('#modalClient').modal('show');
+        this.modalClient?.show();
       });
     }, 300);
   }
@@ -139,26 +146,18 @@ export class ClientsComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      if (result.value) {
+      if (result.isConfirmed) {
         this.clientService.delete(c.id!).subscribe(r => {
           const index = this.clients.findIndex(cl => cl.id === c.id);
           if (index > -1) {
             this.clients.splice(index, 1);
           }
-          iziToast.show({
+          this.toast.fire({
+            icon:'success',
             title: 'Registro eliminado'
           });
         });
-      // For more information about handling dismissals please visit
-      // https://sweetalert2.github.io/#handling-dismissals
       }
-      // else if (result.dismiss === swal.DismissReason.cancel) {
-      //  swal.fire(
-      //    'Cancelled',
-      //    'Your imaginary file is safe :)',
-      //    'error'
-      //  );
-      //}
     });
   }
 }

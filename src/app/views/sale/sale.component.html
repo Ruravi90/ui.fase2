@@ -1,7 +1,7 @@
 <div class="animated fadeIn">
    <div class="row">
      <div class="col-lg-7">
-       <form class="card" [formGroup]="formSale" (ngSubmit)="addSale(formSale.valid)">
+       <form class="card" [formGroup]="formSale" (ngSubmit)="addSale(formSale)">
          <div class="card-header"  [ngClass]="{'bg-danger':inventory != null && inventory.count! <= 0}">
            <div class="row">
             <div class="col-lg-3">
@@ -9,32 +9,23 @@
             </div>
             <div class="col-lg-6">
               <div class="row text-center" *ngIf="inventory == null">
-                <div class="col-lg-12 bg-warning text-white font-weight-bold p-1 rounded" *ngIf="sale.pill_id != null && inventory == null">
-                    Pastilla no registrada en inventario
-                </div>
                 <div class="col-lg-12 bg-warning text-white font-weight-bold p-1 rounded" *ngIf="sale.product_id != null && inventory == null">
                     Producto no registrado en inventerio
                 </div>
               </div>
               <div class="row text-center" *ngIf="inventory != null && inventory.count! <= 0">
-                  <div class="col-lg-12 bg-warning text-white font-weight-bold p-1 rounded" *ngIf="sale.pill_id != null || additional.pill_id != null">
-                      Pastilla agotada
-                  </div>fullname
                   <div class="col-lg-12 bg-danger text-white font-weight-bold p-1 rounded" *ngIf="sale.product_id != null || additional.product_id != null">
                       Producto agotado
                   </div>
               </div>
               <div class="row text-center" *ngIf="inventory != null && inventory.count! > 0">
-                  <div class="col-lg-12 bg-success text-white font-weight-bold p-1 rounded" *ngIf="sale.pill_id != null || additional.pill_id != null">
-                      Pastilla en stock ({{ inventory.count }})
-                  </div>
                   <div class="col-lg-12 bg-success text-white font-weight-bold p-1 rounded" *ngIf="sale.product_id != null || additional.product_id != null">
                       Producto en stock ({{ inventory.count }})
                   </div>
               </div>
             </div>
             <div class="col-lg-3">
-              <button *ngIf="formSale.valid" class="btn btn-sm btn-danger float-right" (click)="clearForm()"><i class="icofont icofont-brush"></i></button>
+              <button *ngIf="formSale.touched" class="btn btn-sm btn-danger float-end" (click)="clearForm()"><i class="fa-solid fa-hand-sparkles"></i></button>
             </div>
            </div>
          </div>
@@ -95,6 +86,7 @@
                 bindValue="id"
                 [selectOnTab]="true"
                 formControlName="typeConceptId"
+                [(ngModel)]="selectTypeConceptId"
                 (ngModelChange)="selectedTypeConcept()"
                 required>
               </ng-select>
@@ -107,18 +99,19 @@
                 bindValue="id"
                 [selectOnTab]="true"
                 formControlName="conceptId"
+                [(ngModel)]="selectConceptId"
                 (ngModelChange)="selectedConcept()"
                 required>
               </ng-select>
             </div>
             <div class="col-lg-4">
               <input type="number" min="1" max="100"
-              class="form-control"
-              placeholder="Cantidad"
-              name="count"
-              formControlName="count"
-              (ngModelChange)="onDebounce()"
-              requited/>
+                class="form-control"
+                placeholder="Cantidad"
+                name="count"
+                formControlName="count"
+                (ngModelChange)="onDebounce()"
+                requited/>
             </div>
           </div>
 
@@ -189,7 +182,7 @@
             <label *ngIf="s.service_id! > 0">{{s.cat_service!.name}}</label>
             <label *ngIf="s.package_id! > 0">{{s.cat_package!.name!}}</label>
             <label *ngIf="s.pill_id! > 0">{{s.cat_pill!.name}}</label>
-            <button class="btn btn-danger btn-sm float-right" (click)="deleteSale(i)"><i class="fa fa-trash"></i></button>
+            <button class="btn btn-danger btn-sm float-end" (click)="deleteSale(i)"><i class="fa fa-trash"></i></button>
           </li>
         </ul>
       </div>
@@ -301,6 +294,3 @@
     <small class="content-total" [innerHtml]="(dateNow | date: 'dd/MMM/yyyy') + (dateNow | date: 'HH:mm')!"></small>
   </div>
 </section>
-<!--f['password'].errors['required']-->
-<!--f['password'].errors['required']-->
-<!--submitted && f['password'].errors-->

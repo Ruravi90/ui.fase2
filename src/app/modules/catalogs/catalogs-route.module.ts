@@ -3,7 +3,6 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { CatPackageComponent } from '../../views/cat_packages/cat_package.component';
 import { CatProductsComponent } from '../../views/cat_products/cat_products.component';
-import { CatPillsComponent } from '../../views/cat_pills/cat_pills.component';
 import { CatReferencesComponent } from '../../views/cat_references/cat_references.component';
 import { CatServicesComponent } from '../../views/cat_services/cat_services.component';
 import { DepartmentsComponent } from '../../views/departments/departments.component';
@@ -22,13 +21,6 @@ const routes: Routes = [
         component: CatPackageComponent,
         data: {
           title: 'Paquetes'
-        }
-      },
-      {
-        path: 'cat_pills',
-        component: CatPillsComponent,
-        data: {
-          title: 'Pastillas'
         }
       },
       {

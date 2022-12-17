@@ -12,12 +12,12 @@ import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { PopoverModule } from 'ngx-bootstrap/popover';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { ModalModule } from 'ngx-bootstrap/modal';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { DatepickerModule } from 'ng2-datepicker';
 import { OrderModule } from 'ngx-order-pipe';
 
 import { InventoryRoutingModule } from './inventory-route.module';
-import { PillsInventoryComponent } from '../../views/pills_inventory/pills_inventory.component';
 import { ProductsInventoryComponent } from '../../views/products_inventory/products_inventory.component';
 
 
@@ -38,10 +38,10 @@ import { ProductsInventoryComponent } from '../../views/products_inventory/produ
     TooltipModule.forRoot(),
     NgSelectModule,
     DatepickerModule,
-    OrderModule
+    OrderModule,
+    ModalModule.forRoot(),
   ],
   declarations: [
-    PillsInventoryComponent,
     ProductsInventoryComponent,
   ]
 })

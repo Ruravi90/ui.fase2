@@ -4,17 +4,17 @@
       <div class="card">
         <div class="card-header">
           <h4>Agentes
-            <button class="btn btn-sm btn-primary float-right" (click)="addAgent()">Nuevo</button>
+            <button class="btn btn-sm btn-primary float-end" (click)="addAgent()">Nuevo</button>
           </h4>
         </div>
         <ul class="list-group">
           <li class="list-group-item" *ngFor="let u of agents">
-            {{u.initials + ' ' + u.name + ' ' + u.lastname}}
+            {{ u.name + ' ' + u.lastname}}
 
-            <button class="btn btn-sm btn-danger ml-2 float-right" (click)="deleteAgent(u)">
+            <button class="btn btn-sm btn-danger ms-2 float-end" (click)="deleteAgent(u)">
                 <i class="fa fa-trash"></i>
             </button>
-            <button class="btn btn-sm btn-default float-right" (click)="editAgent(u)">
+            <button class="btn btn-sm btn-light float-end" (click)="editAgent(u)">
                 <i class="fa fa-edit"></i>
             </button>
           </li>
@@ -26,12 +26,12 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="modalAgent" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" bsModal #modalAgent="bs-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <form class="modal-dialog" role="document" #agentForm="ngForm" (ngSubmit)="save()">
       <div class="modal-content">
       <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">{{(isEdit?'Editar agente':'Agregar agente')}}</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modalAgent.hide()">
           <span aria-hidden="true">&times;</span>
           </button>
       </div>
@@ -61,7 +61,7 @@
         </div>
       </div>
       <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modalAgent.hide()">Cerrar</button>
           <button type="submit" class="btn btn-primary" [disabled]="agentForm.invalid">Guardar</button>
       </div>
       </div>

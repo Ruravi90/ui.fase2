@@ -9,12 +9,12 @@
           </div>
           <ul class="list-group">
             <li class="list-group-item" *ngFor="let u of users">
-              {{u.initials + ' ' + u.name + ' ' + u.lastname}}
+              {{ u.name + ' ' + u.lastname }}
 
-              <button class="btn btn-sm btn-danger ml-2 float-right" (click)="deleteUser(u)">
-                  <i class="fa fa-trash"></i>
+              <button class="btn btn-sm btn-danger ms-2 float-end" (click)="deleteUser(u)">
+                  <i class="fa-solid fa-trash"></i>
               </button>
-              <button class="btn btn-sm btn-default float-right" (click)="editUser(u)">
+              <button class="btn btn-sm btn-light float-end" (click)="editUser(u)">
                   <i class="fa fa-edit"></i>
               </button>
             </li>
@@ -31,13 +31,13 @@
 
 
   <!-- Modal -->
-  <div class="modal fade" id="modalUser" tabindex="-1" role="dialog" aria-labelledby="modalUserLabel" aria-hidden="true">
+  <div class="modal fade" bsModal #modalUser="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modalUserLabel" aria-hidden="true">
     <form class="modal-dialog" role="document" #UserForm="ngForm" (ngSubmit)="save()">
         <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="modalUserLabel">{{(isEdit?'Editar usuario':'Agregar usuario')}}</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+            <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalUser.hide()">
+              <span aria-hidden="true" class="visually-hidden">&times;</span>
             </button>
         </div>
         <div class="modal-body">
@@ -64,22 +64,6 @@
                 <input class="form-control" placeholder="Materno" name="motherlastname" [(ngModel)]="user.motherlastname" #motherlastname="ngModel">
               </div>
             </div>
-            <div class="row mt-1">
-              <div class="col-lg-12">
-                <ng-select
-                  [items]="roles$ | async"
-                  [multiple]="true"
-                  [closeOnSelect]="false"
-                  [hideSelected]="true"
-                  bindLabel="name"
-                  placeholder="Seleciona los roles"
-                  name="roles"
-                  [(ngModel)]="user.roles"
-                  #roles="ngModel"
-                  required>
-                </ng-select>
-              </div>
-            </div>
             <div class="row mt-1"  *ngIf="isEdit">
               <div class="col-lg-5">
                 <input type="text" class="form-control" placeholder="Nueva contrasena" name="resetPassword" [(ngModel)]="user.reset_password" #resetPassword="ngModel">
@@ -87,7 +71,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modalUser.hide()">Cerrar</button>
             <button type="submit" class="btn btn-primary" [disabled]="UserForm.invalid">Guardar</button>
         </div>
         </div>

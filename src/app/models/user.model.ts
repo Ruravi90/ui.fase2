@@ -9,6 +9,6 @@ export class User  extends Base {
     reset_password?: string;
     token?: string;
     initials?: string;
-    roles?: Role[] = [];
+    profile?: string;
     fullname = () => `${this.name} ${this.lastname}`;
 }

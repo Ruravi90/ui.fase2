@@ -1,19 +1,27 @@
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpResponse } from '@angular/common/http';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpResponse, HttpEvent } from '@angular/common/http';
 import { finalize, tap } from 'rxjs/operators';
 import { UserService } from '../services';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { Router } from '@angular/router';
+import swal from 'sweetalert2';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
 
-  constructor(public auth: UserService,private spinner: NgxSpinnerService) {}
+  loading = swal.mixin({
+    didOpen: (toast) => {
+      swal.showLoading();
+    }
+  })
+
+  constructor(public auth: UserService, private router: Router) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler) {
+    this.loading.fire({
+      title: 'Estoy trabajando!',
+    });
+
     const startTime = Date.now();
-    //const loading = document.getElementById('loading');
-    //loading.classList.add('show');
-    this.spinner.show(); 
     let status: string;
     req = req.clone({
       setHeaders: {
@@ -21,22 +29,27 @@ export class TokenInterceptor implements HttpInterceptor {
         'Authorization': `Bearer ${this.auth.getToken()}`
       }
     });
+
     return next.handle(req).pipe(
-        tap(
-          event => {
+        tap({
+          next:(event:HttpEvent<any>)=>{
             status = '';
             if (event instanceof HttpResponse) {
               status = 'succeeded';
             }
           },
-          error => status = 'failed'
-        ),
+          error:(error: any)=>{
+            if(error.status === 401)
+            status = 'failed'
+          }
+        }),
         finalize(() => {
           const elapsedTime = Date.now() - startTime;
           const message = req.method + ' ' + req.urlWithParams + ' ' + status + ' in ' + elapsedTime + 'ms';
           this.logDetails(message);
-          this.spinner.hide();
-          //loading.classList.remove('show');
+          this.loading.close();
+
+          if(status === 'failed') this.router.navigate(['/login']);
         })
     );
   }

@@ -1,11 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { AgentService } from '../../services';
 import { User } from '../../models';
 import { Subject } from 'rxjs';
-import Swal from 'sweetalert2';
-import { debounceTime } from "rxjs/operators";
-
-declare var $: any, iziToast: any;
+import swal from 'sweetalert2';
+import { ModalDirective } from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-agents',
@@ -13,11 +11,20 @@ declare var $: any, iziToast: any;
 })
 
 export class AgentComponent implements OnInit {
+  @ViewChild('modalAgent', { static: false }) modalAgent?: ModalDirective;
   public agents: User[] = [];
   private timeout?: number;
   public agent: User = new User();
   public isEdit: Boolean = false;
   public existUser: Boolean = false;
+
+  toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
 
   private usernameChange: Subject<string> = new Subject();
 
@@ -27,13 +34,6 @@ export class AgentComponent implements OnInit {
   ngOnInit() {
     const that = this;
     that.getAgents();
-    // generate random values for mainChart
-    $('#modalAgent').on('show.bs.modal', function () {
-    });
-
-    $('#modalAgent').on('hidden.bs.modal', function () {
-      that.getAgents();
-    });
   }
 
   getAgents() {
@@ -54,7 +54,7 @@ export class AgentComponent implements OnInit {
   addAgent(): void {
     this.isEdit = false;
     this.agent = new User();
-    $('#modalAgent').modal('show');
+    this.modalAgent?.show();
   }
 
   editAgent(c: User): void {
@@ -62,13 +62,13 @@ export class AgentComponent implements OnInit {
     setTimeout(() => {
       this.aS.getById(c.id!).subscribe(r => {
         this.agent = r;
-        $('#modalAgent').modal('show');
+        this.modalAgent?.show();
       });
     }, 300);
   }
 
   async deleteAgent(c: User) {
-    Swal.fire({
+    swal.fire({
       title: 'Alerta!',
       text: 'Estas seguro de continuar',
       icon: 'question',
@@ -78,21 +78,14 @@ export class AgentComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result:any) => {
-      if (result.value) {
+      if (result.isConfirmed) {
         this.aS.delete(c.id!).subscribe(r => {
           this.getAgents();
-          iziToast.show({
+          this.toast.fire({
+            icon: 'success',
             title: 'Registro eliminado'
           });
         });
-      // For more information about handling dismissals please visit
-      // https://sweetalert2.github.io/#handling-dismissals
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        Swal.fire(
-          'Cancelled',
-          'Your imaginary file is safe :)',
-          'error'
-        );
       }
     });
   }
@@ -101,28 +94,30 @@ export class AgentComponent implements OnInit {
     if (this.isEdit && this.existUser) {
       this.aS.put(this.agent).subscribe(r => {
         if (r === 200) {
-          $('#modalAgent').modal('hide');
-          iziToast.show({
+          this.modalAgent?.hide();
+          this.toast.fire({
+            icon: 'success',
               title: 'Registro actualizado'
           });
         } else {
-          iziToast.show({
+          this.toast.fire({
+            icon: 'error',
               title: 'No fue posible actualizar el registro',
-              color: 'red'
           });
         }
        });
     } else {
       this.aS.post(this.agent).subscribe(r => {
         if (r === 200) {
-          $('#modalAgent').modal('hide');
-          iziToast.show({
-              title: 'Registro creado'
+          this.modalAgent?.hide();
+          this.toast.fire({
+            icon: 'error',
+            title: 'Registro creado'
           });
         } else {
-          iziToast.show({
+          this.toast.fire({
+            icon: 'error',
             title: 'No fue posible crear el registro',
-            color: 'red'
           });
         }
        });

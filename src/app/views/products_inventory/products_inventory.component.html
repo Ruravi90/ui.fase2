@@ -26,12 +26,12 @@
   </div>
 
    <!-- Modal -->
-  <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal fade" bsModal #modalProduct="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
     <form class="modal-dialog" role="document" [formGroup]="formProduct" (ngSubmit)="save()">
         <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="modalLabel">{{(isEdit?'Editar':'Agregar')}} inventario</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modalProduct.hide()">
             <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -53,7 +53,7 @@
           </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modalProduct.hide()">Cerrar</button>
             <button type="submit" class="btn btn-primary" [disabled]="!formProduct.valid">Guardar</button>
         </div>
         </div>

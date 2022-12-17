@@ -7,9 +7,9 @@ import { ClientService,
   AgentService,
   TypeService,
   SaleService,
-  PillsInventoryService,
   ProductsInventaryService
 } from '../../services';
+
 import { Client,
   Department,
   User,
@@ -47,36 +47,31 @@ export class SaleComponent implements OnInit {
   public typeAdditionals: any[] = [];
   public type_additional_id?: string;
   public conceptsAdditionals: _Type[] = [];
-  // tslint:disable-next-line:no-inferrable-types
   public type_concept_id?: string;
   public typeConcepts: any[] = [];
-  // tslint:disable-next-line:no-inferrable-types
   public concept_id?: number;
   public concepts: _Type[] = [];
   public _selectedConcept: any = {};
   public typeSales: _Type[] = [];
-
   public inventory?: Inventory;
-
   public isBusy = false;
-
   public dateNow: Date = new Date();
-
-  @ViewChild('typeConceptId')
-  public selectTypeConceptId: NgSelectComponent | undefined | null;
-  @ViewChild('conceptId')
-  public selectConceptId: NgSelectComponent | undefined | null;
+  public selectTypeConceptId:string | null = null;
+  public selectConceptId:string | null  = null;
 
   private subject: Subject<string> = new Subject();
   private amountChange: Subject<string> = new Subject();
 
   formSale: FormGroup = new FormGroup({
-    fullname: new FormControl(''),
-    username: new FormControl(''),
-    email: new FormControl(''),
-    password: new FormControl(''),
-    confirmPassword: new FormControl(''),
-    acceptTerms: new FormControl(false),
+    departmentId: new FormControl(''),
+    clientId: new FormControl(''),
+    responsibleId: new FormControl(''),
+    typeConceptId: new FormControl(''),
+    conceptId: new FormControl(''),
+    count: new FormControl(''),
+    discount: new FormControl(''),
+    typeSalesId: new FormControl(''),
+    amount: new FormControl(''),
   });
 
 
@@ -86,45 +81,32 @@ export class SaleComponent implements OnInit {
     private aS: AgentService,
     private tS: TypeService,
     private sS: SaleService,
-    private piS: PillsInventoryService,
     private prS: ProductsInventaryService,
     ) {
       this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
       this.setCombos();
-    }
+  }
 
   ngOnInit(): void {
     this.formSale = this.formBuilder.group(
       {
-        fullname: ['', Validators.required],
-        username: [
-          '',
-          [
-            Validators.required,
-            Validators.minLength(6),
-            Validators.maxLength(20)
-          ]
-        ],
-        email: ['', [Validators.required, Validators.email]],
-        password: [
-          '',
-          [
-            Validators.required,
-            Validators.minLength(6),
-            Validators.maxLength(40)
-          ]
-        ],
-        confirmPassword: ['', Validators.required],
-        acceptTerms: [false, Validators.requiredTrue]
-      },
-      {
-        validators: [Validation.match('password', 'confirmPassword')]
+        departmentId: [],
+        clientId: [],
+        responsibleId: [],
+        typeConceptId: [],
+        conceptId: [],
+        count: [],
+        discount: [],
+        typeSalesId: [],
+        amount: [],
       }
     );
 
-
-
     this.getSalesForDay();
+  }
+
+  ngAfterViewInit() {
+    this.formSale.validator;
   }
 
   get f(): { [key: string]: AbstractControl } {
@@ -170,11 +152,13 @@ export class SaleComponent implements OnInit {
   selectedTypeConcept() {
     let url = '';
     this.selectConceptId = null;
-    this.concept_id = undefined;
-    this.inventory = undefined;
+    this.formSale.value.conceptId = undefined;
+    this.inventory =  undefined;
     this.sale.product_id = undefined;
     this.sale.pill_id = undefined;
-    switch (this.type_concept_id) {
+    this.concepts = [new _Type()];
+
+    switch (this.formSale.value.typeConceptId) {
       case 'product':
           url = 'cat_products';
           break;
@@ -192,58 +176,50 @@ export class SaleComponent implements OnInit {
       this.tS.getAll(url).subscribe(r => {
         this.concepts = r;
       });
-    } else {
-      this.type_concept_id = undefined;
-      this.concepts = [new _Type()];
     }
   }
 
   selectedConcept() {
     // tslint:disable-next-line:prefer-const
-    let index = this.concepts.findIndex(i => i.id === this.concept_id);
+    let index = this.concepts.findIndex(i => i.id === this.formSale.value.conceptId);
     // tslint:disable-next-line:prefer-const
     this._selectedConcept = this.concepts[index];
     this.inventory = undefined;
     this.onCalculateTotal();
-    switch (this.type_concept_id) {
+    switch (this.formSale.value.typeConceptId) {
       case 'product':
-          this.sale.product_id = this.concept_id;
+          this.sale.product_id = this.formSale.value.conceptId;
           this.sale.cat_product =  this._selectedConcept;
-          this.prS.getForProduct(this.concept_id!).subscribe(r => {
+          this.prS.getForProduct(this.formSale.value.conceptId!).subscribe(r => {
             this.inventory = r;
           });
           break;
       case 'service':
-          this.sale.service_id = this.concept_id;
+          this.sale.service_id = this.formSale.value.conceptId;
           this.sale.cat_service =  this._selectedConcept;
           break;
       case 'package':
-          this.sale.package_id = this.concept_id;
+          this.sale.package_id = this.formSale.value.conceptId;
           this.sale.cat_package =  this._selectedConcept;
           break;
-      case 'pill':
-          this.sale.pill_id = this.concept_id;
-          this.sale.cat_pill =  this._selectedConcept;
-          this.piS.getForPill(this.concept_id!).subscribe(r => {
-            this.inventory = r;
-          });
-          break;
     }
-    this.inventory!.count = Number(this.inventory!.count);
+
+    if(this.inventory != undefined){
+      this.inventory = new Inventory();
+      this.inventory!.count = Number(this.inventory!.count);
+    }
+
   }
 
-  addSale(isValid: boolean) {
-    if (!isValid) {
+  addSale(form: FormGroup) {
+    if (!form.valid) {
+      console.log(form);
       return ;
     }
 
-    if(this.sale.pill_id != null && this.inventory == null){
-      return ;
-    }
     if(this.sale.product_id != null && this.inventory == null){
       return ;
     }
-
 
     this.sale.user_id = this.currentUser.id;
     this.sales.push(this.sale);
@@ -261,10 +237,10 @@ export class SaleComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      this.sales.splice(index, 1);
+      if(result.isConfirmed)
+        this.sales.splice(index, 1);
     });
   }
-
 
   async deleteSaleDB(s: Sale) {
     swal.fire({
@@ -277,18 +253,19 @@ export class SaleComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, cancelar!'
     }).then((result) => {
-      this.sS.cancel(s.id!).subscribe(r => {
-        this.getSalesForDay();
-        iziToast.show({
-          message: 'Registro cancelado correctamente'
+      if(result.isConfirmed){
+        this.sS.cancel(s.id!).subscribe(r => {
+          this.getSalesForDay();
+          iziToast.show({
+            message: 'Registro cancelado correctamente'
+          });
         });
-      });
+      }
     });
   }
 
   selectedTypeAdditional() {
     let url = '';
-    this.additional.pill_id = undefined;
     this.additional.product_id = undefined;
     switch (this.type_additional_id) {
       case 'product':
@@ -319,13 +296,6 @@ export class SaleComponent implements OnInit {
             this.inventory = r;
           });
           break;
-      case 'pill':
-          index = this.conceptsAdditionals.findIndex(i => i.id === this.additional.pill_id);
-          this.additional.cat_pill = this.conceptsAdditionals[index];
-          this.piS.getForPill(this.additional.pill_id!).subscribe(r => {
-            this.inventory = r;
-          });
-          break;
     }
   }
 
@@ -347,21 +317,25 @@ export class SaleComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      this.sale.additionals.splice(index, 1);
+      if(result.isConfirmed)
+        this.sale.additionals.splice(index, 1);
     });
   }
 
   onCalculateTotal() {
-    this.sale.price = Number(this._selectedConcept.price);
-    this.sale.subtotal =  this.sale.price * this.sale.count!;
-    if (typeof this.sale.discount !== 'undefined') {
-      this._selectedConcept.discount = ((Number(this.sale.discount) * this.sale.subtotal) / 100);
-    } else {
-      this._selectedConcept.discount = 0;
-    }
+    if(typeof this._selectedConcept != "undefined")
+    {
+      this.sale.price = Number(this._selectedConcept.price);
+      this.sale.subtotal =  this.sale.price * this.formSale.value.count!;
+      if (typeof this.sale.discount !== 'undefined') {
+        this._selectedConcept.discount = ((Number(this.sale.discount) * this.sale.subtotal) / 100);
+      } else {
+        this._selectedConcept.discount = 0;
+      }
 
-    this.sale.subtotal = this.sale.subtotal - Number(this._selectedConcept.discount);
-    this.sale.total = this.sale.subtotal;
+      this.sale.subtotal = this.sale.subtotal - Number(this._selectedConcept.discount);
+      this.sale.total = this.sale.subtotal;
+    }
   }
 
   onDebounce() {
@@ -387,6 +361,20 @@ export class SaleComponent implements OnInit {
     this.concept_id = undefined;
     this.type_additional_id = undefined;
     this.conceptsAdditionals = [];
+
+    this.formSale = this.formBuilder.group(
+      {
+        departmentId: [],
+        clientId: [],
+        responsibleId: [],
+        typeConceptId: [],
+        conceptId: [],
+        count: [],
+        discount: [],
+        typeSalesId: [],
+        amount: [],
+      }
+    );
 
     this.setCombos();
   }

@@ -37,7 +37,9 @@
             "styles": [
               "src/scss/styles.scss"
             ],
-            "scripts": [],
+            "scripts": [
+              "sweetalert2/dist/sweetalert2.js"
+            ],
             "allowedCommonJsDependencies": [
             ]
           },
@@ -107,7 +109,9 @@
             "styles": [
               "src/scss/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "sweetalert2/dist/sweetalert2.js"
+            ]
           }
         }
       }

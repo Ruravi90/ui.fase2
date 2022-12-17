@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserService } from '../../services';
 import { User } from '../../models';
-//import { Ng2IzitoastService } from 'ng2-izitoast';//<-- this line
 import { freeSet } from '@coreui/icons/js/free';
+import swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
@@ -14,8 +14,8 @@ import { freeSet } from '@coreui/icons/js/free';
   ]
 })
 export class LoginComponent implements OnInit {
-  icons = freeSet ;
 
+  icons = freeSet ;
   user: User = new User();
 
   public formUser: FormGroup = new FormGroup({
@@ -25,8 +25,15 @@ export class LoginComponent implements OnInit {
 
   isBusy: Boolean = false;
   isAuthorized: Boolean | null = null;
+  toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
+
   constructor(
-    //public iziToast: Ng2IzitoastService,
     private formBuilder: FormBuilder,
     private uS: UserService, private router: Router) {
     localStorage.removeItem('currentUser');
@@ -50,14 +57,27 @@ export class LoginComponent implements OnInit {
     this.isBusy = true;
     this.user.username = this.formUser.value.username;
     this.user.password = this.formUser.value.password;
-    this.uS.login(this.user).subscribe(r => {
-      this.isAuthorized = true;
-      localStorage.setItem('currentUser', JSON.stringify(r.success));
-      this.router.navigate(['/page']);
-    }, error => {
-      this.isBusy = false;
-      this.isAuthorized = false;
-      
+
+
+    this.uS.login(this.user).subscribe(
+    {
+      next: (r:any)=>{
+        this.isAuthorized = true;
+        this.toast.fire({
+          icon: 'success',
+          title: 'Inicio de sesion correcto'
+        })
+        localStorage.setItem('currentUser', JSON.stringify(r));
+        this.router.navigate(['/page']);
+      },
+      error: ()=>{
+        swal.fire({
+          icon: 'error',
+          title: 'Usuario o Contraseña incorrectas'
+        })
+        this.isBusy = false;
+        this.isAuthorized = false;
+      }
     });
   }
 }

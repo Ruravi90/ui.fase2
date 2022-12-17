@@ -25,6 +25,13 @@ export class PurchasesComponent implements OnInit {
   public paginate: Paginate = new Paginate();
   public filters: any = { isPaid: 'null', perPage:15 };
 
+  toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
 
   constructor(private pS: PurchaseService, private dS: DepartmentService, private cS: CreditorService, private tS: TypeService) {
     this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
@@ -91,7 +98,7 @@ export class PurchasesComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      if (result.value) {
+      if (result.isConfirmed) {
         this._purchases.splice(index, 1);
       }
     });
@@ -103,8 +110,9 @@ export class PurchasesComponent implements OnInit {
 
   save() {
     this.pS.post(this._purchases).subscribe(r => {
-      iziToast.show({
-        message: 'Registro creado'
+      this.toast.fire({
+        icon:'success',
+        title: 'Registro creado'
       });
       this._purchases = [];
       this.getCatlog();

@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { PillsInventoryComponent } from '../../views/pills_inventory/pills_inventory.component';
 import { ProductsInventoryComponent } from '../../views/products_inventory/products_inventory.component';
 
 
@@ -19,13 +18,6 @@ const routes: Routes = [
         component: ProductsInventoryComponent,
         data: {
           title: 'Productos'
-        }
-      },
-      {
-        path: 'pills_inventory',
-        component: PillsInventoryComponent,
-        data: {
-          title: 'Pastillas'
         }
       },
     ]

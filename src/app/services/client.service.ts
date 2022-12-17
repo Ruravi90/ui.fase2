@@ -9,7 +9,6 @@ export class ClientService {
     private url: string = environment.urlApi + 'clients';
     private currentUser: User = new User();
     constructor(private http: HttpClient) {
-      debugger;
       let user = localStorage.getItem('currentUser');
       this.currentUser = JSON.parse(user!);
     }

@@ -10,6 +10,9 @@ $enable-rtl: true;
 
 @import "~@ng-select/ng-select/themes/default.theme.css";
 //@import "~@ng-select/ng-select/themes/material.theme.css";
+@import 'sweetalert2/src/sweetalert2.scss';
+
+//@import 'ngx-bootstrap/datepicker/bs-datepicker.scss';
 
 // perfect scrollbar theming for use with [perfectScrollbar] directive
 //@import '~perfect-scrollbar/css/perfect-scrollbar.css';

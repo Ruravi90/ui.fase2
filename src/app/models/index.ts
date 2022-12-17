@@ -15,7 +15,6 @@ export * from './permission.model';
 export * from './permission_user.model';
 export * from './permission_role.model';
 export * from './creditor.model';
-export * from './pills_inventory.model';
 export * from './products_inventory.model';
 export * from './sale_additional.model';
 export * from './paginate.model';

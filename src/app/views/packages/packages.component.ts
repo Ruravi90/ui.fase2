@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { PackageService, AgentService, PaymentService, PackageTrackingService, TypeService, SaleService,PaginateService } from '../../services';
 import { User, Package, PackageTracking, Payment, Sale, _Type, Paginate } from '../../models';
 import { Subject, Observable } from 'rxjs';
@@ -8,6 +8,7 @@ import { environment } from '../../../environments/environment';
 
 import { DatepickerOptions } from 'ng2-datepicker';
 import locale from 'date-fns/locale/en-US';
+import { BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
 
 declare var $: any, iziToast: any, printJS: any;
 
@@ -32,7 +33,8 @@ export class PackagesComponent implements OnInit {
   public payment: Payment = new Payment();
   public printPayment: Payment =new Payment() ;
   public payments: Payment [] = [];
-  // tslint:disable-next-line:no-inferrable-types
+  @ViewChild('modalPayment', { static: false }) modalPayment?: ModalDirective;
+  @ViewChild('modalTracker', { static: false }) modalTracker?: ModalDirective;
   public subTotal: number = 0;
   public balance: number = 0;
 
@@ -56,8 +58,17 @@ export class PackagesComponent implements OnInit {
     scrollBarColor: '#dfe3e9', // in case you customize you theme, here you define scroll bar color
   };
 
+  toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
+
 
   constructor(
+    private modalService: BsModalService,
     private pS: PackageService,
     private aS: AgentService,
     private paS: PaymentService,
@@ -75,13 +86,16 @@ export class PackagesComponent implements OnInit {
     this.typeSale$ = this.tS.getAll('cat_type_sales');
     const that = this;
 
-    $('#modalTracker').on('hidden.bs.modal', function () {
+
+    this.modalPayment?.onShow.subscribe(() => {
       that.getPackages();
     });
 
-    $('#modalPayment').on('hidden.bs.modal', function () {
+    this.modalTracker?.onShow.subscribe(() => {
       that.getPackages();
     });
+
+
   }
 
   getPackages() {
@@ -110,26 +124,18 @@ export class PackagesComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      if (result.value) {
+      if (result.isConfirmed) {
         this.pS.delete(p.id!).subscribe((r) => {
           const index = this.packages.findIndex(p => p.id === p.id);
           if (index > -1) {
             this.packages.splice(index, 1);
           }
-          iziToast.show({
-            message: 'Registro eliminado'
+          this.toast.fire({
+            icon:'success',
+            title: 'Registro eliminado'
           });
         });
-      // For more information about handling dismissals please visit
-      // https://sweetalert2.github.io/#handling-dismissals
       }
-      // else if (result.dismiss === swal.DismissReason.cancel) {
-      //  swal.fire(
-      //    'Cancelled',
-      //    'Your imaginary file is safe :)',
-      //    'error'
-      //  );
-      //}
     });
   }
 
@@ -163,7 +169,7 @@ export class PackagesComponent implements OnInit {
       });
       this.balance = (this.sale.subtotal! - this.subTotal);
       this.sale.is_paid = this.balance <= 0;
-      $('#modalPayment').modal('show');
+      this.modalPayment?.show();
     });
   }
 
@@ -192,9 +198,10 @@ export class PackagesComponent implements OnInit {
         }, 1000);
 
       }, 1000);
-      $('#modalPayment').modal('hide');
-      iziToast.show({
-        message: 'Registro creado'
+      this.modalPayment?.hide();
+      this.toast.fire({
+        icon:'success',
+        title: 'Registro creado'
       });
     });
   }
@@ -217,7 +224,6 @@ export class PackagesComponent implements OnInit {
  * @memberof SalesComponent
  */
   buildingTicket(id: string) {
-    // tslint:disable-next-line:prefer-const
     printJS({
       printable: id,
       type: 'html',
@@ -234,7 +240,7 @@ export class PackagesComponent implements OnInit {
     this.tracker.package_id = p.id;
     this.tracker.scheduled_date = '';
     this.getTracking();
-    $('#modalTracker').modal('show');
+    this.modalTracker?.show();
   }
 
   getTracking() {
@@ -246,9 +252,10 @@ export class PackagesComponent implements OnInit {
   saveTracking() {
     this.tracker.scheduled_date = moment(this.tracker.scheduled_date).format('Y-MM-D h:mm:ss');
     this.ptS.post(this.tracker).subscribe(xhr => {
-      $('#modalTracker').modal('hide');
-      iziToast.show({
-        message: 'Registro creado'
+      this.modalTracker?.hide();
+      this.toast.fire({
+        icon:'success',
+        title: 'Registro creado'
       });
     });
   }
