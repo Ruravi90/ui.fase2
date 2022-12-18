@@ -11,7 +11,6 @@ export * from './package.service';
 export * from './payment.service';
 export * from './packages_tracking.service';
 export * from './creditor.service';
-export * from './pills_inventory.service';
 export * from './products_inventory.service';
 export * from './balance.service';
 export * from './purchase.service';

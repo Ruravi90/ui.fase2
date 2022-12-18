@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { FormsModule,ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { HashLocationStrategy, LocationStrategy, PathLocationStrategy } from '@angular/common';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -43,7 +43,6 @@ import { ClientService,
   PaymentService,
   PackageTrackingService,
   CreditorService,
-  PillsInventoryService,
   ProductsInventaryService,
   BalanceService,
   PurchaseService,
@@ -63,15 +62,11 @@ const APP_Services = [
   PaymentService,
   PackageTrackingService,
   CreditorService,
-  PillsInventoryService,
   ProductsInventaryService,
   BalanceService,
   PurchaseService,
   PaginateService
 ];
-
-
-
 
 // Import containers
 import {

@@ -125,7 +125,7 @@ export class DefaultLayoutComponent {
         {
           name: 'Catalogos',
           icon: 'fas fa-database',
-          url: '/catalogs',
+          url: '/catalog',
           children: [
             {
               name: 'Paquetes',
