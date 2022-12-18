@@ -5,8 +5,8 @@ import { Department, User, Sale, _Type, Paginate, Payment } from '../../models';
 import { environment } from '../../../environments/environment';
 
 import swal from 'sweetalert2';
-import { Subject, Observable } from 'rxjs';
-declare var $: any, iziToast: any;
+import { Observable } from 'rxjs';
+import izitoast from 'izitoast';
 import * as print from 'print-js';
 
 @Component({
@@ -30,14 +30,6 @@ export class SalesComponent implements OnInit {
   public isBusy: boolean = false;
   @ViewChild('modalPayment', { static: false }) modalPayment?: ModalDirective;
 
-  toast = swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-  });
-
   public isCopyPrint = false;
   public filters: any = {
     perPage: 15,
@@ -49,8 +41,6 @@ export class SalesComponent implements OnInit {
 
   public subTotal = 0;
   public balance = 0;
-
-  private amountChange: Subject<string> = new Subject();
 
   constructor(
     private sS: SaleService,
@@ -103,8 +93,7 @@ export class SalesComponent implements OnInit {
           if (index > -1) {
             this.sales.splice(index, 1);
           }
-          this.toast.fire({
-            icon:'success',
+          izitoast.success({
             title: 'Registro cancelado correctamente'
           });
         });
@@ -162,8 +151,7 @@ export class SalesComponent implements OnInit {
     this.paS.post(this.payment).subscribe(r => {
       this.printTicket(r.id);
       this.modalPayment?.hide();
-      this.toast.fire({
-        icon:'success',
+      izitoast.success({
         title: 'Registro creado'
       });
     });

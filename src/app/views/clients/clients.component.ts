@@ -5,6 +5,7 @@ import swal from 'sweetalert2';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { ModalDirective } from 'ngx-bootstrap/modal';
+import izitoast from 'izitoast';
 
 @Component({
   templateUrl: 'clients.component.html',
@@ -23,14 +24,6 @@ export class ClientsComponent implements OnInit {
   private sharedChange = new Subject();
   @ViewChild('modalClient', { static: false }) modalClient?: ModalDirective;
 
-  toast = swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-  });
-
   constructor(
     private clientService: ClientService,
     private typeService: TypeService) {
@@ -42,12 +35,6 @@ export class ClientsComponent implements OnInit {
   ngOnInit(): void {
     this.shared = '';
     this.getClients();
-    const that = this;
-    // generate random values for mainChart
-    this.modalClient?.onHide.subscribe(()=>{
-      that.getClients();
-    });
-
   }
 
   sharedClient(event:any) {
@@ -90,8 +77,7 @@ export class ClientsComponent implements OnInit {
       this.clientService.put(this.client).subscribe(r => {
         this.isBusy = false;
         this.modalClient?.hide();
-        this.toast.fire({
-          icon:'success',
+        izitoast.success({
           title: 'Registro actualizado'
         });
       });
@@ -99,14 +85,12 @@ export class ClientsComponent implements OnInit {
       this.clientService.post(this.client).subscribe(r => {
         this.isBusy = false;
         this.modalClient?.hide();
-        this.toast.fire({
-          icon:'success',
+        izitoast.success({
           title: 'Registro creado'
         });
       },e =>{
         this.isBusy = false;
-        this.toast.fire({
-          icon:'warning',
+        izitoast.error({
           title: e.error
         });
       });
@@ -152,8 +136,7 @@ export class ClientsComponent implements OnInit {
           if (index > -1) {
             this.clients.splice(index, 1);
           }
-          this.toast.fire({
-            icon:'success',
+          izitoast.success({
             title: 'Registro eliminado'
           });
         });

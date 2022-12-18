@@ -4,7 +4,7 @@ import { Purchase, _Type, User, Paginate } from '../../models';
 
 import swal from 'sweetalert2';
 import { Observable } from 'rxjs';
-declare var $: any, iziToast: any;
+import izitoast from 'izitoast';
 
 @Component({
   templateUrl: 'purchases.component.html',
@@ -24,14 +24,6 @@ export class PurchasesComponent implements OnInit {
   public isEdit = false;
   public paginate: Paginate = new Paginate();
   public filters: any = { isPaid: 'null', perPage:15 };
-
-  toast = swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-  });
 
   constructor(private pS: PurchaseService, private dS: DepartmentService, private cS: CreditorService, private tS: TypeService) {
     this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
@@ -110,8 +102,7 @@ export class PurchasesComponent implements OnInit {
 
   save() {
     this.pS.post(this._purchases).subscribe(r => {
-      this.toast.fire({
-        icon:'success',
+      izitoast.success({
         title: 'Registro creado'
       });
       this._purchases = [];

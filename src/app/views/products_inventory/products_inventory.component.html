@@ -4,7 +4,7 @@
         <div class="card">
           <div class="card-header">
             <h4>Inventario de productos
-              <button class="btn btn-sm btn-primary float-right" (click)="add()">Nuevo</button>
+              <button class="btn btn-sm btn-primary float-end" (click)="add()">Nuevo</button>
             </h4>
           </div>
           <ul class="list-group">
@@ -14,8 +14,8 @@
                   <div class="col-lg-3">Precio: {{i.product!.price | currency:'MXN ':true:'4.2-2'}}</div>
                   <div class="col-lg-3">En stock: {{i.count}}</div>
                   <div class="col-lg-2">
-                    <button class="btn btn-sm btn-danger ml-2 float-right" (click)="delete(i)"><i class="fa fa-trash"></i></button>
-                    <button class="btn btn-sm btn-default float-right" (click)="update(i)"><i class="fa fa-edit"></i></button>
+                    <button class="btn btn-sm btn-danger ms-2 float-end" (click)="delete(i)"><i class="fa fa-trash"></i></button>
+                    <button class="btn btn-sm btn-default float-end" (click)="update(i)"><i class="fa fa-edit"></i></button>
                   </div>
               </div>
             </li>
@@ -26,13 +26,13 @@
   </div>
 
    <!-- Modal -->
-  <div class="modal fade" bsModal #modalProduct="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal fade" bsModal #modalProduct="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true" (onHidden)="getCatlog()">
     <form class="modal-dialog" role="document" [formGroup]="formProduct" (ngSubmit)="save()">
         <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="modalLabel">{{(isEdit?'Editar':'Agregar')}} inventario</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modalProduct.hide()">
-            <span aria-hidden="true">&times;</span>
+            <button type="button" class="btn-close close pull-right" data-dismiss="modal" aria-label="Close" (click)="modalProduct.hide()">
+              <span aria-hidden="true" class="visually-hidden">&times;</span>
             </button>
         </div>
         <div class="modal-body">
@@ -41,7 +41,7 @@
               <select
                 class="form-control mb-3"
                 formControlName="product" >
-                <option value="">Choose City</option>
+                <option value="">Selecciona ...</option>
                 <option *ngFor="let cmb of cmbProducts$ | async" [ngValue]="cmb.id">
                   {{ cmb.name }}
                 </option>

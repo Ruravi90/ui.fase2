@@ -4,6 +4,7 @@ import { ProductsInventaryService, TypeService } from '../../services';
 import { ProductsInventory, _Type } from '../../models';
 
 import swal from 'sweetalert2';
+import izitoast from 'izitoast';
 import { Observable } from 'rxjs';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 
@@ -21,19 +22,12 @@ export class ProductsInventoryComponent implements OnInit {
   @ViewChild('modalProduct', { static: false }) modalProduct?: ModalDirective;
   public isEdit = false;
 
-  toast = swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-  });
-
   constructor(
     private formBuilder: FormBuilder,
     private pS: ProductsInventaryService,
     private tS: TypeService) {
   }
+
 
   ngOnInit(): void {
 
@@ -69,7 +63,7 @@ export class ProductsInventoryComponent implements OnInit {
     this.pS.getById(_item.id!).subscribe(r => {
       this.product = _item;
       this.formProduct =new FormGroup({
-        product: new FormControl(_item.product, Validators.required),
+        product: new FormControl(_item.product_id, Validators.required),
         count: new FormControl(_item.count, Validators.required),
       });
       this.modalProduct?.show();
@@ -78,22 +72,20 @@ export class ProductsInventoryComponent implements OnInit {
 
   save() {
     //this.item.product_id = this.item.product.id;
-    this.product.product = this.formProduct.value.product;
+    this.product.product_id = this.formProduct.value.product;
     this.product.count = this.formProduct.value.count;
 
     if (this.isEdit) {
       this.pS.put(this.product).subscribe(r => {
         this.modalProduct?.hide();
-        this.toast.fire({
-          icon:'success',
+        izitoast.success({
           title: 'Registro actualizado'
         });
       });
     } else {
       this.pS.post(this.product).subscribe(r => {
         this.modalProduct?.hide();
-        this.toast.fire({
-          icon:'success',
+        izitoast.success({
           title: 'Registro creado'
         });
       });
@@ -114,8 +106,7 @@ export class ProductsInventoryComponent implements OnInit {
       if (result.isConfirmed) {
         this.pS.delete(_item.id!).subscribe(r => {
           this.getCatlog();
-          this.toast.fire({
-            icon:'success',
+          izitoast.success({
             title: 'Registro eliminado'
           });
         });

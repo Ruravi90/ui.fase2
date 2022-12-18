@@ -8,9 +8,9 @@ import { environment } from '../../../environments/environment';
 
 import { DatepickerOptions } from 'ng2-datepicker';
 import locale from 'date-fns/locale/en-US';
-import { BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
-
-declare var $: any, iziToast: any, printJS: any;
+import { ModalDirective } from 'ngx-bootstrap/modal';
+import izitoast from 'izitoast';
+declare var printJS: any;
 
 @Component({
     selector: 'app-packages',
@@ -41,41 +41,14 @@ export class PackagesComponent implements OnInit {
   public paginate: Paginate = new Paginate();
 
   public disabledTracker = false;
-  private amountChange: Subject<string> = new Subject();
-
-  public options: DatepickerOptions = {
-    minYear: 1970, // minimum available and selectable year
-    maxYear: Date.now(), // maximum available and selectable year
-    placeholder: '', // placeholder in case date model is null | undefined, example: 'Please pick a date'
-    format: 'LLLL do yyyy', // date format to display in input
-    formatTitle: 'LLLL yyyy',
-    formatDays: 'EEEEE',
-    firstCalendarDay: 0, // 0 - Sunday, 1 - Monday
-    locale: locale, // date-fns locale
-    position: 'bottom',
-    inputClass: '', // custom input CSS class to be applied
-    calendarClass: 'datepicker-default', // custom datepicker calendar CSS class to be applied
-    scrollBarColor: '#dfe3e9', // in case you customize you theme, here you define scroll bar color
-  };
-
-  toast = swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-  });
-
 
   constructor(
-    private modalService: BsModalService,
     private pS: PackageService,
     private aS: AgentService,
     private paS: PaymentService,
     private tS: TypeService,
     private ptS: PackageTrackingService,
-    private pagS: PaginateService,
-    private sS: SaleService) {
+    private pagS: PaginateService) {
       this.pagS.model = 'packages';
       this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
       this.getPackages();
@@ -84,18 +57,7 @@ export class PackagesComponent implements OnInit {
   ngOnInit() {
     this.agents$ = this.aS.get();
     this.typeSale$ = this.tS.getAll('cat_type_sales');
-    const that = this;
-
-
-    this.modalPayment?.onShow.subscribe(() => {
-      that.getPackages();
-    });
-
-    this.modalTracker?.onShow.subscribe(() => {
-      that.getPackages();
-    });
-
-
+    this.getPackages();
   }
 
   getPackages() {
@@ -130,8 +92,7 @@ export class PackagesComponent implements OnInit {
           if (index > -1) {
             this.packages.splice(index, 1);
           }
-          this.toast.fire({
-            icon:'success',
+          izitoast.success({
             title: 'Registro eliminado'
           });
         });
@@ -199,8 +160,7 @@ export class PackagesComponent implements OnInit {
 
       }, 1000);
       this.modalPayment?.hide();
-      this.toast.fire({
-        icon:'success',
+      izitoast.success({
         title: 'Registro creado'
       });
     });
@@ -253,8 +213,7 @@ export class PackagesComponent implements OnInit {
     this.tracker.scheduled_date = moment(this.tracker.scheduled_date).format('Y-MM-D h:mm:ss');
     this.ptS.post(this.tracker).subscribe(xhr => {
       this.modalTracker?.hide();
-      this.toast.fire({
-        icon:'success',
+      izitoast.success({
         title: 'Registro creado'
       });
     });

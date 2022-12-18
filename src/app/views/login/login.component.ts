@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { UserService } from '../../services';
 import { User } from '../../models';
 import { freeSet } from '@coreui/icons/js/free';
-import swal from 'sweetalert2';
+import izitoast from 'izitoast';
 
 @Component({
   selector: 'app-login',
@@ -25,17 +25,11 @@ export class LoginComponent implements OnInit {
 
   isBusy: Boolean = false;
   isAuthorized: Boolean | null = null;
-  toast = swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-  });
 
   constructor(
     private formBuilder: FormBuilder,
-    private uS: UserService, private router: Router) {
+    private uS: UserService,
+    private router: Router) {
     localStorage.removeItem('currentUser');
   }
 
@@ -53,28 +47,26 @@ export class LoginComponent implements OnInit {
     return this.formUser.controls;
   }
 
-  login() {
+  login(){
+    if( this.isBusy)
+      return;
+
     this.isBusy = true;
     this.user.username = this.formUser.value.username;
     this.user.password = this.formUser.value.password;
-
 
     this.uS.login(this.user).subscribe(
     {
       next: (r:any)=>{
         this.isAuthorized = true;
-        this.toast.fire({
-          icon: 'success',
-          title: 'Inicio de sesion correcto'
-        })
         localStorage.setItem('currentUser', JSON.stringify(r));
         this.router.navigate(['/page']);
       },
       error: ()=>{
-        swal.fire({
-          icon: 'error',
+        izitoast.error({
+          theme: 'dark',
           title: 'Usuario o Contraseña incorrectas'
-        })
+        });
         this.isBusy = false;
         this.isAuthorized = false;
       }

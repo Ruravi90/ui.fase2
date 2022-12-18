@@ -4,7 +4,7 @@
         <div class="card">
           <div class="card-header">
             <h4>Usuarios
-              <button class="btn btn-sm btn-primary float-right" (click)="addUser()">Nuevo</button>
+              <button class="btn btn-sm btn-primary float-end" (click)="addUser()">Nuevo</button>
             </h4>
           </div>
           <ul class="list-group">
@@ -31,7 +31,7 @@
 
 
   <!-- Modal -->
-  <div class="modal fade" bsModal #modalUser="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modalUserLabel" aria-hidden="true">
+  <div class="modal fade" bsModal #modalUser="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true" (onHidden)="getUsers()">
     <form class="modal-dialog" role="document" #UserForm="ngForm" (ngSubmit)="save()">
         <div class="modal-content">
         <div class="modal-header">

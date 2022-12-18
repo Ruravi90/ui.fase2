@@ -26,13 +26,13 @@
 
 
 <!-- Modal -->
-<div class="modal fade" bsModal #modalAgent="bs-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" bsModal #modalAgent="bs-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" (onHidden)="getAgents()">
   <form class="modal-dialog" role="document" #agentForm="ngForm" (ngSubmit)="save()">
       <div class="modal-content">
       <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">{{(isEdit?'Editar agente':'Agregar agente')}}</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modalAgent.hide()">
-          <span aria-hidden="true">&times;</span>
+          <button type="button" class="btn-close close pull-right" data-dismiss="modal" aria-label="Close" (click)="modalAgent.hide()">
+            <span aria-hidden="true" class="visually-hidden">&times;</span>
           </button>
       </div>
       <div class="modal-body">

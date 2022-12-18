@@ -19,6 +19,9 @@ export class UserService {
     login(model: User): Observable<any> {
         return this.http.post<any>(environment.urlApi + 'auth/login', model).pipe(map((r:any)=> r));
     }
+    logout(): Observable<any> {
+      return this.http.post<any>(environment.urlApi + 'auth/logout',{}).pipe(map((r:any)=> r));
+    }
     isLogin(): boolean {
         if (!localStorage.getItem('currentUser')) {
             return false;

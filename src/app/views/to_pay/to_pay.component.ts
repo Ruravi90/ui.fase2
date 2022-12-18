@@ -3,8 +3,7 @@ import { PurchaseService, TypeService } from '../../services';
 import { Purchase, _Type, Paginate } from '../../models';
 
 import swal from 'sweetalert2';
-import { Observable } from 'rxjs';
-declare var $: any, iziToast: any;
+import izitoast from 'izitoast';
 
 @Component({
   templateUrl: 'to_pay.component.html'
@@ -47,7 +46,7 @@ export class ToPayComponent implements OnInit {
     }).then((result) => {
       this.pS.pay(item).subscribe(r => {
         this.getCatlog();
-        iziToast.show({
+        izitoast.success({
           message: 'Compra marcada como pagada'
         });
       });

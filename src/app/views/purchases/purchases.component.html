@@ -96,25 +96,6 @@
                         </div>
                         <div class="row mt-1" *ngIf="purchase.expense_id == 12">
                             <div class="col-lg-4">
-                                <ng-select placeholder="Pastilla"
-                                    [items]="cmbPills$ | async"
-                                    [(ngModel)]="purchase.pill_id"
-                                    bindLabel="name"
-                                    bindValue="id"
-                                    [selectOnTab]="true"
-                                    name="pillId"
-                                    #pillId="ngModel">
-                                </ng-select>
-                            </div>
-                            <div class="col-lg-4" *ngIf="purchase.pill_id == -1">
-                                <input type="text" name="name_pill" class="form-control" placeholder="Pastilla nueva" [(ngModel)]="purchase.name_pill">
-                            </div>
-                            <div class="col-lg-4" >
-                                <input type="number" name="pill_count" class="form-control" [(ngModel)]="purchase.pill_count" placeholder="Cantidad" min="0"/>
-                            </div>
-                        </div>
-                        <div class="row mt-1" *ngIf="purchase.expense_id == 12">
-                            <div class="col-lg-4">
                                 <ng-select placeholder="Productos"
                                     [items]="cmbProducts$ | async"
                                     [(ngModel)]="purchase.product_id"

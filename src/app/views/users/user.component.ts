@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { UserService, RoleService, PaginateService } from '../../services';
 import { User, Role, Paginate } from '../../models';
-import { Subject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import swal from 'sweetalert2';
+import izitoast from 'izitoast';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 
 @Component({
@@ -23,16 +24,6 @@ export class UserComponent implements OnInit {
     isPaid: 0
   };
 
-  toast = swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-  });
-
-  private usernameChange: Subject<string> = new Subject();
-
   constructor(
     private aS: UserService,
     private rS: RoleService,
@@ -43,9 +34,7 @@ export class UserComponent implements OnInit {
 
   ngOnInit() {
     this.roles$ =  this.rS.get();
-    const that = this;
-    that.getUsers();
-
+    this.getUsers();
   }
 
   getUsers() {
@@ -101,8 +90,7 @@ export class UserComponent implements OnInit {
       if(result.isConfirmed){
         this.aS.delete(c.id!).subscribe(r => {
           this.getUsers();
-          this.toast.fire({
-            icon: 'success',
+          izitoast.success({
             title: 'Registro eliminado'
           });
         });
@@ -115,13 +103,11 @@ export class UserComponent implements OnInit {
       this.aS.put(this.user).subscribe(r => {
         if (r === 200) {
           this.modalUser?.hide();
-          this.toast.fire({
-            icon: 'success',
+          izitoast.success({
               title: 'Registro actualizado'
           });
         } else {
-          this.toast.fire({
-            icon: 'error',
+          izitoast.error({
             title: 'No fue posible actualizar el registro',
           });
         }
@@ -130,19 +116,16 @@ export class UserComponent implements OnInit {
       this.aS.post(this.user).subscribe(r => {
         if (r != null) {
           this.modalUser?.hide();
-          this.toast.fire({
-            icon: 'success',
+          izitoast.success({
             title: 'Registro creado'
           });
         } else {
-          this.toast.fire({
-            icon: 'error',
+          izitoast.error({
             title: 'No fue posible crear el registro',
           });
         }
        },error=>{
-        this.toast.fire({
-            icon: 'error',
+        izitoast.error({
             title: error.msj,
           });
        });

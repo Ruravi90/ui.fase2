@@ -11,8 +11,9 @@ $enable-rtl: true;
 @import "~@ng-select/ng-select/themes/default.theme.css";
 //@import "~@ng-select/ng-select/themes/material.theme.css";
 @import 'sweetalert2/src/sweetalert2.scss';
+@import 'izitoast/dist/css/izitoast.css';
 
-//@import 'ngx-bootstrap/datepicker/bs-datepicker.scss';
+@import 'https://unpkg.com/ngx-bootstrap/datepicker/bs-datepicker.css';
 
 // perfect scrollbar theming for use with [perfectScrollbar] directive
 //@import '~perfect-scrollbar/css/perfect-scrollbar.css';
@@ -21,9 +22,6 @@ $enable-rtl: true;
 
 // Some temp fixes
 @import "fixes";
-
-// Prism.js
-@import "examples";
 
 // If you want to add something do it here
 @import "custom";

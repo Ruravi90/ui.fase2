@@ -1,6 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import Validation from '../../utils/validation';
 
 import { ClientService,
   DepartmentService,
@@ -18,13 +17,11 @@ import { Client,
   SaleAdditional,
   Inventory
 } from '../../models';
-import { NgSelectComponent  } from '@ng-select/ng-select';
 
 import swal from 'sweetalert2';
-import { Subject, forkJoin } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import * as print from 'print-js';
-
-declare var $: any, iziToast: any, document: any;
+import izitoast from 'izitoast';
 
 @Component({
   templateUrl: 'sale.component.html',
@@ -32,7 +29,7 @@ declare var $: any, iziToast: any, document: any;
 })
 
 export class SaleComponent implements OnInit {
-  public currentUser: User = new User();
+  public currentUser;
   public sale: Sale = new Sale();
   public sales: Sale[] = [];
   public salesForDay: Sale[] = [];
@@ -58,9 +55,6 @@ export class SaleComponent implements OnInit {
   public dateNow: Date = new Date();
   public selectTypeConceptId:string | null = null;
   public selectConceptId:string | null  = null;
-
-  private subject: Subject<string> = new Subject();
-  private amountChange: Subject<string> = new Subject();
 
   formSale: FormGroup = new FormGroup({
     departmentId: new FormControl(''),
@@ -99,6 +93,7 @@ export class SaleComponent implements OnInit {
         discount: [],
         typeSalesId: [],
         amount: [],
+        description: []
       }
     );
 
@@ -221,7 +216,16 @@ export class SaleComponent implements OnInit {
       return ;
     }
 
-    this.sale.user_id = this.currentUser.id;
+    this.sale.department_id = this.formSale.value.departmentId;
+    this.sale.client_id = this.formSale.value.clientId;
+    this.sale.responsible_id = this.formSale.value.responsibleId;
+    this.sale.type_sale_id = this.formSale.value.typeSalesId;
+    this.sale.count = this.formSale.value.count;
+    this.sale.discount = this.formSale.value.discount;
+    this.sale.amount = this.formSale.value.amount;
+    this.sale.description = this.formSale.value.description;
+    this.sale.user_id = this.currentUser.claims.id;
+
     this.sales.push(this.sale);
     this.clearForm();
   }
@@ -256,7 +260,7 @@ export class SaleComponent implements OnInit {
       if(result.isConfirmed){
         this.sS.cancel(s.id!).subscribe(r => {
           this.getSalesForDay();
-          iziToast.show({
+          izitoast.success({
             message: 'Registro cancelado correctamente'
           });
         });
@@ -373,6 +377,7 @@ export class SaleComponent implements OnInit {
         discount: [],
         typeSalesId: [],
         amount: [],
+        description:[]
       }
     );
 

@@ -4,6 +4,7 @@ import { User } from '../../models';
 import { Subject } from 'rxjs';
 import swal from 'sweetalert2';
 import { ModalDirective } from 'ngx-bootstrap/modal';
+import izitoast from 'izitoast';
 
 @Component({
   selector: 'app-agents',
@@ -18,22 +19,11 @@ export class AgentComponent implements OnInit {
   public isEdit: Boolean = false;
   public existUser: Boolean = false;
 
-  toast = swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-  });
-
-  private usernameChange: Subject<string> = new Subject();
-
   constructor(private aS: AgentService) {
   }
 
   ngOnInit() {
-    const that = this;
-    that.getAgents();
+    this.getAgents();
   }
 
   getAgents() {
@@ -81,8 +71,7 @@ export class AgentComponent implements OnInit {
       if (result.isConfirmed) {
         this.aS.delete(c.id!).subscribe(r => {
           this.getAgents();
-          this.toast.fire({
-            icon: 'success',
+          izitoast.success({
             title: 'Registro eliminado'
           });
         });
@@ -95,14 +84,12 @@ export class AgentComponent implements OnInit {
       this.aS.put(this.agent).subscribe(r => {
         if (r === 200) {
           this.modalAgent?.hide();
-          this.toast.fire({
-            icon: 'success',
-              title: 'Registro actualizado'
+          izitoast.success({
+            title: 'Registro actualizado'
           });
         } else {
-          this.toast.fire({
-            icon: 'error',
-              title: 'No fue posible actualizar el registro',
+          izitoast.warning({
+            title: 'No fue posible actualizar el registro',
           });
         }
        });
@@ -110,13 +97,11 @@ export class AgentComponent implements OnInit {
       this.aS.post(this.agent).subscribe(r => {
         if (r === 200) {
           this.modalAgent?.hide();
-          this.toast.fire({
-            icon: 'error',
+          izitoast.success({
             title: 'Registro creado'
           });
         } else {
-          this.toast.fire({
-            icon: 'error',
+          izitoast.warning({
             title: 'No fue posible crear el registro',
           });
         }

@@ -62,7 +62,7 @@
     </div>
 </div>
 
-<div class="modal fade" bsModal #modalTracker="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modalTrackerLabel" aria-hidden="true">
+<div class="modal fade" bsModal #modalTracker="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modalTrackerLabel" aria-hidden="true" (onHidden)="getTracking()">
     <form class="modal-dialog" role="document" #tackerForm="ngForm" (ngSubmit)="saveTracking()">
       <div class="modal-content">
           <div class="modal-header">
@@ -130,7 +130,7 @@
     </form>
 </div>
 
-<div class="modal fade" bsModal #modalPayment="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modalPeymentLabel" aria-hidden="true">
+<div class="modal fade" bsModal #modalPayment="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modalPeymentLabel" aria-hidden="true" (onHidden)="getPayments()">
   <form class="modal-dialog" role="document" #paymentForm="ngForm" (ngSubmit)="savePayment()">
     <div class="modal-content">
       <div class="modal-header">

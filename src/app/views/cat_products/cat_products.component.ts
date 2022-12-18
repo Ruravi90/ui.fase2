@@ -5,7 +5,7 @@ import { _Type, Paginate } from '../../models';
 import swal from 'sweetalert2';
 import { Subject } from 'rxjs';
 import { ModalDirective } from 'ngx-bootstrap/modal';
-declare var $: any, iziToast: any;
+import izitoast from 'izitoast';
 
 @Component({
   templateUrl: './cat_products.component.html'
@@ -24,23 +24,11 @@ export class CatProductsComponent implements OnInit {
   };
   @ViewChild('modalCatProducts', { static: false }) modalCatProducts?: ModalDirective;
 
-  toast = swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-  });
-
   constructor(private tS: TypeService) {
   }
 
   ngOnInit(): void {
     this.getCatlog();
-    let that = this;
-    this.modalCatProducts?.onHidden.subscribe(()=>{
-      that.getCatlog();
-    });
   }
 
   getCatlog() {
@@ -81,8 +69,7 @@ export class CatProductsComponent implements OnInit {
       this.tS.put(this.nameCalog, this.item).subscribe(r => {
         this.item = r;
         this.modalCatProducts?.hide();
-        this.toast.fire({
-          icon:'success',
+        izitoast.success({
           title: 'Registro actualizado'
         });
       });
@@ -90,8 +77,7 @@ export class CatProductsComponent implements OnInit {
       this.tS.post(this.nameCalog, this.item).subscribe(r => {
         this.item = r;
         this.modalCatProducts?.hide();
-        this.toast.fire({
-          icon:'success',
+        izitoast.success({
           title: 'Registro creado'
         });
       });
@@ -112,8 +98,7 @@ export class CatProductsComponent implements OnInit {
       if (result.isConfirmed) {
         this.tS.delete(this.nameCalog, _item.id!).subscribe(r => {
           this.getCatlog();
-          this.toast.fire({
-            icon:'success',
+          izitoast.success({
             title: 'Registro eliminado'
           });
         });

@@ -3,9 +3,9 @@ import { CreditorService } from '../../services';
 import { Creditor} from '../../models';
 
 import swal from 'sweetalert2';
-import { Subject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ModalDirective } from 'ngx-bootstrap/modal';
-declare var $: any, iziToast: any;
+import izitoast from 'izitoast';
 
 @Component({
   templateUrl: 'creditors.component.html'
@@ -17,26 +17,12 @@ export class CreditorsComponent implements OnInit {
   public isEdit: Boolean = false;
   @ViewChild('modalCreditor', { static: false }) modalCreditor?: ModalDirective;
 
-  toast = swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-  });
-
-
   constructor(
     private cS: CreditorService) {
   }
 
   ngOnInit(): void {
     this.getCreditors();
-    const that = this;
-    this.modalCreditor?.onShow.subscribe(() => {
-      that.getCreditors();
-    });
-
   }
 
   getCreditors() {
@@ -48,13 +34,11 @@ export class CreditorsComponent implements OnInit {
       this.cS.put(this.model).subscribe(r => {
         this.getCreditors();
         this.modalCreditor?.hide();
-        this.toast.fire({
-          icon:'success',
+        izitoast.success({
           title: 'Registro actualizado'
         });
        }, e =>{
-        this.toast.fire({
-          icon:'error',
+        izitoast.success({
           title: 'No fue posible actualizar el registro'
         });
        });
@@ -62,13 +46,11 @@ export class CreditorsComponent implements OnInit {
       this.cS.post(this.model).subscribe(r => {
         this.getCreditors();
         this.modalCreditor?.hide();
-        this.toast.fire({
-          icon:'success',
+        izitoast.success({
           title: 'Registro creado'
         });
        },e =>{
-        this.toast.fire({
-          icon:'error',
+        izitoast.error({
           title: 'No fue posible crear el registro',
         });
        });
@@ -105,8 +87,7 @@ export class CreditorsComponent implements OnInit {
       if (result.isConfirmed) {
         this.cS.delete(c.id!).subscribe(r => {
           this.getCreditors();
-          this.toast.fire({
-            icon:'success',
+          izitoast.success({
             title: 'Registro eliminado'
           });
         });

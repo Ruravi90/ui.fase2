@@ -5,6 +5,7 @@ import { UserService } from '../services';
 import { Router } from '@angular/router';
 import swal from 'sweetalert2';
 
+
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
 
@@ -20,6 +21,7 @@ export class TokenInterceptor implements HttpInterceptor {
     this.loading.fire({
       title: 'Estoy trabajando!',
     });
+
 
     const startTime = Date.now();
     let status: string;
