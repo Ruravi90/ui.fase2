@@ -66,38 +66,10 @@ export class DefaultLayoutComponent {
     if (this.getRoles('admin')) {
       this.navItems.push(
         {
-          name: 'Balance',
-          url: '/page/box',
-          icon: 'fas fa-balance-scale',
-          children: null
-        },
-        {
-          name: 'Egresos',
-          icon: 'fas fa-store',
-          url: '/shopping',
-          children: [
-            {
-              name: 'Registrar egresos',
-              url: '/shopping/capture_purchase',
-              icon: 'fa fa-cart-plus'
-            },
-            {
-              name: 'Egresos por pagar',
-              url: '/shopping/to_pay',
-              icon: 'fas fa-cart-arrow-down'
-            }
-          ]
-        },
-        {
           name: 'Administración',
           icon: 'fas fa-gear',
           url: '/admin',
           children: [
-            {
-              name: 'Prov./Acreedores',
-              url: '/admin/creditors',
-              icon: 'fas fa-handshake'
-            },
             {
               name: 'Usuarios',
               url: '/admin/users',
@@ -145,18 +117,6 @@ export class DefaultLayoutComponent {
             {
               name: 'Servicios',
               url: '/catalog/cat_services',
-              icon: 'icofont icofont-sub-listing'
-            }
-            ,
-            {
-              name: 'Conceptos',
-              url: '/catalog/cat_concepts',
-              icon: 'icofont icofont-sub-listing'
-            }
-            ,
-            {
-              name: 'Tipo de gastos',
-              url: '/catalog/cat_expenses',
               icon: 'icofont icofont-sub-listing'
             }
           ]
