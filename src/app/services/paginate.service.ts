@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Sale, User, Paginate} from '../models';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class PaginateService {
     private url: string = environment.urlApi;
     public model: string = '';

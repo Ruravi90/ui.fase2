@@ -1,57 +1,230 @@
-<div class="animated fadeIn">
-    <div class="row">
-        <div class="col col-lg-2" *ngIf="salesChart.length > 0">
-            <ngx-charts-pie-chart
-                [view]="[1000,0]"
-                [legend]="true"
-                [explodeSlices]="false"
-                [labels]="true"
-                [doughnut]="false"
-                [gradient]="true"
-                [results]="salesChart"
-                [legendTitle]="'Ventas'"
-                [labelFormatting]="setLabelFormatting">
-                <ng-template #tooltipTemplate let-model="model" let-index="index">
-                    <span class="tooltip-val">{{getSaleName(model.value)}}</span>
-                </ng-template>
-            </ngx-charts-pie-chart>
-        </div>
+<div class="animated fadeIn dashboard-shell">
+  <div class="dashboard-header">
+    <div>
+      <p class="dashboard-kicker">Operacion diaria</p>
+      <h2 class="dashboard-title">Panel Principal</h2>
+      <p class="dashboard-subtitle">Pulso comercial, caja e inventario en una sola vista</p>
     </div>
-    <div class="row">
-        <div class="col-12" *ngIf="packagesChart.length > 0">
-            <ngx-charts-pie-chart
-                [view]="[1000,0]"
-                [legend]="true"
-                [explodeSlices]="false"
-                [labels]="true"
-                [doughnut]="false"
-                [gradient]="true"
-                [results]="packagesChart"
-                [legendTitle]="'Paquetes'"
-                [labelFormatting]="setLabelFormatting">
-                <ng-template #tooltipTemplate let-model="model" let-index="index">
-                    <span class="tooltip-val">{{getPackageName(model.value)}}</span>
-                </ng-template>
-            </ngx-charts-pie-chart>
-        </div>
+    <div class="dashboard-vitals">
+      <span>{{summary.salesToday || 0}} ventas hoy</span>
+      <span>{{summary.pendingPayments || 0}} por cobrar</span>
+      <span>{{summary.completedPackages || 0}} paquetes completados</span>
     </div>
-    <div class="row">
-        <div class="col-12">
-            <ngx-charts-pie-chart *ngIf="servicesChart.length > 0"
-                [view]="[1000,0]"
-                [legend]="true"
-                [explodeSlices]="false"
-                [labels]="true"
-                [doughnut]="false"
-                [gradient]="true"
-                [results]="servicesChart"
-                [legendTitle]="'Servicios'"
-                [labelFormatting]="setLabelFormatting">
-                <ng-template #tooltipTemplate let-model="model" let-index="index">
-                    <span class="tooltip-val">{{getServiceName(model.value)}}</span>
-                </ng-template>
-            </ngx-charts-pie-chart>
-        </div>
+  </div>
+
+  @if (isLoading) {
+    <div class="dashboard-loading-skeleton" style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="kpi-grid">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <div class="kpi-card" style="height: 100px;">
+            <div class="skeleton-line" style="width: 48px; height: 48px; border-radius: 12px; margin-right: 16px;"></div>
+            <div style="flex-grow: 1;">
+              <div class="skeleton-line" style="width: 60%; height: 14px; margin-bottom: 8px;"></div>
+              <div class="skeleton-line" style="width: 80%; height: 24px;"></div>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="dashboard-main-grid">
+        <section class="chart-card chart-card-wide" style="height: 300px;">
+          <div class="skeleton-line" style="width: 30%; height: 24px; margin-bottom: 20px;"></div>
+          <div class="skeleton-line" style="width: 100%; height: 200px; border-radius: 8px;"></div>
+        </section>
+        <section class="chart-card" style="height: 300px;">
+          <div class="skeleton-line" style="width: 50%; height: 24px; margin-bottom: 20px;"></div>
+          <div class="skeleton-line" style="width: 200px; height: 200px; border-radius: 50%; margin: 0 auto;"></div>
+        </section>
+      </div>
     </div>
-         
+  } @else {
+    <div class="kpi-grid">
+      @for (kpi of kpis; track kpi.label) {
+        <div class="kpi-card" [class]="'tone-' + kpi.tone">
+          <div class="kpi-icon">
+            <i class="fas" [ngClass]="kpi.icon"></i>
+          </div>
+          <div>
+            <p class="kpi-label">{{kpi.label}}</p>
+            <strong class="kpi-value">{{getKpiValue(kpi)}}</strong>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="dashboard-main-grid">
+      <section class="chart-card chart-card-wide">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Ventas</p>
+            <h4>Ritmo mensual</h4>
+          </div>
+          <span>{{summary.revenueMonth || 0 | currency:'MXN':'symbol':'1.0-0'}}</span>
+        </div>
+        <div class="chart-container compact-chart">
+          <ngx-charts-bar-vertical
+            [results]="salesChart"
+            [xAxis]="true"
+            [yAxis]="true"
+            [gradient]="true"
+            [showXAxisLabel]="false"
+            [showYAxisLabel]="false">
+          </ngx-charts-bar-vertical>
+        </div>
+      </section>
+
+      <section class="chart-card">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Caja</p>
+            <h4>Metodos de pago</h4>
+          </div>
+        </div>
+        <div class="chart-container">
+          <ngx-charts-pie-chart
+            [legend]="true"
+            [labels]="true"
+            [doughnut]="true"
+            [gradient]="true"
+            [results]="paymentMethodsChart"
+            [legendTitle]="'Pagos'">
+          </ngx-charts-pie-chart>
+        </div>
+      </section>
+
+      <section class="chart-card">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Areas</p>
+            <h4>Ventas por departamento</h4>
+          </div>
+        </div>
+        <div class="chart-container">
+          <ngx-charts-pie-chart
+            [legend]="true"
+            [labels]="true"
+            [doughnut]="false"
+            [gradient]="true"
+            [results]="departmentsChart"
+            [legendTitle]="'Departamentos'">
+          </ngx-charts-pie-chart>
+        </div>
+      </section>
+
+      <section class="chart-card">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Servicios</p>
+            <h4>Mas vendidos</h4>
+          </div>
+        </div>
+        <div class="chart-container">
+          <ngx-charts-pie-chart
+            [legend]="true"
+            [labels]="true"
+            [doughnut]="false"
+            [gradient]="true"
+            [results]="servicesChart"
+            [legendTitle]="'Servicios'"
+            [labelFormatting]="setLabelFormatting">
+            <ng-template #tooltipTemplate let-model="model">
+              <span class="tooltip-val">{{getServiceName(model.value)}}</span>
+            </ng-template>
+          </ngx-charts-pie-chart>
+        </div>
+      </section>
+
+      <section class="chart-card">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Paquetes</p>
+            <h4>Sesiones vendidas</h4>
+          </div>
+        </div>
+        <div class="chart-container">
+          <ngx-charts-pie-chart
+            [legend]="true"
+            [labels]="true"
+            [doughnut]="false"
+            [gradient]="true"
+            [results]="packagesChart"
+            [legendTitle]="'Paquetes'"
+            [labelFormatting]="setLabelFormatting">
+            <ng-template #tooltipTemplate let-model="model">
+              <span class="tooltip-val">{{getPackageName(model.value)}}</span>
+            </ng-template>
+          </ngx-charts-pie-chart>
+        </div>
+      </section>
+    </div>
+
+    <div class="dashboard-lower-grid">
+      <section class="insight-panel">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Ranking</p>
+            <h4>Top sellers</h4>
+          </div>
+        </div>
+        <div class="seller-columns">
+          @for (group of ['services', 'products', 'packages']; track group) {
+            <div class="seller-column">
+              <h5>{{group === 'services' ? 'Servicios' : group === 'products' ? 'Productos' : 'Paquetes'}}</h5>
+              @for (item of topSellers[group]; track item.id || item.service_id || item.product_id || item.package_id) {
+                <div class="seller-row">
+                  <span>{{getSellerName(item, group)}}</span>
+                  <strong>{{(item.total || 0) | currency:'MXN':'symbol':'1.0-0'}}</strong>
+                </div>
+              } @empty {
+                <p class="empty-state">Sin datos</p>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="insight-panel side-panel">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Atencion</p>
+            <h4>Alertas</h4>
+          </div>
+        </div>
+        <div class="alert-list">
+          @for (alert of alerts; track alert.message) {
+            <div class="alert-item" [class]="'level-' + alert.level">
+              <i class="fas" [ngClass]="getAlertIcon(alert.type)"></i>
+              <span>{{alert.message}}</span>
+            </div>
+          } @empty {
+            <p class="empty-state">Sin alertas activas</p>
+          }
+        </div>
+      </section>
+
+      <section class="insight-panel side-panel">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Bitacora</p>
+            <h4>Actividad reciente</h4>
+          </div>
+        </div>
+        <div class="activity-list">
+          @for (item of activity; track item.title + item.created_at) {
+            <div class="activity-item">
+              <div class="activity-icon">
+                <i class="fas" [ngClass]="getActivityIcon(item.type)"></i>
+              </div>
+              <div>
+                <strong>{{item.title}}</strong>
+                <p>{{item.description}}</p>
+                <span>{{item.amount | currency:'MXN':'symbol':'1.0-0'}} · {{item.created_at | date:'dd MMM, HH:mm'}}</span>
+              </div>
+            </div>
+          } @empty {
+            <p class="empty-state">Sin actividad reciente</p>
+          }
+        </div>
+      </section>
+    </div>
+  }
 </div>

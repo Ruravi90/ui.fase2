@@ -6,6 +6,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
 import { TokenInterceptor } from './aunth/token.interceptor';
 import { AlwaysAuthGuard } from './aunth/AlwaysAuthGuard';
+import { MockInterceptor } from './mocks/mock.interceptor';
 
 import { registerLocaleData } from '@angular/common';
 import localeMx from '@angular/common/locales/es-MX';
@@ -18,6 +19,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(routes, withHashLocation()),
     provideHttpClient(withInterceptorsFromDi()),
+    { provide: HTTP_INTERCEPTORS, useClass: MockInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
     provideAnimations(),
     AlwaysAuthGuard

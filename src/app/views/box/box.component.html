@@ -1,69 +1,109 @@
 <div class="animated fadeIn">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card">
-        <div class="card-header">
-          <div class="row">
-            <div class="col-8">
-              <h4>Balance</h4>
-            </div>
-            <div class="col-4">
-              <input type="date" class="form-control" [(ngModel)]="filters.date" name="date" (ngModelChange)="getBalance()">
+    <div class="col-lg-10">
+      <div>
+        <!-- Serene Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+          <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600;">
+            Balance de Operaciones
+          </h4>
+          
+          <div class="header-actions">
+            <!-- Sleek Date Input -->
+            <div class="serene-month-picker-wrapper">
+              <i class="fas fa-calendar-alt picker-icon"></i>
+              <input type="month" class="serene-month-picker" [(ngModel)]="filters.date" name="date" (ngModelChange)="getBalance()">
             </div>
           </div>
         </div>
-        <div class="card-body">
+        
+        <div>
+          @if (isLoading) {
+            <div class="box-loading-skeleton">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                  <div class="skeleton-line" style="width: 60%; height: 20px; margin-bottom: 16px;"></div>
+                  <div class="skeleton-line" style="width: 100%; height: 100px; border-radius: 8px; margin-bottom: 10px;"></div>
+                  <div class="skeleton-line" style="width: 100%; height: 100px; border-radius: 8px;"></div>
+                </div>
+                <div>
+                  <div class="skeleton-line" style="width: 60%; height: 20px; margin-bottom: 16px;"></div>
+                  <div class="skeleton-line" style="width: 100%; height: 100px; border-radius: 8px; margin-bottom: 10px;"></div>
+                  <div class="skeleton-line" style="width: 100%; height: 100px; border-radius: 8px;"></div>
+                </div>
+              </div>
+            </div>
+          } @else if (balances.length === 0) {
+            <div class="text-center" style="padding: 4rem 2rem; background: var(--color-surface); border-radius: 12px; box-shadow: 0 4px 12px rgba(58, 74, 64, 0.05); border: 1px solid rgba(0,0,0,0.03);">
+              <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--color-text-muted); opacity: 0.5; margin-bottom: 1rem;"></i>
+              <h5 style="color: var(--color-text-primary); font-weight: 500; font-family: 'Outfit', sans-serif;">Sin movimientos</h5>
+              <p style="color: var(--color-text-muted); margin: 0;">No hay datos de balance registrados para este período.</p>
+            </div>
+          } @else {
+          
           <div class="row">
             @for (balance of balances; track balance) {
-              <div class="col">
-                <div class="card">
-                  <div class="card-header">
-                    <h5 class="box-title">{{balance.name}}</h5>
+              <div class="col-lg-6 mb-4">
+                <div class="serene-balance-card h-100">
+                  
+                  <div class="balance-card-header">
+                    <div class="branch-icon">
+                      <i class="fas fa-store"></i>
+                    </div>
+                    <span class="branch-name">{{balance.name}}</span>
                   </div>
-                  <ul class="list-group" >
-                    <li class="list-group-item list-group-item-info">
-                      <div class="row">
-                        <div class="col">
-                          <strong>Ingreso</strong>
-                        </div>
-                        <div class="col text-right">
-                          <strong>{{balance.salesTotal | currency:'MXN ':true:'2.2-4'}}</strong>
-                        </div>
-                      </div>
-                    </li>
-                    <li class="list-group-item list-group-item-warning">
-                      <div class="row">
-                        <div class="col">
-                          <strong>Egreso</strong>
-                        </div>
-                        <div class="col text-right">
-                          <strong>{{balance.purchaseTotal | currency:'MXN ':true:'2.2-4'}}</strong>
+                  
+                  <div class="balance-card-body">
+                    <!-- Stat Boxes -->
+                    <div class="stat-boxes-grid">
+                      <div class="stat-box box-income">
+                        <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+                        <div class="stat-content">
+                          <small>Ingresos</small>
+                          <span class="price-value">{{balance.salesTotal | currency:'MXN ':'symbol':'2.2-4'}}</span>
                         </div>
                       </div>
-                    </li>
-                    <li class="list-group-item list-group-item-success">
-                      <div class="row">
-                        <div class="col">
-                          <strong>Utilidad</strong>
-                        </div>
-                        <div class="col text-right">
-                          <strong>{{balance.total | currency:'MXN ':true:'2.2-4'}}</strong>
+                      
+                      <div class="stat-box box-expense">
+                        <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+                        <div class="stat-content">
+                          <small>Egresos</small>
+                          <span class="price-value">{{balance.purchaseTotal | currency:'MXN ':'symbol':'2.2-4'}}</span>
                         </div>
                       </div>
-                    </li>
-                    @for (c of balance.expenses; track c) {
-                      <li class="list-group-item">
-                        <div class="row">
-                          <div class="col">{{c.name}}:</div>
-                          <div class="col"><strong>{{c.total | currency:'MXN $':true:'2.2-4'}}</strong></div>
+                      
+                      <div class="stat-box box-utility">
+                        <div class="stat-icon"><i class="fas fa-piggy-bank"></i></div>
+                        <div class="stat-content">
+                          <small>Utilidad Neta</small>
+                          <span class="price-value">{{balance.total | currency:'MXN ':'symbol':'2.2-4'}}</span>
                         </div>
-                      </li>
+                      </div>
+                    </div>
+
+                    <!-- Expenses List -->
+                    @if (balance.expenses && balance.expenses.length > 0) {
+                      <div class="expenses-section">
+                        <h6 class="expenses-title">
+                          <i class="fas fa-receipt mr-2"></i> Desglose de Egresos
+                        </h6>
+                        <div class="serene-list-group">
+                          @for (c of balance.expenses; track c) {
+                            <div class="serene-list-item">
+                              <span class="item-name">{{c.name}}</span>
+                              <span class="item-amount">{{c.total | currency:'MXN $':'symbol':'2.2-4'}}</span>
+                            </div>
+                          }
+                        </div>
+                      </div>
                     }
-                  </ul>
+                  </div>
+                  
                 </div>
               </div>
             }
           </div>
+          }
         </div>
       </div>
     </div>

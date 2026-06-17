@@ -1,47 +1,49 @@
-<div class="app-body">
-  <main class="main d-flex align-items-center">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-5">
-          <div class="card-group">
-            <div class="card p-4">
-              <form class="card-body" #loginForm="ngForm" (submit)="login()">
-                <h1>Fase 2 spa</h1>
-                <p class="text-muted">login</p>
-                <div class="input-group mb-3">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="icon-user"></i></span>
-                  </div>
-                  <input type="text" class="form-control" placeholder="Username" [(ngModel)]="user.username" #username="ngModel" name="username">
-                </div>
-                <div class="input-group mb-2">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="icon-lock"></i></span>
-                  </div>
-                  <input type="password" class="form-control" placeholder="Password"  [(ngModel)]="user.password"  #password="ngModel" name="password">
-                </div>
-                @if (isAuthorized == false) {
-                  <div class="row mb-2">
-                    <div class="col-lg-12">
-                      <span class="text-danger"> <i class="icon-lock"></i> Usuario o contraseña incorrecta</span>
-                    </div>
-                  </div>
-                }
-                <div class="row">
-                  <div class="col-6">
-                    <button type="submit" class="btn btn-primary px-4" [disabled]="isBusy" >@if (isBusy) {
-                      <i class="fa fa-spinner fa-pulse fa-fw"></i>
-                    } Iniciar sesión</button>
-                  </div>
-                  <div class="col-6 text-right">
-                    <button type="sub" class="btn btn-link px-0">olvidaste tu contrase&ntilde;a?</button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
+<div class="login-container">
+  <div class="login-visual">
+    <div class="visual-content">
+      <h2>Bienestar y Tranquilidad</h2>
+      <p>Bienvenido a Fase 2 Spa. Tu espacio de relajación y cuidado personal.</p>
+    </div>
+    <div class="visual-gradient-orb"></div>
+  </div>
+  
+  <div class="login-form-container">
+    <form class="login-form" #loginForm="ngForm" (submit)="login()">
+      <div class="form-header">
+        <h1>Fase 2 Spa</h1>
+        <p class="subtitle">Ingresa a tu cuenta</p>
+      </div>
+
+      <div class="serene-input-group">
+        <label for="username">Usuario</label>
+        <div class="input-wrapper">
+          <input type="text" id="username" placeholder="Tu nombre de usuario" [(ngModel)]="user.username" #username="ngModel" name="username" required>
         </div>
       </div>
-    </div>
-  </main>
+
+      <div class="serene-input-group">
+        <label for="password">Contraseña</label>
+        <div class="input-wrapper">
+          <input type="password" id="password" placeholder="Tu contraseña" [(ngModel)]="user.password" #password="ngModel" name="password" required>
+        </div>
+      </div>
+
+      @if (isAuthorized == false) {
+        <div class="error-message">
+          <span>Usuario o contraseña incorrecta</span>
+        </div>
+      }
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" [disabled]="isBusy || loginForm.invalid">
+          @if (isBusy) {
+            <span class="spinner"></span>
+          } @else {
+            <span>Iniciar sesión</span>
+          }
+        </button>
+        <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+      </div>
+    </form>
+  </div>
 </div>

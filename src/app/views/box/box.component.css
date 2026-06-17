@@ -1,4 +1,239 @@
-ng-datepicker /deep/ .ngx-datepicker-container,
-ng-datepicker /deep/ .ngx-datepicker-calendar-container {
-    z-index: 1024;
+/* Serene Month Picker */
+.serene-month-picker-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #E0E5E2);
+  border-radius: 20px;
+  padding: 0.3rem 1rem;
+  box-shadow: 0 2px 8px rgba(58, 74, 64, 0.05);
+  transition: all 0.3s ease;
 }
+
+.serene-month-picker-wrapper:hover,
+.serene-month-picker-wrapper:focus-within {
+  border-color: var(--color-primary, #84A59D);
+  box-shadow: 0 4px 12px rgba(132, 165, 157, 0.15);
+}
+
+.picker-icon {
+  color: var(--color-primary, #84A59D);
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.serene-month-picker {
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary, #3A4A40);
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  outline: none;
+  width: 140px;
+  cursor: pointer;
+}
+
+/* Chrome/Safari specific overrides for input type="month" */
+.serene-month-picker::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.serene-month-picker::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Serene Balance Card */
+.serene-balance-card {
+  background-color: var(--color-surface, #fff);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(58, 74, 64, 0.06);
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+.serene-balance-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(58, 74, 64, 0.1);
+  border-color: rgba(132, 165, 157, 0.2);
+}
+
+.balance-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(58, 74, 64, 0.08);
+}
+
+.branch-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--color-primary-light, #eaf2ed) 0%, var(--color-surface, #fff) 100%);
+  color: var(--color-primary, #3a4a40);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 6px rgba(58, 74, 64, 0.1);
+}
+
+.branch-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2d3748);
+}
+
+/* Stat Boxes */
+.stat-boxes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stat-box {
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+.stat-box:hover {
+  transform: scale(1.02);
+}
+
+/* Utilidad takes full width in grid */
+.stat-box.box-utility {
+  grid-column: span 2;
+  margin-top: 0.5rem;
+}
+
+.stat-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-content small {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.stat-content .price-value {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.box-utility .stat-content .price-value {
+  font-size: 1.6rem;
+}
+
+/* Color Variants for Stats */
+.box-income {
+  background-color: rgba(132, 165, 157, 0.1);
+}
+.box-income .stat-icon {
+  background-color: var(--color-primary, #84A59D);
+  color: #fff;
+}
+.box-income .stat-content small { color: var(--color-primary, #84A59D); }
+.box-income .stat-content .price-value { color: var(--color-text-primary, #3A4A40); }
+
+.box-expense {
+  background-color: rgba(217, 83, 79, 0.08);
+}
+.box-expense .stat-icon {
+  background-color: var(--color-error, #D9534F);
+  color: #fff;
+}
+.box-expense .stat-content small { color: var(--color-error, #D9534F); }
+.box-expense .stat-content .price-value { color: var(--color-text-primary, #3A4A40); }
+
+.box-utility {
+  background-color: rgba(58, 74, 64, 0.04);
+  border: 1px solid rgba(58, 74, 64, 0.08);
+}
+.box-utility .stat-icon {
+  background-color: var(--color-text-primary, #3A4A40);
+  color: #fff;
+}
+.box-utility .stat-content small { color: var(--color-text-muted, #8C9C93); }
+.box-utility .stat-content .price-value { color: var(--color-text-primary, #3A4A40); }
+
+/* Expenses List */
+.expenses-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed rgba(58, 74, 64, 0.15);
+}
+
+.expenses-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-muted, #8C9C93);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.serene-list-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.serene-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.03);
+  transition: background-color 0.2s ease;
+}
+
+.serene-list-item:hover {
+  background-color: var(--color-surface-hover, #f8faf9);
+}
+
+.item-name {
+  color: var(--color-text-primary, #3A4A40);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.item-amount {
+  color: var(--color-error, #D9534F);
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-family: 'Outfit', sans-serif;
+}
+
+.box-loading-skeleton { display: flex; flex-direction: column; gap: 8px; padding: 2rem; background: var(--color-surface, #fff); border-radius: 12px; box-shadow: 0 4px 12px rgba(58, 74, 64, 0.05); border: 1px solid rgba(0,0,0,0.03); }
+.skeleton-line { display: block; border-radius: 6px; background: linear-gradient(90deg, #e8ecea 25%, #d4dbd8 50%, #e8ecea 75%); background-size: 400% 100%; animation: shimmer 1.4s ease-in-out infinite; }
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }

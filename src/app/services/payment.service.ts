@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Payment, User } from '../models';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class PaymentService {
     private url: string = environment.urlApi + 'payments';
     private currentUser: User = new User();

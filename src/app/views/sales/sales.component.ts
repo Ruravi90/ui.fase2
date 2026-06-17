@@ -1,4 +1,4 @@
-import { Component, OnInit, InjectionToken, Inject } from '@angular/core';
+import { Component, OnInit, InjectionToken, Inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
@@ -16,7 +16,7 @@ declare var $: any, iziToast: any;
     selector: 'app-sales',
     imports: [CommonModule, FormsModule, PaginationModule, DatePipe, NgSelectModule],
     templateUrl: 'sales.component.html',
-    styleUrls: ['./sales.component.css']
+    styleUrls: ['./sales.component.scss']
 })
 
 export class SalesComponent implements OnInit {
@@ -32,6 +32,7 @@ export class SalesComponent implements OnInit {
   public dateNow: Date = new Date();
   public paginate: Paginate = new Paginate();
   public isBusy: boolean = false;
+  public isModalOpen: boolean = false;
 
   public isCopyPrint = false;
   public filters: any = {
@@ -52,7 +53,8 @@ export class SalesComponent implements OnInit {
     private aS: AgentService,
     private paS: PaymentService,
     private tS: TypeService,
-    private pS: PaginateService
+    private pS: PaginateService,
+    private cdr: ChangeDetectorRef
   ) {
     this.pS.model = 'sales';
 
@@ -68,10 +70,6 @@ export class SalesComponent implements OnInit {
         this.payment.amount = this.balance;
       }
     });
-    const that = this;
-    $('#modalPayment').on('hidden.bs.modal', function (event: any) {
-      that.getSales();
-    });
   }
 
   getRoles(p: string) {
@@ -79,17 +77,26 @@ export class SalesComponent implements OnInit {
     return this.currentUser.roles?.some(r => r.slug === p) ?? false;
   }
 
+  isLoading = true;
   getSales() {
+    this.isLoading = true;
+    setTimeout(() => this.cdr.detectChanges(), 0);
     this.pS.paginate(this.filters).subscribe(res => {
      this.paginate = res;
      this.sales = res.data;
+     this.isLoading = false;
+     this.cdr.detectChanges();
     });
   }
 
   pageChanged(event: any){
+    this.isLoading = true;
+    setTimeout(() => this.cdr.detectChanges(), 0);
     this.pS.getForUrl(event.page, this.filters).subscribe(res => {
       this.paginate = res;
       this.sales = res.data;
+      this.isLoading = false;
+      this.cdr.detectChanges();
     });
   }
 
@@ -127,7 +134,7 @@ export class SalesComponent implements OnInit {
     this.payment.sale_id = s.id;
     this.onCalculateTotal();
     this.getPayments();
-    $('#modalPayment').modal('show');
+    this.isModalOpen = true;
   }
 
   onCalculateTotal() {
@@ -151,7 +158,7 @@ export class SalesComponent implements OnInit {
       });
       this.balance = (this.sale.subtotal! - this.subTotal);
       this.sale.is_paid = this.balance <= 0;
-      $('#modalPayment').modal('show');
+      this.isModalOpen = true;
     });
   }
 
@@ -160,7 +167,8 @@ export class SalesComponent implements OnInit {
     this.payment.user_id = this.currentUser.id;
     this.paS.post(this.payment).subscribe(r => {
       this.printTicket(r.id);
-      $('#modalPayment').modal('hide');
+      this.isModalOpen = false;
+      this.getSales();
       iziToast.show({
         message: 'Registro creado'
       });

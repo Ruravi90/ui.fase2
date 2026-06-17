@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Permission, User } from '../models';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class PermissionService {
     private url: string = environment.urlApi + 'permissions';
     private currentUser: User = new User();

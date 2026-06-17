@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { ClientService, TypeService } from '../../services';
 import { Client, _Type, Paginate, Address } from '../../models';
@@ -6,14 +6,15 @@ import swal from 'sweetalert2';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
+import { CommonModule, UpperCasePipe } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
 
-declare var $: any, iziToast: any;
+declare var iziToast: any;
 
 @Component({
     selector: 'app-clients',
-    imports: [FormsModule, NgSelectModule, PaginationModule],
+    imports: [CommonModule, FormsModule, NgSelectModule, PaginationModule, UpperCasePipe],
     templateUrl: 'clients.component.html',
     styleUrls: ['./clients.component.css']
 })
@@ -23,6 +24,7 @@ export class ClientsComponent implements OnInit {
   public cmbReferences$!: _Type[];
   public isEdit: Boolean = false;
   public isBusy: Boolean = false;
+  public isModalOpen: boolean = false;
 
   get primaryAddress(): Address {
     if (!this.client.address || this.client.address.length === 0) {
@@ -38,7 +40,8 @@ export class ClientsComponent implements OnInit {
 
   constructor(
     private clientService: ClientService,
-    private typeService: TypeService) {
+    private typeService: TypeService,
+    private cdr: ChangeDetectorRef) {
       this.sharedChange.pipe(
         debounceTime(500)
       ).subscribe((e: any) => this.getClients());
@@ -46,33 +49,39 @@ export class ClientsComponent implements OnInit {
 
   ngOnInit(): void {
     this.getClients();
-    const that = this;
-    // generate random values for mainChart
-    $('#modalClient').on('show.bs.modal', function (event: any) {
-    });
+  }
 
-    $('#modalClient').on('hidden.bs.modal', function (event: any) {
-      that.getClients();
-    });
+  closeModal(): void {
+    this.isModalOpen = false;
+    this.getClients(); // Refresh list after close
   }
 
   sharedClient(event:any) {
     this.sharedChange.next(event);
   }
 
+  isLoading = true;
   getClients() {
+    this.isLoading = true;
+    setTimeout(() => this.cdr.detectChanges(), 0);
     this.clientService.paginate(this.perPage, this.shared).subscribe(res => {
      this.paginate = res;
      this.getPages();
      this.clients = res.data;
+     this.isLoading = false;
+     this.cdr.detectChanges();
     });
   }
 
   pageChanged(event: any){
+    this.isLoading = true;
+    setTimeout(() => this.cdr.detectChanges(), 0);
     this.clientService.getForUrl(event.page, this.perPage).subscribe(res => {
       this.paginate = res;
       this.getPages();
       this.clients = res.data;
+      this.isLoading = false;
+      this.cdr.detectChanges();
     });
   }
 
@@ -95,7 +104,7 @@ export class ClientsComponent implements OnInit {
     if (this.isEdit) {
       this.clientService.put(this.client).subscribe(r => {
         this.isBusy = false;
-        $('#modalClient').modal('hide');
+        this.closeModal();
           iziToast.show({
               title: 'Registro actualizado'
         });
@@ -103,7 +112,7 @@ export class ClientsComponent implements OnInit {
     } else {
       this.clientService.post(this.client).subscribe(r => {
         this.isBusy = false;
-        $('#modalClient').modal('hide');
+        this.closeModal();
         iziToast.show({
             title: 'Registro creado'
         });
@@ -122,7 +131,7 @@ export class ClientsComponent implements OnInit {
     this.isEdit = false;
     this.getTypes();
     this.client = new Client();
-    $('#modalClient').modal('show');
+    this.isModalOpen = true;
   }
 
   editClient(c: Client): void {
@@ -135,7 +144,7 @@ export class ClientsComponent implements OnInit {
         if (this.client.address?.length === 0) {
           this.client.address = [new Address()];
         }
-        $('#modalClient').modal('show');
+        this.isModalOpen = true;
       });
     }, 300);
   }

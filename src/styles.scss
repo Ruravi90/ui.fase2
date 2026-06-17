@@ -1,1 +1,362 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import '@ng-select/ng-select/themes/default.theme.css';
+
+:root {
+  /* Serene Spa & Clinic Theme */
+  --color-bg: #FAF9F6;
+  --color-surface: #FFFFFF;
+  --color-primary: #84A59D;
+  --color-primary-hover: #729189;
+  --color-secondary: #F28482;
+  --color-text-primary: #3A4A40;
+  --color-text-muted: #8C9C93;
+  --color-border: #E0E5E2;
+  --color-error: #D9534F;
+  
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'Outfit', sans-serif;
+  
+  --shadow-sm: 0 4px 12px rgba(58, 74, 64, 0.05);
+  --shadow-md: 0 8px 24px rgba(58, 74, 64, 0.08);
+  
+  --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5em;
+}
+
+/* Base Form Elements */
+input {
+  font-family: var(--font-body);
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+/* Utilities */
+input[type=number].no-spin::-webkit-inner-spin-button, 
+input[type=number].no-spin::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number].no-spin {
+  -moz-appearance: textfield;
+}
+
+/* Global Serene Overrides for ng-select Dropdown */
+.ng-dropdown-panel {
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 6px !important;
+  box-shadow: var(--shadow-md) !important;
+  font-family: var(--font-body) !important;
+  margin-top: 4px;
+  overflow: hidden;
+  z-index: 1050 !important;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
+  background-color: var(--color-surface) !important;
+  color: var(--color-text-primary) !important;
+  padding: 0.8rem 1rem !important;
+  transition: background-color 0.2s ease !important;
+  border-bottom: 1px solid rgba(224, 229, 226, 0.5) !important;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option:last-child {
+  border-bottom: none !important;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked,
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option:hover {
+  background-color: rgba(132, 165, 157, 0.1) !important; /* Salvia tint */
+  color: var(--color-primary) !important;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected {
+  background-color: var(--color-primary) !important;
+  color: #fff !important;
+  font-weight: 500 !important;
+}
+
+/* Pagination Overrides */
+.pagination {
+  display: flex;
+  padding-left: 0;
+  list-style: none;
+  border-radius: 6px;
+  margin: 0;
+}
+
+.page-item .page-link {
+  color: var(--color-text-primary, #3A4A40);
+  background-color: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #E0E5E2);
+  padding: 0.5rem 0.75rem;
+  margin-left: -1px;
+  transition: all 0.2s ease;
+}
+
+.page-item:first-child .page-link {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.page-item:last-child .page-link {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.page-item.active .page-link {
+  z-index: 3;
+  color: #fff;
+  background-color: var(--color-primary, #84A59D);
+  border-color: var(--color-primary, #84A59D);
+}
+
+.page-item.disabled .page-link {
+  color: var(--color-text-muted, #8C9C93);
+  pointer-events: none;
+  cursor: auto;
+  background-color: #f9f9f9;
+  border-color: var(--color-border, #E0E5E2);
+}
+
+/* Radio Group */
+.serene-radio-group {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--color-surface);
+  padding: 0.3rem;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+}
+
+.radio-label {
+  padding: 0.4rem 1rem;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  transition: all 0.3s ease;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.radio-label:hover {
+  background: rgba(132, 165, 157, 0.1);
+  color: var(--color-primary);
+}
+
+.radio-label.active {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-indicator.error { background-color: var(--color-error); }
+.status-indicator.success { background-color: #5cb85c; }
+
+/* Global Serene Button Variants */
+.btn-serene-primary {
+  background-color: var(--color-primary, #84A59D);
+  color: #fff;
+  border-radius: 6px;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    background-color: var(--color-primary-hover, #729189);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(114, 145, 137, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-serene-secondary {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: var(--transition-smooth);
+  
+  &:hover {
+    background-color: #f8f9f9;
+    border-color: var(--color-text-muted);
+  }
+}
+
+
+
+.btn-serene-icon-danger {
+  color: var(--color-text-muted, #8C9C93);
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    color: var(--color-danger, #D9534F);
+    background-color: rgba(217, 83, 79, 0.1);
+  }
+}
+
+/* Sale of the day cards & Balance Cards */
+.sale-day-card {
+  border: 1px solid var(--color-border, #E0E5E2);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background-color: var(--color-surface, #fff);
+  box-shadow: var(--shadow-sm, 0 4px 12px rgba(58, 74, 64, 0.05));
+  transition: box-shadow 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 8px 24px rgba(58, 74, 64, 0.08);
+  }
+
+  &.is-canceled {
+    border-left: 4px solid var(--color-danger, #D9534F);
+    opacity: 0.8;
+  }
+
+  .sale-day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--color-border, #E0E5E2);
+
+    .client-name {
+      font-weight: 600;
+      color: var(--color-text-primary, #3A4A40);
+    }
+  }
+}
+
+.sale-item-detail {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.is-canceled {
+    text-decoration: line-through;
+    color: var(--color-text-muted, #8C9C93);
+  }
+
+  .detail-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    gap: 1rem;
+    
+    .col-flex {
+      flex: 1;
+    }
+    
+    .price-value {
+      font-weight: 500;
+    }
+  }
+}
+
+/* Global Serene Input */
+.serene-input {
+  border: none;
+  border-bottom: 1px solid var(--color-border, #E0E5E2);
+  border-radius: 0;
+  padding: 0.5rem 0;
+  background: transparent;
+  color: var(--color-text, #3A4A40);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  height: 38px;
+
+  &:focus {
+    outline: none;
+    border-bottom: 2px solid var(--color-primary, #84A59D);
+  }
+
+  &::placeholder {
+    color: var(--color-text-muted, #8C9C93);
+    font-weight: 300;
+  }
+}
+
+/* Special styling for serene-input date to look like a neat pill */
+input[type="date"].serene-input {
+  background-color: #f8f9f9;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  
+  &:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(132, 165, 157, 0.15);
+  }
+}
+
+.btn-serene-icon-primary {
+  color: var(--color-text-muted, #8C9C93);
+  background: transparent !important;
+  border: none;
+  transition: color 0.3s ease;
+  padding: 0.25rem 0.5rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-primary, #84A59D) !important;
+  }
+}
+

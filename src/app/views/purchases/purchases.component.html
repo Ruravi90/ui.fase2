@@ -1,186 +1,185 @@
 <div class="animated fadeIn">
   <div class="row">
     <div class="col-lg-6">
-      <form #providerForm="ngForm">
-        <div class="card">
-          <div class="card-header with-border">
-            <div class="row">
-              Registrar egreso
+      <form #providerForm="ngForm" class="serene-container">
+        <div class="serene-header">
+          <h4>Registrar egreso</h4>
+        </div>
+        
+        <div class="container-body">
+          <div class="row mt-1">
+            <div class="col-lg-6 mb-1">
+              <ng-select class="serene-select"
+                placeholder="Departamento"
+                name="departmentId"
+                [(ngModel)]="purchase.department_id"
+                [items]="(cmbDepartment$ | async) || []"
+                bindLabel="name"
+                bindValue="id"
+                [selectOnTab]="true"
+                #departmentId="ngModel"
+                required>
+              </ng-select>
+            </div>
+            <div class="col-lg-6 mb-1">
+              <ng-select class="serene-select"
+                placeholder="Acreedor/Proveedor"
+                [items]="(cmbCreditors$ | async) || []"
+                [(ngModel)]="purchase.provider_id"
+                bindLabel="business_name"
+                bindValue="id"
+                [selectOnTab]="true"
+                name="clientId"
+                #clientId="ngModel"
+                required>
+              </ng-select>
             </div>
           </div>
-          <!-- List group -->
-          <div class="card-body">
-            <div class="row mt-1">
-              <div class="col-lg-6">
-                <ng-select placeholder="Departamento"
-                  name="departmentId"
-                  [(ngModel)]="purchase.department_id"
-                  [items]="(cmbDepartment$ | async) || []"
-                  bindLabel="name"
-                  bindValue="id"
-                  [selectOnTab]="true"
-                  #departmentId="ngModel"
-                  required>
-                </ng-select>
-              </div>
-              <div class="col-lg-6">
-                <ng-select placeholder="Acreedor/Proveedor"
-                  [items]="(cmbCreditors$ | async) || []"
-                  [(ngModel)]="purchase.provider_id"
-                  bindLabel="business_name"
-                  bindValue="id"
-                  [selectOnTab]="true"
-                  name="clientId"
-                  #clientId="ngModel"
-                  required>
-                </ng-select>
-              </div>
+          
+          <div class="row mt-1" >
+            <div class="col-lg-6 mb-1">
+              <ng-select class="serene-select"
+                placeholder="Concepto"
+                [items]="(cmbConcepts$ | async) || []"
+                [(ngModel)]="purchase.concept_id"
+                bindLabel="name"
+                bindValue="id"
+                [selectOnTab]="true"
+                name="conceptId"
+                #conceptId="ngModel"
+                required>
+              </ng-select>
             </div>
-            <div class="row mt-1" >
-              <div class="col-lg-6">
-                <ng-select placeholder="Concepto"
-                  [items]="(cmbConcepts$ | async) || []"
-                  [(ngModel)]="purchase.concept_id"
-                  bindLabel="name"
-                  bindValue="id"
-                  [selectOnTab]="true"
-                  name="conceptId"
-                  #conceptId="ngModel"
-                  required>
-                </ng-select>
-              </div>
-              @if (purchase.concept_id == -1) {
-                <div class="col-lg-6">
-                  <input type="text" name="name_concept" class="form-control" placeholder="Nuevo concepto" [(ngModel)]="purchase.name_concept" [required]="purchase.concept_id == -1">
-                </div>
-              }
-            </div>
-            <div class="row mt-1" >
-              <div class="col-lg-6">
-                <ng-select placeholder="Tipo de gasto"
-                  [items]="(cmbExpenses$ | async) || []"
-                  [(ngModel)]="purchase.expense_id"
-                  bindLabel="name"
-                  bindValue="id"
-                  [selectOnTab]="true"
-                  name="expenseId"
-                  #expenseId="ngModel"
-                  required>
-                </ng-select>
-              </div>
-              @if (false) {
-                <div class="col-lg-4">
-                  <input type="text"
-                    name="name_expense"
-                    class="form-control"
-                    placeholder="Nuevo tipo de gasto"
-                    #nameExpense="ngModel"
-                    [(ngModel)]="purchase.name_expense"
-                    [required]="purchase.expense_id == -1">
-                </div>
-              }
-              <div class="col-lg-6 pl-1 pr-1">
-                <div class="input-group mb-2">
-                  <div class="input-group-prepend">
-                    <div class="input-group-text">$</div>
-                  </div>
-                  <input type="number"
-                    name="amount"
-                    class="form-control"
-                    #amount="ngModel"
-                    [(ngModel)]="purchase.amount"
-                    placeholder="costo"
-                    min="0"
-                    required/>
-                  <div class="input-group-prepend">
-                    <div class="input-group-text">.00</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            @if (purchase.expense_id == 12) {
-              <div class="row mt-1">
-                <div class="col-lg-4">
-                  <ng-select placeholder="Pastilla"
-                    [items]="(cmbPills$ | async) || []"
-                    [(ngModel)]="purchase.pill_id"
-                    bindLabel="name"
-                    bindValue="id"
-                    [selectOnTab]="true"
-                    name="pillId"
-                    #pillId="ngModel">
-                  </ng-select>
-                </div>
-                @if (purchase.pill_id == -1) {
-                  <div class="col-lg-4">
-                    <input type="text" name="name_pill" class="form-control" placeholder="Pastilla nueva" [(ngModel)]="purchase.name_pill">
-                  </div>
-                }
-                <div class="col-lg-4" >
-                  <input type="number" name="pill_count" class="form-control" [(ngModel)]="purchase.pill_count" placeholder="Cantidad" min="0"/>
-                </div>
+            @if (purchase.concept_id == -1) {
+              <div class="col-lg-6 mb-1">
+                <input type="text" name="name_concept" class="serene-input" placeholder="Nuevo concepto" [(ngModel)]="purchase.name_concept" [required]="purchase.concept_id == -1">
               </div>
             }
-            @if (purchase.expense_id == 12) {
-              <div class="row mt-1">
-                <div class="col-lg-4">
-                  <ng-select placeholder="Productos"
-                    [items]="(cmbProducts$ | async) || []"
-                    [(ngModel)]="purchase.product_id"
-                    bindLabel="name"
-                    bindValue="id"
-                    [selectOnTab]="true"
-                    name="productId"
-                    #productId="ngModel">
-                  </ng-select>
-                </div>
-                @if (purchase.product_id == -1) {
-                  <div class="col-lg-4">
-                    <input type="text" name="name_product" class="form-control" placeholder="Producto nuevo" [(ngModel)]="purchase.name_product">
-                  </div>
-                }
-                <div class="col-lg-4">
-                  <input type="number" name="product_count" class="form-control" [(ngModel)]="purchase.product_count" placeholder="Cantidad" min="0"/>
-                </div>
-              </div>
-            }
+          </div>
+          
+          <div class="row mt-1" >
+            <div class="col-lg-6 mb-1">
+              <ng-select class="serene-select"
+                placeholder="Tipo de gasto"
+                [items]="(cmbExpenses$ | async) || []"
+                [(ngModel)]="purchase.expense_id"
+                bindLabel="name"
+                bindValue="id"
+                [selectOnTab]="true"
+                name="expenseId"
+                #expenseId="ngModel"
+                required>
+              </ng-select>
+            </div>
+            <div class="col-lg-6 mb-1" style="display: flex; align-items: flex-end; position: relative;">
+              <span style="position: absolute; left: 0; bottom: 8px; color: var(--color-text-muted);">$</span>
+              <input type="number"
+                name="amount"
+                class="serene-input"
+                style="padding-left: 1.5rem;"
+                #amount="ngModel"
+                [(ngModel)]="purchase.amount"
+                placeholder="Costo"
+                min="0"
+                required/>
+              <span style="position: absolute; right: 0; bottom: 8px; color: var(--color-text-muted);">.00</span>
+            </div>
+          </div>
 
-            <div class="row mt-1 text-rigth">
-              <div class="col-lg-6">
-                <div class="pretty p-icon p-smooth p-curve mt-2">
-                  <input type="checkbox" id="isPaid" class="styled" name="isPaid" [(ngModel)]="purchase.is_paid"  (change)="toggleIsPaid($event)" [checked]="purchase.is_paid"/>
-                  <div class="state p-success">
-                    <i class="icon fas fa-check"></i>
-                    <label>Egreso pagado</label>
-                  </div>
+          @if (purchase.expense_id == 12) {
+            <div class="row mt-1">
+              <div class="col-lg-4 mb-1">
+                <ng-select class="serene-select"
+                  placeholder="Pastilla"
+                  [items]="(cmbPills$ | async) || []"
+                  [(ngModel)]="purchase.pill_id"
+                  bindLabel="name"
+                  bindValue="id"
+                  [selectOnTab]="true"
+                  name="pillId"
+                  #pillId="ngModel">
+                </ng-select>
+              </div>
+              @if (purchase.pill_id == -1) {
+                <div class="col-lg-4 mb-1">
+                  <input type="text" name="name_pill" class="serene-input" placeholder="Pastilla nueva" [(ngModel)]="purchase.name_pill">
                 </div>
+              }
+              <div class="col-lg-4 mb-1">
+                <input type="number" name="pill_count" class="serene-input" [(ngModel)]="purchase.pill_count" placeholder="Cantidad" min="0"/>
               </div>
-              <div class="col-lg-6">
-                <button class="btn btn-primary float-right" type="button" (click)="addPurchare()" [disabled]="providerForm.invalid">Agregar a carrito</button>
+            </div>
+            
+            <div class="row mt-1">
+              <div class="col-lg-4 mb-1">
+                <ng-select class="serene-select"
+                  placeholder="Productos"
+                  [items]="(cmbProducts$ | async) || []"
+                  [(ngModel)]="purchase.product_id"
+                  bindLabel="name"
+                  bindValue="id"
+                  [selectOnTab]="true"
+                  name="productId"
+                  #productId="ngModel">
+                </ng-select>
               </div>
+              @if (purchase.product_id == -1) {
+                <div class="col-lg-4 mb-1">
+                  <input type="text" name="name_product" class="serene-input" placeholder="Producto nuevo" [(ngModel)]="purchase.name_product">
+                </div>
+              }
+              <div class="col-lg-4 mb-1">
+                <input type="number" name="product_count" class="serene-input" [(ngModel)]="purchase.product_count" placeholder="Cantidad" min="0"/>
+              </div>
+            </div>
+          }
+
+          <div class="row mt-2" style="align-items: center;">
+            <div class="col-lg-6">
+              <label class="serene-checkbox">
+                <input type="checkbox" name="isPaid" [(ngModel)]="purchase.is_paid" (change)="toggleIsPaid($event)" [checked]="purchase.is_paid"/>
+                Egreso pagado
+              </label>
+            </div>
+            <div class="col-lg-6 text-right">
+              <button class="btn-serene-primary w-100" type="button" (click)="addPurchare()" [disabled]="providerForm.invalid">
+                Agregar a carrito
+              </button>
             </div>
           </div>
         </div>
       </form>
     </div>
+    
+    <!-- Carrito / Lista de compras actual -->
     <div class="col-lg-6">
-      <div class="card ">
-        <div class="card-header with-border">
-          <h5 class="card-title">Lista de compras
-            <button class="btn btn-primary float-right" (click)="save()">Generar compra</button>
-          </h5>
+      <div class="serene-container">
+        <div class="serene-header">
+          <h4>Lista de compras</h4>
+          <button class="btn-serene-primary" (click)="save()" [disabled]="_purchases.length === 0">
+            Generar compra
+          </button>
         </div>
-        <!-- List group -->
-        <ul class="list-group">
+        
+        <ul class="serene-list">
+          @if (_purchases.length === 0) {
+            <li class="serene-list-item" style="justify-content: center; border: none;">
+              <span style="color: var(--color-text-muted);">El carrito está vacío.</span>
+            </li>
+          }
           @for (purchase of _purchases; track purchase; let i = $index) {
-            <li class="list-group-item">
-              <div class="row">
-                <div class="col">{{purchase.department?purchase.department.name:''}}</div>
-                <div class="col">{{purchase.cat_expense?purchase.cat_expense.name:''}}</div>
-                <div class="col">{{purchase.amount | currency:'MXN ':true:'2.2-4'}}</div>
-                <div class="col">
-                  <button class="btn btn-sm btn-danger float-right" (click)="delete(i)"><i class="fa fa-trash"></i></button>
-                </div>
+            <li class="serene-list-item">
+              <div style="flex: 2;">
+                <span style="font-weight: 500; display: block; color: var(--color-text);">{{purchase.department?.name}}</span>
+                <span style="font-size: 0.85rem; color: var(--color-text-muted);">{{purchase.cat_expense?.name}}</span>
+              </div>
+              <div style="flex: 1; text-align: center; font-weight: 500;">
+                {{purchase.amount | currency:'MXN ':'symbol':'2.2-4'}}
+              </div>
+              <div>
+                <button type="button" class="btn-serene-icon-danger" (click)="delete(i)" title="Eliminar del carrito">
+                  <i class="fa fa-trash"></i>
+                </button>
               </div>
             </li>
           }
@@ -188,53 +187,63 @@
       </div>
     </div>
   </div>
+
+  <!-- Egresos Registrados (Histórico) -->
   <div class="row">
     <div class="col-lg-12">
-      <div class="card ">
-        <div class="card-header with-border">
-          <h5 class="card-title">Egresos registrados</h5>
+      <div class="serene-container">
+        <div class="serene-header">
+          <h4>Egresos registrados</h4>
         </div>
-        <!-- List group -->
-        <ul class="list-group">
-          @for (purchase of purchases; track purchase) {
-            <li class="list-group-item p-1 disabled"  style="padding-bottom:0px; margin-bottom: 5px;">
-              <div class="card m-0">
-                <div class="card-header p-2">
-                  Compra registrada por {{  purchase.user?.name }} el día {{ purchase.created_at | date:'dd/MM/yyyy hh:mm' }}
-                </div>
-                <ul class="list-group">
-                  @for (_purchase of purchase.purchases; track _purchase) {
-                    <li class="list-group-item p-1" >
-                      <div class="row">
-                        @if (_purchase.department) {
-                          <div class="col">Departamento: <br/>{{_purchase.department.name}}</div>
-                        }
-                        @if (_purchase.provider) {
-                          <div class="col">Provee: <br/>{{_purchase.provider.business_name}}</div>
-                        }
-                        @if (_purchase.cat_concept) {
-                          <div class="col">Concepto: <br/>{{_purchase.cat_concept.name}}</div>
-                        }
-                        @if (_purchase.cat_expense) {
-                          <div class="col">Tipo gasto: <br/>{{_purchase.cat_expense.name}}</div>
-                        }
-                        @if (_purchase.cat_pill) {
-                          <div class="col">Pastillas: <br/>{{_purchase.count}} {{_purchase.cat_pill.name}}</div>
-                        }
-                        @if (_purchase.cat_product) {
-                          <div class="col">Productos: <br/>{{_purchase.count}} {{_purchase.cat_product.name}}</div>
-                        }
-                        <div class="col">{{_purchase.amount | currency:'MXN ':true:'2.2-4'}}</div>
-                      </div>
-                    </li>
-                  }
-                </ul>
-              </div>
-            </li>
+        
+        <div>
+          @if (purchases.length === 0) {
+            <div class="text-center" style="padding: 2rem; color: var(--color-text-muted);">
+              No hay egresos registrados.
+            </div>
           }
-        </ul>
-        <div class="card-footer">
-          <pagination [boundaryLinks]="true" [totalItems]="paginate.total || 0" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
+          @for (purchase of purchases; track purchase) {
+            <div class="history-card">
+              <div class="history-header">
+                Compra registrada por <strong>{{ purchase.user?.name }}</strong> el día <strong>{{ purchase.created_at | date:'dd/MM/yyyy hh:mm' }}</strong>
+              </div>
+              
+              <div class="history-body">
+                @for (_purchase of purchase.purchases; track _purchase) {
+                  <div class="history-item-detail">
+                    <div class="detail-grid">
+                      @if (_purchase.department) {
+                        <div class="col-flex"><small>Departamento</small> {{_purchase.department.name}}</div>
+                      }
+                      @if (_purchase.provider) {
+                        <div class="col-flex"><small>Proveedor</small> {{_purchase.provider.business_name}}</div>
+                      }
+                      @if (_purchase.cat_concept) {
+                        <div class="col-flex"><small>Concepto</small> {{_purchase.cat_concept.name}}</div>
+                      }
+                      @if (_purchase.cat_expense) {
+                        <div class="col-flex"><small>Tipo gasto</small> {{_purchase.cat_expense.name}}</div>
+                      }
+                      @if (_purchase.cat_pill) {
+                        <div class="col-flex"><small>Pastillas</small> {{_purchase.count}} {{_purchase.cat_pill.name}}</div>
+                      }
+                      @if (_purchase.cat_product) {
+                        <div class="col-flex"><small>Productos</small> {{_purchase.count}} {{_purchase.cat_product.name}}</div>
+                      }
+                      <div class="col-flex text-right" style="font-weight: 500; color: var(--color-text);">
+                        <small>Total</small>
+                        {{_purchase.amount | currency:'MXN ':'symbol':'2.2-4'}}
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+        
+        <div class="mt-2" style="display: flex; justify-content: center;">
+          <pagination [boundaryLinks]="true" [totalItems]="paginate.total || 0" [maxSize]="9" [itemsPerPage]="filters.perPage" (pageChanged)="pageChanged($event)"
             previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
           </pagination>
         </div>

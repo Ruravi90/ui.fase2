@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Department, User } from '../models';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class DepartmentService {
     private url: string = environment.urlApi + 'departments';
     private currentUser: User = new User();

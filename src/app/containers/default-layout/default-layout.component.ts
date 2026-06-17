@@ -10,27 +10,27 @@ import { RouterModule } from '@angular/router';
 @Component({
     selector: 'app-dashboard',
     templateUrl: './default-layout.component.html',
-    styleUrls: ['./default-layout.component.css'],
+    styleUrls: ['./default-layout.component.scss'],
     imports: [RouterModule],
     schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
 })
 export class DefaultLayoutComponent {
   public currentUser: User;
   public navItems: any[] = [];
-  public sidebarMinimized = true;
-  private changes: MutationObserver;
-  public element: HTMLElement = document.body;
+  public sidebarMinimized = false;
+
   constructor(private router: Router) {
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const userStr = localStorage.getItem('currentUser');
+    this.currentUser = userStr && userStr !== 'undefined' ? JSON.parse(userStr) : {};
     this.getMenu();
+  }
 
-    this.changes = new MutationObserver((mutations) => {
-      this.sidebarMinimized = document.body.classList.contains('sidebar-minimized');
-    });
+  toggleSidebar() {
+    this.sidebarMinimized = !this.sidebarMinimized;
+  }
 
-    this.changes.observe(<Element>this.element, {
-      attributes: true
-    });
+  toggleGroup(item: any) {
+    item.expanded = !item.expanded;
   }
 
   getMenu() {
@@ -38,21 +38,17 @@ export class DefaultLayoutComponent {
       this.navItems.push(
         {
           name: 'Panel Principal',
-          url: '/dashboard',
+          url: '/page/dashboard',
           icon: 'icon-speedometer',
         },
       );
     }
     if (this.getRoles(['admin','user'])) {
       this.navItems.push(
-        {
-          name: 'Caja',
-          url: '/box',
-          icon: 'fa fa-usd',
-        },
+
         {
           name: 'Clientes',
-          url: '/clients',
+          url: '/page/clients',
           icon: 'fa fa-users',
         },
         {

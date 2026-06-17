@@ -1,0 +1,289 @@
+/* Serene Grid Layout */
+.serene-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+/* Serene Client Card */
+.serene-client-card {
+  background-color: var(--color-surface, #fff);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(58, 74, 64, 0.04), 0 1px 3px rgba(58, 74, 64, 0.02);
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid rgba(0,0,0,0.03);
+  display: flex;
+  flex-direction: column;
+}
+
+.serene-client-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(58, 74, 64, 0.08), 0 4px 8px rgba(58, 74, 64, 0.04);
+  border-color: rgba(58, 74, 64, 0.1);
+}
+
+.client-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.2rem;
+}
+
+.client-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--color-primary-light, #eaf2ed) 0%, var(--color-surface, #fff) 100%);
+  color: var(--color-primary, #3a4a40);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 6px rgba(58, 74, 64, 0.1);
+  border: 1px solid rgba(58, 74, 64, 0.05);
+}
+
+.client-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.client-card-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.client-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2d3748);
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.client-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: auto;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary, #4a5568);
+}
+
+.detail-item i {
+  color: var(--color-primary, #3a4a40);
+  opacity: 0.7;
+  width: 16px;
+  text-align: center;
+}
+
+/* Modal Form Specific Styles */
+.serene-form-section {
+  background-color: var(--color-surface-hover, #f8faf9);
+  border-radius: 8px;
+  padding: 1.25rem;
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+.section-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-primary, #3a4a40);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(58, 74, 64, 0.1);
+}
+
+.input-group-serene {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--color-text-tertiary, #a0aec0);
+  z-index: 10;
+}
+
+.serene-input.with-icon {
+  padding-left: 2.5rem;
+}
+
+/* Animations */
+.fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.slideInUp {
+  animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal Backdrops and Container */
+.serene-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(58, 74, 64, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1040;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.serene-modal-container {
+  background-color: var(--color-surface, #fff);
+  width: 100%;
+  max-width: 800px;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+  position: relative;
+  z-index: 1050;
+}
+
+.serene-modal-header {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(58, 74, 64, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.serene-modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--color-text-primary, #3A4A40);
+  font-weight: 600;
+}
+
+.serene-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.serene-modal-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid rgba(58, 74, 64, 0.1);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  background-color: #fcfcfc;
+}
+
+/* Serene Buttons */
+.serene-btn {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.serene-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.serene-btn-primary {
+  background-color: var(--color-primary, #84A59D);
+  color: white;
+  box-shadow: 0 4px 10px rgba(132, 165, 157, 0.2);
+}
+
+.serene-btn-primary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover, #729189);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(132, 165, 157, 0.3);
+}
+
+.serene-btn-secondary {
+  background-color: transparent;
+  color: var(--color-text-primary, #3A4A40);
+  border-color: var(--color-border, #E0E5E2);
+}
+
+.serene-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(58, 74, 64, 0.05);
+}
+
+.serene-btn-icon {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted, #8C9C93);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.serene-btn-icon:hover {
+  color: var(--color-primary, #84A59D);
+  background-color: rgba(132, 165, 157, 0.1);
+}
+
+.serene-btn-icon.text-danger:hover {
+  color: var(--color-error, #D9534F);
+  background-color: rgba(217, 83, 79, 0.1);
+}
+
+/* Forms */
+.serene-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  color: var(--color-text-primary, #3A4A40);
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  display: block;
+}
+
+.skeleton-line { display: block; border-radius: 6px; background: linear-gradient(90deg, #e8ecea 25%, #d4dbd8 50%, #e8ecea 75%); background-size: 400% 100%; animation: shimmer 1.4s ease-in-out infinite; }
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }

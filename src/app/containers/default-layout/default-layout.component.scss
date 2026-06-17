@@ -1,0 +1,200 @@
+.serene-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+  background-color: var(--color-bg, #FAF9F6);
+  font-family: 'Outfit', sans-serif;
+  transition: grid-template-columns 0.3s ease;
+
+  &.sidebar-hidden {
+    grid-template-columns: 0 1fr;
+    .serene-sidebar {
+      transform: translateX(-260px);
+    }
+  }
+}
+
+/* Sidebar */
+.serene-sidebar {
+  background-color: var(--color-text, #3A4A40); /* Deep Forest Green */
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 15px rgba(58, 74, 64, 0.1);
+  z-index: 10;
+  width: 260px;
+  transition: transform 0.3s ease;
+}
+
+.serene-sidebar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+  .brand-logo {
+    height: 50px;
+    width: auto;
+    filter: brightness(0) invert(1); /* If the logo is dark, this makes it white */
+  }
+}
+
+.serene-sidebar-nav {
+  flex: 1;
+  padding: 1.5rem 0;
+  overflow-y: auto;
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      margin-bottom: 0.2rem;
+    }
+
+    a {
+      display: flex;
+      align-items: center;
+      padding: 0.8rem 2rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-weight: 300;
+      transition: all 0.3s ease;
+      position: relative;
+
+      i {
+        margin-right: 1rem;
+        font-size: 1.1rem;
+        width: 20px;
+        text-align: center;
+      }
+
+      &:hover {
+        color: #FFFFFF;
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+
+      &.active {
+        color: #FFFFFF;
+        font-weight: 500;
+        background-color: rgba(255, 255, 255, 0.08);
+        border-left: 4px solid var(--color-primary, #84A59D);
+        padding-left: calc(2rem - 4px);
+      }
+    }
+  }
+
+  /* Submenus */
+  .nav-title {
+    padding: 1.5rem 2rem 0.5rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 500;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  .nav-group {
+    a {
+      padding-left: 3.5rem;
+      font-size: 0.95rem;
+    }
+  }
+}
+
+/* Wrapper */
+.serene-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Topbar */
+.serene-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2.5rem;
+  background-color: var(--color-surface, #FFFFFF);
+  border-bottom: 1px solid var(--color-border, #E0E5E2);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+
+  .btn-sidebar-toggle {
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted, #8C9C93);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    padding: 0.5rem;
+    margin-left: -1rem;
+
+    &:hover {
+      color: var(--color-primary, #84A59D);
+    }
+  }
+
+  .user-greeting {
+    margin-right: 2rem;
+    color: var(--color-text, #3A4A40);
+    font-weight: 500;
+    
+    strong {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+  }
+
+  .btn-logout {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    border: 1px solid var(--color-border, #E0E5E2);
+    color: var(--color-text-muted, #8C9C93);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: var(--color-danger, #D9534F);
+      border-color: rgba(217, 83, 79, 0.3);
+      background-color: rgba(217, 83, 79, 0.05);
+    }
+  }
+}
+
+/* Main Content */
+.serene-main-content {
+  flex: 1;
+  padding: 2.5rem;
+}
+
+/* Scrollbar styling for a premium feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 156, 147, 0.3);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 156, 147, 0.6);
+}

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Balance, User } from '../models';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class BalanceService {
     private url: string = environment.urlApi + 'box';
     private currentUser: User = new User();
@@ -22,5 +22,23 @@ export class BalanceService {
     }
     public getServiceChart(): Observable<any> {
         return this.http.post<any>(this.url + '/sales_service',{});
+    }
+    public getDashboardSummary(): Observable<any> {
+        return this.http.post<any>(this.url + '/dashboard_summary', {});
+    }
+    public getDepartmentChart(): Observable<any> {
+        return this.http.post<any>(this.url + '/sales_department', {});
+    }
+    public getPaymentMethodsChart(): Observable<any> {
+        return this.http.post<any>(this.url + '/payment_methods', {});
+    }
+    public getTopSellers(): Observable<any> {
+        return this.http.post<any>(this.url + '/top_sellers', {});
+    }
+    public getRecentActivity(): Observable<any> {
+        return this.http.get<any>(this.url + '/recent_activity');
+    }
+    public getAlerts(): Observable<any> {
+        return this.http.get<any>(this.url + '/alerts');
     }
 }

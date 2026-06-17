@@ -1,122 +1,145 @@
 <div class="animated fadeIn">
   <div class="row justify-content-center">
     <div class="col-lg-10">
-      <div class="card">
-        <div class="card-header">
-          <div class="row">
-            <div class="col-lg-4">
-              <h4>Ventas </h4>
-            </div>
-            <div class="col-lg-8">
-              <div class="float-right">
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio"
-                    id="isPrintCute"
-                    name="optionsRadios"
-                    [value]="2"
-                    [(ngModel)]="filters.isPaid" (ngModelChange)="getSales()"/>
-                  <label class="form-check-label" for="isPrintCute">Fechas de corte</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input is-invalid" type="radio"
-                    id="isNotPaid"
-                    name="optionsRadios"
-                    [value]="0"
-                    [(ngModel)]="filters.isPaid" (ngModelChange)="getSales()">
-                  <label class="form-check-label" for="isNotPaid">Por pagar</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input is-valid" type="radio"
-                    id="itemsAll"
-                    name="optionsRadios"
-                    [value]="1"
-                    [(ngModel)]="filters.isPaid" (ngModelChange)="getSales()">
-                  <label class="form-check-label" for="itemsAll">Todas</label>
-                </div>
-              </div>
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">Ventas</h4>
+          <div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
+            <div class="serene-radio-group">
+              <label class="radio-label" [class.active]="filters.isPaid === 2">
+                <input type="radio" name="optionsRadios" [value]="2" [(ngModel)]="filters.isPaid" (ngModelChange)="getSales()" style="display: none;">
+                Fechas de corte
+              </label>
+              <label class="radio-label" [class.active]="filters.isPaid === 0">
+                <input type="radio" name="optionsRadios" [value]="0" [(ngModel)]="filters.isPaid" (ngModelChange)="getSales()" style="display: none;">
+                <span class="status-indicator error"></span> Por pagar
+              </label>
+              <label class="radio-label" [class.active]="filters.isPaid === 1">
+                <input type="radio" name="optionsRadios" [value]="1" [(ngModel)]="filters.isPaid" (ngModelChange)="getSales()" style="display: none;">
+                <span class="status-indicator success"></span> Todas
+              </label>
             </div>
           </div>
         </div>
-        <ul class="list-group" >
+
+        <div>
+          @if (isLoading) {
+            <div class="box-loading-skeleton" style="margin-bottom: 1.5rem;">
+              <div class="skeleton-line" style="width: 30%; height: 24px; margin-bottom: 16px;"></div>
+              <div class="skeleton-line" style="width: 100%; height: 90px; margin-bottom: 12px; border-radius: 8px;"></div>
+              <div class="skeleton-line" style="width: 100%; height: 90px; margin-bottom: 12px; border-radius: 8px;"></div>
+              <div class="skeleton-line" style="width: 100%; height: 90px; border-radius: 8px;"></div>
+            </div>
+          } @else {
+          @if (sales.length === 0) {
+            <div class="text-center" style="padding: 2rem; color: var(--color-text-muted);">
+              No hay ventas registradas.
+            </div>
+          }
           @for (p of sales; track p) {
-            <li class="list-group-item p-1" >
+            <div>
               @if (filters.isPaid !== 2) {
-                <div class="card m-1" [ngClass]="{'bg-danger': p.is_cancel === 1 }">
-                  <div class="card-header p-1">
-                    @if (p.is_cancel === 1) {
-                      <strong><i class="fa fa-ban" aria-hidden="true"></i> Venta cancelada </strong>
-                    }
-                    {{p.client ? p.client.name + ' ' + p.client.lastname : ''}}
-                    {{p.updated_at | date:'dd/MM/yyyy'}}
-                    <!--{{p.is_paid == '1' ? 'Pagado':'Saldo pendiente'}}-->
-                    @if (getRoles('admin')) {
-                      <button class="btn btn-sm btn-danger float-right mr-2 ml-2" (click)="delete(p)" [hidden]="p.is_cancel === 1"><i class="fa fa-ban"></i></button>
-                    }
-                    @if (!p.is_paid) {
-                      <button class="btn btn-sm btn-primary float-right ml-2" (click)="copyTicket(p)" [hidden]="p.is_cancel === 1"><i class="icofont icofont-printer"></i></button>
-                    }
+                <div class="sale-day-card" [ngClass]="{'is-canceled': p.is_cancel === 1 }">
+                  <div class="sale-day-header">
+                    <div>
+                      @if (p.is_cancel === 1) {
+                        <span class="status-badge status-error" style="margin-right: 1rem;"><i class="fa fa-ban" aria-hidden="true"></i> Cancelada </span>
+                      }
+                      <span class="client-name">{{p.client ? p.client.name + ' ' + p.client.lastname : 'Sin cliente'}}</span>
+                      <span class="sale-time">{{p.updated_at | date:'dd/MM/yyyy HH:mm'}}</span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                      @if (!p.is_paid) {
+                        <button class="btn-serene-icon-primary" (click)="copyTicket(p)" [hidden]="p.is_cancel === 1" title="Imprimir ticket">
+                          <i class="icofont icofont-printer"></i>
+                        </button>
+                      }
+                      @if (getRoles('admin')) {
+                        <button class="btn-serene-icon-danger" (click)="delete(p)" [hidden]="p.is_cancel === 1" title="Cancelar Venta">
+                          <i class="icofont icofont-ui-block"></i>
+                        </button>
+                      }
+                    </div>
                   </div>
-                  <ul class="list-group" >
+
+                  <div class="sale-day-body">
                     @for (s of p.sales; track s) {
-                      <li class="list-group-item p-1" [ngClass]="{'list-group-item-danger': s.is_cancel === 1 }">
-                        <div class="row p-1">
-                          <div class="col-2">{{s.department.name}}</div>
-                          <div class="col-4">
-                            @if (s.product_id > 0) {
-                              <label class="mb-0">{{s.cat_product.name}}</label>
+                      <div class="sale-item-detail" [ngClass]="{'is-canceled': s.is_cancel === 1 }">
+                        <div class="detail-grid">
+                          <div class="col-flex" style="flex: 2;">
+                            <small style="color: var(--color-text-muted);">{{s.department?.name}}</small><br>
+                            @if ((s.product_id || 0) > 0) {
+                              <span>{{s.cat_product?.name}}</span>
                             }
-                            @if (s.service_id > 0) {
-                              <label class="mb-0">{{s.cat_service.name}}</label>
+                            @if ((s.service_id || 0) > 0) {
+                              <span>{{s.cat_service?.name}}</span>
                             }
-                            @if (s.package_id > 0) {
-                              <label class="mb-0">{{s.cat_package?s.cat_package.name:''}}</label>
+                            @if ((s.package_id || 0) > 0) {
+                              <span>{{s.cat_package?.name}}</span>
                             }
-                            @if (s.pill_id > 0) {
-                              <label class="mb-0">{{s.cat_pill.name}}</label>
+                            @if ((s.pill_id || 0) > 0) {
+                              <span>{{s.cat_pill?.name}}</span>
                             }
                           </div>
-                          <div class="col">Total pago: {{s.amount | currency:'MXN ':true:'2.2-4'}}</div>
-                          <div class="col">
-                            Saldo: {{s.balance | currency:'MXN ':true:'2.2-4'}}
-                            @if (getRoles('admin')) {
-                              <button class="btn btn-sm btn-danger float-right mr-2 ml-2" (click)="delete(p)" [hidden]="s.is_cancel === 1"><i class="fa fa-ban"></i></button>
-                            }
-                            <button class="btn btn-sm float-right" [hidden]="s.is_cancel === 1" [ngClass]="{'btn-success':s.is_paid == '1','btn-danger':s.is_paid != '1'}" (click)="addPayment(s)">
+                          <div class="col-flex text-right">
+                            <small style="color: var(--color-text-muted);">Total pago:</small><br>
+                            <span class="price-value">{{s.amount | currency:'MXN ':'symbol':'2.2-4'}}</span>
+                          </div>
+                          <div class="col-flex text-right">
+                            <small style="color: var(--color-text-muted);">Saldo:</small><br>
+                            <span class="price-value" [ngStyle]="{'color': s.balance > 0 ? 'var(--color-danger)' : 'var(--color-text)'}">
+                              {{s.balance | currency:'MXN ':'symbol':'2.2-4'}}
+                            </span>
+                          </div>
+                          <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                            <button type="button" [hidden]="s.is_cancel === 1" [ngClass]="s.is_paid == '1' ? 'btn-serene-icon-primary' : 'btn-serene-icon-danger'" (click)="addPayment(s)" title="Pagos / Abonos">
                               <i class="fas fa-dollar-sign"></i>
                             </button>
+                            @if (getRoles('admin')) {
+                              <button type="button" class="btn-serene-icon-danger" (click)="delete(p)" [hidden]="s.is_cancel === 1" title="Cancelar Item">
+                                <i class="icofont icofont-close"></i>
+                              </button>
+                            }
                           </div>
                         </div>
-                        <div class="row p-1">
-                          <div class="col-12">
+
+                        @if (s.payments && s.payments.length > 0) {
+                          <div style="padding-top: 0.5rem; margin-top: 0.5rem; border-top: 1px dashed var(--color-border); font-size: 0.85rem; color: var(--color-text-muted);">
                             @for (pa of s.payments; track pa; let i = $index) {
-                              <div class="p-1">
-                                <span>--> Pago ({{pa.updated_at | date:'dd/MM/yyyy'}}): {{pa.amount | currency:'MXN ':true:'2.2-4'}}</span>
+                              <div style="margin-bottom: 0.2rem;">
+                                <i class="icofont icofont-arrow-right"></i> Abono ({{pa.updated_at | date:'dd/MM/yyyy HH:mm'}}): {{pa.amount | currency:'MXN ':'symbol':'2.2-4'}}
                               </div>
                             }
                           </div>
-                        </div>
-                      </li>
-                    }
-                  </ul>
-                </div>
-              }
-              @if (filters.isPaid == 2) {
-                <div class="card m-1">
-                  <div class="card-header p-1">
-                    {{p.cute_date}}
-                    @if (getRoles('admin')) {
-                      <button class="btn btn-sm btn-primary float-right mr-2 ml-2" (click)="printCute(p.cute_date)" ><i class="icofont icofont-printer"></i></button>
+                        }
+                      </div>
                     }
                   </div>
                 </div>
               }
-            </li>
-          }
-        </ul>
-        <div class="card-footer">
-            <div class="col-xs-12 col-12 d-sm-down-none">
-              <pagination [totalItems]="paginate.total || 0" [maxSize]="10" [(ngModel)]="paginate.current_page" (pageChanged)="pageChanged($event)"></pagination>
+              @if (filters.isPaid == 2) {
+                <div class="sale-day-card">
+                  <div class="sale-day-header">
+                    <div>
+                      <span class="client-name">{{p.cute_date}}</span>
+                    </div>
+                    <div>
+                      @if (getRoles('admin')) {
+                        <button class="btn-serene-icon-primary" (click)="printCute(p.cute_date)" title="Imprimir Corte">
+                          <i class="icofont icofont-printer"></i>
+                        </button>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
             </div>
+          }
+          }
+        </div>
+
+        <div style="padding: 1rem 0; display: flex; justify-content: center;">
+            <pagination [totalItems]="paginate.total || 0" [maxSize]="10" [(ngModel)]="paginate.current_page" (pageChanged)="pageChanged($event)"></pagination>
         </div>
       </div>
     </div>
@@ -124,45 +147,41 @@
 </div>
 
 
-<div class="modal fade" id="modalPayment" tabindex="-1" role="dialog" aria-labelledby="modalPeymentLabel" aria-hidden="true">
+<div class="modal fade" [class.show]="isModalOpen" tabindex="-1" role="dialog" aria-labelledby="modalPeymentLabel" aria-hidden="true" [style.display]="isModalOpen ? 'block' : 'none'" [style.background]="isModalOpen ? 'rgba(0,0,0,0.5)' : 'transparent'">
   <form class="modal-dialog" role="document" #paymentForm="ngForm" (ngSubmit)="savePayment()">
-    <div class="modal-content">
-      <div class="modal-header">
+    <div class="modal-content serene-container" style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+      <div class="modal-header serene-header" style="border-bottom: 1px solid var(--color-border); padding: 1.5rem;">
         @if (sale.is_paid == '0') {
-          <h3 class="modal-title" id="modal-title">Registrar abonos/finiquitos</h3>
+          <h3 class="modal-title" style="margin: 0;">Registrar abonos / finiquitos</h3>
         }
         @if (sale.is_paid == '1') {
-          <h3 class="modal-title" id="modal-title">Paquete pagado</h3>
+          <h3 class="modal-title" style="margin: 0; color: var(--color-primary);">Venta pagada</h3>
         }
       </div>
-      <div class="modal-body" id="modal-body">
+      <div class="modal-body" id="modal-body" style="padding: 1.5rem;">
         @if (paymentForm.invalid) {
-          <div class="row">
+          <div class="row mb-2">
             <div class="col-md-12">
-              <label class="text-danger" >Los campos en rojo son requeridos.</label>
+              <label class="text-danger" style="font-size: 0.9rem;">Los campos son requeridos.</label>
             </div>
           </div>
         }
-        <div class="row">
+        <div class="row mb-3">
           <div class="col-lg-12">
-            <label class="text-default">
-              Costo del {{sale.service_id?'servicio':''}} {{sale.package_id?'paquete':''}}:
-              {{ sale.price | currency:'MX $':true:'2.2-4' }}
-            </label>
+            <h5 style="color: var(--color-text); margin-bottom: 0.5rem;">
+              Costo total: <span style="font-weight: 600;">{{ sale.price | currency:'MXN ':'symbol':'2.2-4' }}</span>
+            </h5>
+            <h5 style="color: var(--color-danger); margin-bottom: 0;">
+              Saldo pendiente: <span style="font-weight: 600;">{{ balance | currency:'MXN ':'symbol':'2.2-4' }}</span>
+            </h5>
           </div>
         </div>
-        <div class="row mt-1">
-          <div class="col-md-12">
-            <label class="text-danger">Saldo pendiente: {{ balance | currency:'MX $':true:'2.2-4' }} </label>
-          </div>
-        </div>
+        
         @if (sale.is_paid == '0') {
-          <div class="row mt-1" >
-            <div class="col-lg-2">
-              Agente
-            </div>
-            <div class="col-lg-10">
-              <ng-select placeholder="Agente"
+          <div class="row mb-3">
+            <div class="col-lg-12 mb-2">
+              <ng-select class="serene-select"
+                placeholder="Agente que recibe"
                 [items]="(agents$ | async) || []"
                 [(ngModel)]="payment.responsible_id"
                 bindValue="id"
@@ -179,15 +198,9 @@
                 </ng-template>
               </ng-select>
             </div>
-          </div>
-        }
-        @if (sale.is_paid == '0') {
-          <div class="row mt-1" >
-            <div class="col-lg-2">
-              Forma de pago
-            </div>
-            <div class="col-lg-10">
-              <ng-select
+            
+            <div class="col-lg-6 mb-2">
+              <ng-select class="serene-select"
                 placeholder="Forma de pago"
                 name="typeSale$ | async"
                 [(ngModel)]="payment.type_sale_id"
@@ -200,38 +213,43 @@
                 required>
               </ng-select>
             </div>
-          </div>
-        }
-        @if (sale.is_paid == '0') {
-          <div class="row mt-1">
-            <div class="col-lg-2">
-              Monto
-            </div>
-            <div class="col-lg-10">
-              <input type="number" min="0" class="form-control" name="amount" [(ngModel)]="payment.amount" (ngModelChange)="onChangeAmount()" required>
+
+            <div class="col-lg-6 mb-2">
+              <input type="number" min="0" class="serene-input no-spin" placeholder="Monto a abonar" name="amount" [(ngModel)]="payment.amount" (ngModelChange)="onChangeAmount()" required>
             </div>
           </div>
         }
-        <br>
-          <ul class="list-group" style="max-height:150px;overflow-y: auto; overflow-x: hidden;">
+        
+        <div style="margin-top: 1rem;">
+          <h6 style="color: var(--color-text-muted); margin-bottom: 1rem;">Historial de abonos</h6>
+          <ul class="serene-list" style="max-height: 150px; overflow-y: auto;">
+            @if (payments.length === 0) {
+              <li class="serene-list-item" style="justify-content: center; border: none; color: var(--color-text-muted);">
+                Aún no hay abonos registrados.
+              </li>
+            }
             @for (p of payments; track p) {
-              <li class="list-group-item row" >
-                <span class="col-md-2">{{ p.created_at | date:'dd/MM/yyyy' }}</span>
-                <span class="col-md-2">{{ p.amount | currency:'MX $ ':true:'2.2-4' }}</span>
-                <span class="col-md-8">{{ 'Agente por ' + p.responsible?.name + ' ' + p.responsible?.lastname}}</span>
+              <li class="serene-list-item" style="padding: 0.75rem 0;">
+                <div class="item-title" style="font-size: 0.95rem;">
+                  {{ p.created_at | date:'dd/MMM/yyyy' }} &mdash; <span style="font-weight: 600;">{{ p.amount | currency:'MXN ':'symbol':'2.2-4' }}</span>
+                </div>
+                <div class="item-meta" style="font-size: 0.85rem;">
+                  Recibió: {{ p.responsible?.name + ' ' + p.responsible?.lastname}}
+                </div>
               </li>
             }
           </ul>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-default" type="button" data-dismiss="modal">Cancel</button>
-          @if (sale.is_paid == '0') {
-            <button class="btn btn-primary" type="submit">Guardar</button>
-          }
-        </div>
       </div>
-    </form>
-  </div>
+      <div class="modal-footer" style="border-top: 1px solid var(--color-border); padding: 1.5rem;">
+        <button class="btn-serene-secondary" type="button" (click)="isModalOpen = false">Cerrar</button>
+        @if (sale.is_paid == '0') {
+          <button class="btn-serene-primary" type="submit" [disabled]="paymentForm.invalid">Guardar Abono</button>
+        }
+      </div>
+    </div>
+  </form>
+</div>
 
   <div id="printTicket" style="max-width: 219.212598425px;">
     <img src="assets/img/logo-fase2.svg" height="100pt" width="100%" />
@@ -254,16 +272,16 @@
           <span>Pastillas: {{printPayment.sale?.cat_pill?.name}}</span>
         }
         <br />
-        <span >Precio: {{printPayment.sale?.price | currency:'MXN ':true:'2.2-4'}} </span><br />
+        <span >Precio: {{printPayment.sale?.price | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
         <span >Cantidad: {{ printPayment.sale?.count }} </span><br />
         @if ((printPayment.type_sale_id || 0) > 0) {
           <span>Forma pago: {{ printPayment.type?.name}}</span>
           }@if ((printPayment.type_sale_id || 0) > 0) {
           <br />
         }
-        <span >Abono: {{printPayment.amount | currency:'MXN ':true:'2.2-4'}} </span><br />
-        <span >Pago Total: {{printPayment.sale?.amount | currency:'MXN ':true:'2.2-4'}} </span><br />
-        <span >Saldo: {{printPayment.sale?.balance | currency:'MXN ':true:'2.2-4'}} </span><br />
+        <span >Abono: {{printPayment.amount | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
+        <span >Pago Total: {{printPayment.sale?.amount | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
+        <span >Saldo: {{printPayment.sale?.balance | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
       </div>
       <small style="width: 100%; text-align: center;"><em>**** ESTIMADO CLIENTE ****</em></small><br>
       <small style="width: 100%; text-align: center;"><em>ES IMPORTANTE VALIDAR QUE LOS DATOS IMPRESOS CORRESPONDEN A LA OPERECIOM SOLICITADA</em></small>
@@ -287,24 +305,24 @@
               <span>Pastillas: {{s.cat_pill?.name}}</span>
             }
             <br />
-            <span >Precio: {{s.price | currency:'MXN ':true:'2.2-4'}} </span><br />
+            <span >Precio: {{s.price | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
             @if ((s.discount || 0) > 0) {
               <span>Descuento: {{s.discount}} % </span>
               }@if ((s.discount || 0) > 0) {
               <br />
             }
             <span >Cantidad: {{s.count}} </span><br />
-            <span >SubTotal: {{s.total | currency:'MXN ':true:'2.2-4'}} </span><br />
+            <span >SubTotal: {{s.total | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
             @if ((s.type_sale_id || 0) > 0) {
               <span>Forma pago: {{s.type?.name}}</span>
               }@if ((s.type_sale_id || 0) > 0) {
               <br />
             }
-            <span >Pago: {{s.amount | currency:'MXN ':true:'2.2-4'}} </span><br />
-            <span >Saldo: {{s.balance | currency:'MXN ':true:'2.2-4'}} </span><br />
+            <span >Pago: {{s.amount | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
+            <span >Saldo: {{s.balance | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
           </div>
         }
-        <span >Total: {{printSale.sumTotal | currency:'MXN ':true:'2.2-4'}} </span><br />
+        <span >Total: {{printSale.sumTotal | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
         <hr />
         <small style="width: 100%; text-align: center;"><em>**** ESTIMADO CLIENTE ****</em></small><br>
         <small style="width: 100%; text-align: center;"><em>ES IMPORTANTE VALIDAR QUE LOS DATOS IMPRESOS CORRESPONDEN A LA OPERECIOM SOLICITADA</em></small>
@@ -333,9 +351,9 @@
                     @if ((s.pill_id || 0) > 0) {
                       <span>Pastillas: <small>{{s.cat_pill?.name}}</small></span>
                       }<br />
-                      <span >Precio: <small>{{s.price | currency:'MXN ':true:'2.2-4'}}</small></span><br />
+                      <span >Precio: <small>{{s.price | currency:'MXN ':'symbol':'2.2-4'}}</small></span><br />
                       @if ((s.discount || 0) > 0) {
-                        <span>Descuento: <small>{{s.discount | currency:'MXN ':true:'2.2-4'}}</small></span>
+                        <span>Descuento: <small>{{s.discount | currency:'MXN ':'symbol':'2.2-4'}}</small></span>
                         }@if ((s.discount || 0) > 0) {
                         <br />
                       }
@@ -347,17 +365,17 @@
                       }
                       @for (pa of s.payments; track pa; let i = $index) {
                         <div>
-                          <span >--> Pago: <small>{{pa.amount | currency:'MXN ':true:'2.2-4'}}</small></span>
+                          <span >--> Pago: <small>{{pa.amount | currency:'MXN ':'symbol':'2.2-4'}}</small></span>
                         </div>
                       }
-                      <span >Pago total: <small>{{s.amount | currency:'MXN ':true:'2.2-4'}}</small></span><br />
-                      <span >Saldo: <small>{{s.balance | currency:'MXN ':true:'2.2-4'}}</small></span>
+                      <span >Pago total: <small>{{s.amount | currency:'MXN ':'symbol':'2.2-4'}}</small></span><br />
+                      <span >Saldo: <small>{{s.balance | currency:'MXN ':'symbol':'2.2-4'}}</small></span>
                     </div>
                   }
                 </div>
               }
-              <span class="content-total">Total Efectivo: <small>{{d.sumCashTotal | currency:'MXN ':true:'2.2-4'}}</small></span><br />
-              <span class="content-total">Total Tarjeta: <small>{{d.sumCardTotal | currency:'MXN ':true:'2.2-4'}}</small></span>
+              <span class="content-total">Total Efectivo: <small>{{d.sumCashTotal | currency:'MXN ':'symbol':'2.2-4'}}</small></span><br />
+              <span class="content-total">Total Tarjeta: <small>{{d.sumCardTotal | currency:'MXN ':'symbol':'2.2-4'}}</small></span>
             </div>
           }
           <hr [ngStyle]="{'margin': 0, 'padding':0}">

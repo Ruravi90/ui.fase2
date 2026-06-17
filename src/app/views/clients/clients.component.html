@@ -1,115 +1,203 @@
 <div class="animated fadeIn">
   <div class="row justify-content-center">
-    <div class="col-lg-6">
-      <div class="card">
-        <div class="card-header">
-          <div class="row">
-            <div class="col-9">
-              <h3>Clientes</h3>
-            </div>
-            <div class="col-3">
-              <button type="button" class="btn btn-sm btn-primary float-right"  (click)="addClient()">
-                Nuevo
+    <div class="col-lg-10">
+      
+      <!-- Serene Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600;">
+          Directorio de Clientes
+        </h4>
+        
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div style="position: relative; width: 300px;">
+            <input type="text" class="serene-input" placeholder="Buscar cliente..." name="shared" [(ngModel)]="shared" #sharedModel="ngModel" (keyup)="sharedClient($event)" style="width: 100%; padding-right: 2.5rem;" />
+            @if (shared !== '') {
+              <button class="serene-btn-icon" (click)="shared = '';getClients()" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: var(--color-danger);">
+                <i class="fas fa-times"></i>
               </button>
-            </div>
+            } @else {
+              <i class="fas fa-search" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--color-text-tertiary);"></i>
+            }
           </div>
-          <div class="row">
-            <div class="col-10">
-              <input class="form-control" placeholder="Buscar cliente" name="shared" [(ngModel)]="shared" #sharedModel="ngModel" (keyup)="sharedClient($event)"/>
-            </div>
-            <div class="col-2">
-              @if (shared !== '') {
-                <button type="button" class="btn btn-sm btn-danger" (click)="shared = '';getClients()">
-                  <i class="fa fa-trash"></i>
-                </button>
-              }
-            </div>
-          </div>
+          
+          <button type="button" class="serene-btn serene-btn-primary" (click)="addClient()">
+            <i class="fas fa-user-plus mr-2"></i> Nuevo
+          </button>
         </div>
-        <ul class="list-group list-group-flush">
-          @for (c of clients; track c) {
-            <li class="list-group-item">
-              {{c.name + ' ' + c.lastname}}
-              <button type="button" class="btn btn-sm btn-danger float-right ml-2" (click)="deleteClient(c)">
-                <i class="fa fa-trash"></i>
-              </button>
-              <button type="button" class="btn btn-sm btn-secondary float-right" (click)="editClient(c)">
-                <i class="fa fa-edit"></i>
-              </button>
-            </li>
+      </div>
+
+      <!-- Clients Grid -->
+      @if (isLoading) {
+        <div class="serene-grid" style="margin-bottom: 2rem;">
+          @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="serene-client-card" style="min-height: 140px;">
+              <div class="client-card-header">
+                <div class="skeleton-line" style="width: 54px; height: 54px; border-radius: 50%;"></div>
+              </div>
+              <div class="client-card-body" style="padding-top: 0.5rem;">
+                <div class="skeleton-line" style="width: 70%; height: 18px; margin-bottom: 10px;"></div>
+                <div class="skeleton-line" style="width: 50%; height: 14px; margin-bottom: 6px;"></div>
+                <div class="skeleton-line" style="width: 40%; height: 14px;"></div>
+              </div>
+            </div>
           }
-        </ul>
-        <div class="card-footer justify-content-center">
+        </div>
+      } @else {
+        <div class="serene-grid">
+          @for (c of clients; track c) {
+            <div class="serene-client-card">
+              <div class="client-card-header">
+                <div class="client-avatar">
+                  {{(c.name || '').charAt(0) | uppercase}}{{(c.lastname || '').charAt(0) | uppercase}}
+                </div>
+                <div class="client-actions">
+                  <button type="button" class="serene-btn-icon text-muted" (click)="editClient(c)" title="Editar">
+                    <i class="fas fa-pen"></i>
+                  </button>
+                  <button type="button" class="serene-btn-icon text-danger" (click)="deleteClient(c)" title="Eliminar">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="client-card-body">
+                <h5 class="client-name">{{c.name}} {{c.lastname}} {{c.motherlastname || ''}}</h5>
+                
+                <div class="client-details">
+                  @if (c.phone_home) {
+                    <div class="detail-item">
+                      <i class="fas fa-phone-alt"></i>
+                      <span>{{c.phone_home}}</span>
+                    </div>
+                  }
+                  @if (c.address && c.address.length > 0 && c.address[0].suburb) {
+                    <div class="detail-item">
+                      <i class="fas fa-map-marker-alt"></i>
+                      <span>{{c.address[0].suburb}}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+          @if (clients.length === 0) {
+            <div class="col-12 text-center py-5">
+              <p class="text-muted" style="font-size: 1.2rem;">No se encontraron clientes.</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Pagination -->
+      @if (paginate && (paginate.total || 0) > perPage) {
+        <div class="d-flex justify-content-center mt-4 mb-5">
           <pagination [boundaryLinks]="true" [totalItems]="paginate.total || 0" [maxSize]="9" [itemsPerPage]="perPage"  (pageChanged)="pageChanged($event)"
             previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
           </pagination>
         </div>
-      </div>
+      }
+
     </div>
   </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="modalClient" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <form class="modal-dialog" role="document" #clientForm="ngForm" (ngSubmit)="save()">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">{{(isEdit?'Editar cliente':'Agregar cliente')}}</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-4">
-            <input class="form-control" placeholder="Nombre(s)" name="name" [(ngModel)]="client.name" #name="ngModel" required>
-          </div>
-          <div class="col-lg-4">
-            <input class="form-control" placeholder="Paterno" name="lastname" [(ngModel)]="client.lastname" #lastname="ngModel" required>
-          </div>
-          <div class="col-lg-4">
-            <input class="form-control" placeholder="Materno" name="motherlastname" [(ngModel)]="client.motherlastname" #motherlastname="ngModel">
-          </div>
+<!-- Serene Modal Angular Native -->
+@if (isModalOpen) {
+  <div class="serene-modal-backdrop fadeIn">
+    <div class="serene-modal-container slideInUp">
+      <form #clientForm="ngForm" (ngSubmit)="save()">
+        
+        <div class="serene-modal-header">
+          <h5 class="serene-modal-title">{{(isEdit ? 'Editar Cliente' : 'Nuevo Cliente')}}</h5>
+          <button type="button" class="serene-btn-icon" (click)="closeModal()">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
-        <div class="row mt-1">
-          <div class="col-lg-6">
-            <input class="form-control" minlength="10" maxlength="10" pattern="[0-9]*" placeholder="Telefono" name="phone" [(ngModel)]="client.phone_home" #phone="ngModel" required>
-            <span class="text-danger" [hidden]="!phone.hasError('minlength')">
-              Telefono a 10 numeros.
-            </span>
+        
+        <div class="serene-modal-body">
+          <div class="serene-form-section">
+            <h6 class="section-title">Datos Personales</h6>
+            <div class="row">
+              <div class="col-lg-4 mb-3">
+                <label class="serene-label">Nombre(s) <span class="text-danger">*</span></label>
+                <input class="serene-input" placeholder="Ej. Juan" name="name" [(ngModel)]="client.name" #name="ngModel" required>
+              </div>
+              <div class="col-lg-4 mb-3">
+                <label class="serene-label">Apellido Paterno <span class="text-danger">*</span></label>
+                <input class="serene-input" placeholder="Ej. Pérez" name="lastname" [(ngModel)]="client.lastname" #lastname="ngModel" required>
+              </div>
+              <div class="col-lg-4 mb-3">
+                <label class="serene-label">Apellido Materno</label>
+                <input class="serene-input" placeholder="Opcional" name="motherlastname" [(ngModel)]="client.motherlastname" #motherlastname="ngModel">
+              </div>
+            </div>
           </div>
-          <div class="col-lg-6">
-            <input type="text" class="form-control" name="suburb" [(ngModel)]="primaryAddress.suburb" #suburb="ngModel" required placeholder="COLONIA">
+          
+          <div class="serene-form-section mt-4">
+            <h6 class="section-title">Contacto y Ubicación</h6>
+            <div class="row">
+              <div class="col-lg-6 mb-3">
+                <label class="serene-label">Teléfono <span class="text-danger">*</span></label>
+                <div class="input-group-serene">
+                  <span class="input-icon"><i class="fas fa-phone"></i></span>
+                  <input class="serene-input with-icon" minlength="10" maxlength="10" pattern="[0-9]*" placeholder="10 dígitos" name="phone" [(ngModel)]="client.phone_home" #phone="ngModel" required>
+                </div>
+                @if (phone.hasError('minlength')) {
+                  <span class="text-danger" style="font-size: 0.85rem; margin-top: 4px; display: block;">El teléfono debe tener 10 números.</span>
+                }
+              </div>
+              <div class="col-lg-6 mb-3">
+                <label class="serene-label">Colonia <span class="text-danger">*</span></label>
+                <div class="input-group-serene">
+                  <span class="input-icon"><i class="fas fa-map-marker-alt"></i></span>
+                  <input type="text" class="serene-input with-icon" name="suburb" [(ngModel)]="primaryAddress.suburb" #suburb="ngModel" required placeholder="Ej. Centro">
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="row mt-1">
-          <div class="col-lg-6">
-            <ng-select placeholder="DONDE NOS CONOCIÓ"
-              [items]="cmbReferences$ || []"
-              [(ngModel)]="client.reference_id"
-              bindValue="id"
-              bindLabel="name"
-              name="reference"
-              #reference="ngModel"
-              required>
-              <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
-                <div >{{item.name}}</div>
-              </ng-template>
-            </ng-select>
-          </div>
-          @if (client.reference !== undefined) {
-            <div class="col-lg-6">
-              @if (client.reference.name === 'Otro') {
-                <input class="form-control" placeholder="Otra referencia" name="otherRef" [(ngModel)]="client.other_ref"  #otherRef="ngModel" required>
+          
+          <div class="serene-form-section mt-4">
+            <h6 class="section-title">Información Adicional</h6>
+            <div class="row">
+              <div class="col-lg-6 mb-3">
+                <label class="serene-label">¿Dónde nos conoció? <span class="text-danger">*</span></label>
+                <ng-select placeholder="Selecciona una opción"
+                  [items]="cmbReferences$ || []"
+                  [(ngModel)]="client.reference_id"
+                  bindValue="id"
+                  bindLabel="name"
+                  name="reference"
+                  #reference="ngModel"
+                  required
+                  appendTo="body"
+                  class="serene-ng-select">
+                  <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                    <div>{{item.name}}</div>
+                  </ng-template>
+                </ng-select>
+              </div>
+              @if (client.reference && client.reference.name === 'Otro') {
+                <div class="col-lg-6 mb-3">
+                  <label class="serene-label">Especifique <span class="text-danger">*</span></label>
+                  <input class="serene-input" placeholder="Otra referencia" name="otherRef" [(ngModel)]="client.other_ref" #otherRef="ngModel" required>
+                </div>
               }
             </div>
-          }
+          </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-primary" [disabled]="clientForm.invalid || isBusy">Guardar</button>
-      </div>
+        
+        <div class="serene-modal-footer">
+          <button type="button" class="serene-btn serene-btn-secondary" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="serene-btn serene-btn-primary" [disabled]="clientForm.invalid || isBusy">
+            @if (isBusy) {
+              <i class="fas fa-circle-notch fa-spin mr-2"></i> Guardando...
+            } @else {
+              <i class="fas fa-save mr-2"></i> Guardar Cliente
+            }
+          </button>
+        </div>
+        
+      </form>
     </div>
-  </form>
-</div>
+  </div>
+}

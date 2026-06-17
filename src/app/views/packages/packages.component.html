@@ -1,63 +1,81 @@
 <div class="animated fadeIn">
   <div class="row justify-content-center">
     <div class="col-lg-10">
-      <div class="card">
-        <div class="card-header">
-          <div class="row">
-            <div class="col-lg-6">
-              <h4>Paquetes </h4>
-            </div>
-            <div class="col-lg-6">
-              <div class="float-right">
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input is-invalid" type="radio"
-                    id="isNotCompleted"
-                    name="optionsRadios" [value]="0"
-                    [(ngModel)]="filters.isCompleted" (ngModelChange)="getPackages()">
-                  <label class="form-check-label" for="isNotCompleted">Paquetes pendientes</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input is-valid" type="radio"
-                    id="isCompleted"
-                    name="optionsRadios"
-                    [value]="1"
-                    [(ngModel)]="filters.isCompleted" (ngModelChange)="getPackages()">
-                  <label class="form-check-label" for="isCompleted">Paquetes completados</label>
-                </div>
-              </div>
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">Paquetes</h4>
+          <div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
+            <div class="serene-radio-group">
+              <label class="radio-label" [class.active]="filters.isCompleted === 0">
+                <input type="radio" name="optionsRadios" [value]="0" [(ngModel)]="filters.isCompleted" (ngModelChange)="getPackages()" style="display: none;">
+                <span class="status-indicator error"></span> Paquetes pendientes
+              </label>
+              <label class="radio-label" [class.active]="filters.isCompleted === 1">
+                <input type="radio" name="optionsRadios" [value]="1" [(ngModel)]="filters.isCompleted" (ngModelChange)="getPackages()" style="display: none;">
+                <span class="status-indicator success"></span> Paquetes completados
+              </label>
             </div>
           </div>
         </div>
-        <ul class="list-group" >
+
+        @if (isLoading) {
+          <div class="box-loading-skeleton" style="margin-bottom: 1.5rem;">
+            <div class="skeleton-line" style="width: 30%; height: 24px; margin-bottom: 12px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 80px; margin-bottom: 12px; border-radius: 8px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 80px; margin-bottom: 12px; border-radius: 8px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 80px; border-radius: 8px;"></div>
+          </div>
+        } @else {
           @for (p of packages; track p) {
-            <li class="list-group-item">
-              <div class="row">
-                <div class="col-lg-2">{{p.client ? p.client.name + ' ' + p.client.lastname:''}}</div>
-                <div class="col-lg-3">{{ p.type? p.type.name:'' }}</div>
-                <div class="col-lg-2">{{ 'Sesiones ' + (p.type? p.type.session_count : '')}}</div>
-                <div class="col-lg-2">{{'Tomadas ' + (p.tracking?.length || 0) }}</div>
-                <div class="col-lg-1">{{ getDateFinish(p) | date:'dd/MM/yy' }}</div>
-                <div class="col-lg-2 text-right">
-                  <button class="btn btn-sm"
-                    [ngClass]="{'btn-success':p.sale != null && p.sale.is_paid,'btn-danger':p.sale != null && !p.sale.is_paid}"
-                    (click)="addPayment(p)">
-                    <i class="fas fa-dollar-sign"></i>
-                  </button>
-                  <button class="btn btn-primary btn-sm ml-1" (click)="addTracker(p)">
-                    <i class="fas fa-list-ul"></i>
-                  </button>
-                  @if (currentUser?.roles?.[0]?.name === 'admin' || currentUser?.roles?.[0]?.id === 1) {
-                    <button class="btn btn-sm btn-danger btn-sm ml-1" (click)="delete(p)">
-                      <i class="icofont icofont-trash"></i>
-                    </button>
-                  }
+            <div class="sale-day-card">
+              <div class="sale-day-header">
+                <div>
+                  <span class="client-name">{{p.client ? p.client.name + ' ' + p.client.lastname : ''}}</span>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--color-text-muted);">
+                  Vence: {{ getDateFinish(p) | date:'dd/MM/yyyy' }}
                 </div>
               </div>
-            </li>
+              
+              <div class="sale-item-detail">
+                <div class="detail-grid">
+                  <div class="col-flex" style="flex: 2;">
+                    <span style="display:block; color:var(--color-text-muted); font-size: 0.8rem;">Paquete</span>
+                    <strong>{{ p.type ? p.type.name : '' }}</strong>
+                  </div>
+                  <div class="col-flex text-center">
+                    <span style="display:block; color:var(--color-text-muted); font-size: 0.8rem;">Sesiones</span>
+                    <strong>{{ (p.tracking?.length || 0) }} / {{ p.type ? p.type.session_count : '' }}</strong>
+                  </div>
+                  <div class="col-flex text-center" style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                    <button type="button" [ngClass]="p.sale?.is_paid == '1' ? 'btn-serene-icon-primary' : 'btn-serene-icon-danger'" (click)="addPayment(p)" title="Pagos / Abonos">
+                      <i class="fas fa-dollar-sign"></i>
+                    </button>
+                    <button type="button" class="btn-serene-icon-primary" (click)="addTracker(p)" title="Rastrear Sesiones">
+                      <i class="fas fa-list-ul"></i>
+                    </button>
+                    @if (currentUser?.roles?.[0]?.name === 'admin' || currentUser?.roles?.[0]?.id === 1) {
+                      <button type="button" class="btn-serene-icon-danger" (click)="delete(p)" title="Eliminar">
+                        <i class="icofont icofont-trash"></i>
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
           }
-        </ul>
-        <div class="card-footer">
-          <pagination [boundaryLinks]="true" [totalItems]="paginate.total || 0" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
+          
+          @if (packages.length === 0) {
+            <div class="text-center" style="padding: 4rem 2rem; background: var(--color-surface); border-radius: 12px; box-shadow: 0 4px 12px rgba(58, 74, 64, 0.05); border: 1px solid rgba(0,0,0,0.03);">
+              <i class="fas fa-layer-group" style="font-size: 3rem; color: var(--color-text-muted); opacity: 0.5; margin-bottom: 1rem;"></i>
+              <h5 style="color: var(--color-text-primary); font-weight: 500; font-family: 'Outfit', sans-serif;">Sin paquetes</h5>
+              <p style="color: var(--color-text-muted); margin: 0;">No se encontraron paquetes para mostrar en este filtro.</p>
+            </div>
+          }
+        }
+        
+        <div style="padding: 1.5rem 0 0 0; display: flex; justify-content: center;">
+          <pagination [boundaryLinks]="true" [totalItems]="paginate.total || 0" [maxSize]="9" [itemsPerPage]="filters.perPage" (pageChanged)="pageChanged($event)"
             previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
           </pagination>
         </div>
@@ -66,34 +84,34 @@
   </div>
 </div>
 
-<div class="modal fade" id="modalTracker" tabindex="-1" role="dialog" aria-labelledby="modalTrackerLabel" aria-hidden="true">
+<div class="modal fade" [class.show]="isModalTrackerOpen" tabindex="-1" role="dialog" aria-labelledby="modalTrackerLabel" aria-hidden="true" [style.display]="isModalTrackerOpen ? 'block' : 'none'" [style.background]="isModalTrackerOpen ? 'rgba(0,0,0,0.5)' : 'transparent'">
   <form class="modal-dialog" role="document" #tackerForm="ngForm" (ngSubmit)="saveTracking()">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title" id="modal-title">Registrar sesión</h3>
+    <div class="modal-content serene-container" style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+      <div class="modal-header serene-header" style="border-bottom: 1px solid var(--color-border); padding: 1.5rem;">
+        <h3 class="modal-title" style="font-family: 'Cormorant Garamond', serif; margin: 0; color: var(--color-text-primary);">Registrar sesión</h3>
       </div>
-      <div class="modal-body" id="modal-body">
-        <div class="row">
-          <div class="col-md-12">
-            @if (!disabledTracker) {
-              <label class="text-danger">Los campos en rojo son requeridos.</label>
-            }
-            @if (disabledTracker) {
-              <h3 class="col-md-12 text-center"><label class="label label-success" >Sesiones completadas</label></h3>
-            }
-          </div>
-        </div>
+      <div class="modal-body" style="padding: 1.5rem;">
+        
         @if (!disabledTracker) {
-          <div class="row">
-            <div class="form-group col-md-6">
-              <input type="checkbox" name="is_taken" [(ngModel)]="tracker.is_taken" name="is_taken"> Fue tomada la sesión?
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <label class="text-danger" style="font-size: 0.85rem;">Los campos en rojo son requeridos.</label>
             </div>
           </div>
-        }
-        @if (!disabledTracker) {
-          <div class="row">
+          
+          <div class="row mb-3">
+            <div class="form-group col-md-6">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" name="is_taken" [(ngModel)]="tracker.is_taken" style="width: 18px; height: 18px;">
+                <label style="margin: 0; color: var(--color-text-primary);">¿Fue tomada la sesión?</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
             <div class="form-group col-md-6">
               <ng-select
+                class="serene-select"
                 name="userId"
                 [(ngModel)]="tracker.user_id"
                 [items]="(agents$ | async) || []"
@@ -102,82 +120,96 @@
                 bindValue="id"
                 [selectOnTab]="true"
                 #userId="ngModel"
-                placeholder="Selecciona el agente"
+                placeholder="Agente que atendió"
                 required>
               </ng-select>
             </div>
             <div class="form-group col-md-6">
-              <input type="date" class="form-control" [(ngModel)]="tracker.scheduled_date" name="scheduled_date">
+              <input type="date" class="serene-input" [(ngModel)]="tracker.scheduled_date" name="scheduled_date" required>
             </div>
           </div>
-        }
-        @if (!disabledTracker) {
-          <div class="row">
+          
+          <div class="row mb-4">
             <div class="form-group col-md-12">
-              <textarea class="form-control" name="description" [(ngModel)]="tracker.description" required></textarea>
+              <textarea class="serene-input" style="height: auto; resize: vertical;" rows="2" placeholder="Observaciones de la sesión..." name="description" [(ngModel)]="tracker.description" required></textarea>
             </div>
           </div>
         }
-        <ul class="list-group" style="max-height: 400px;overflow-y: auto; overflow-x: hidden;">
+
+        @if (disabledTracker) {
+          <div class="row mb-4">
+            <div class="col-md-12 text-center">
+              <span class="status-badge status-success" style="font-size: 1rem;">Sesiones completadas</span>
+            </div>
+          </div>
+        }
+
+        <label style="color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">Historial de sesiones</label>
+        <ul class="list-group" style="max-height: 250px; overflow-y: auto; border: 1px solid var(--color-border); border-radius: 6px;">
           @for (t of trackers; track t) {
-            <li class="list-group-item" >
-              <div class="row">
-                <span class="col-lg-2">{{ t.is_taken ? 'Tomada' : 'Perdida' }}</span>
-                <span class="col-lg-7">{{ 'Agente: ' + t.user?.name + ' ' + t.user?.lastname }}</span>
+            <li class="list-group-item" style="border: none; border-bottom: 1px solid var(--color-border); padding: 1rem;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                <span [ngStyle]="{'color': t.is_taken ? 'var(--color-primary)' : 'var(--color-danger)'}" style="font-weight: 500;">
+                  <i class="fas" [ngClass]="t.is_taken ? 'fa-check-circle' : 'fa-times-circle'"></i> {{ t.is_taken ? 'Tomada' : 'Perdida' }}
+                </span>
+                <span style="color: var(--color-text-muted); font-size: 0.85rem;">{{ t.scheduled_date | date:'dd/MMM/yyyy' }}</span>
               </div>
-              <div class="row">
-                <span class="col-lg-12">{{ 'Observaciones: ' + t.description }}</span>
+              <div style="color: var(--color-text-primary); font-size: 0.9rem;">
+                <strong>Agente:</strong> {{ t.user?.name + ' ' + t.user?.lastname }}<br>
+                <strong>Observaciones:</strong> {{ t.description }}
               </div>
+            </li>
+          }
+          @if (trackers.length === 0) {
+            <li class="list-group-item text-center" style="border: none; color: var(--color-text-muted); padding: 2rem;">
+              No hay sesiones registradas aún.
             </li>
           }
         </ul>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-default" type="button" data-dismiss="modal">Cancel</button>
+      <div class="modal-footer" style="border-top: 1px solid var(--color-border); padding: 1.5rem;">
+        <button class="btn-serene-secondary" type="button" (click)="isModalTrackerOpen = false">Cerrar</button>
         @if (!disabledTracker) {
-          <button class="btn btn-primary" type="submit" [disabled]="tackerForm.invalid">Guardar</button>
+          <button class="btn-serene-primary" type="submit" [disabled]="tackerForm.invalid">Guardar sesión</button>
         }
       </div>
     </div>
   </form>
 </div>
 
-<div class="modal fade" id="modalPayment" tabindex="-1" role="dialog" aria-labelledby="modalPeymentLabel" aria-hidden="true">
+<div class="modal fade" [class.show]="isModalPaymentOpen" tabindex="-1" role="dialog" aria-labelledby="modalPaymentLabel" aria-hidden="true" [style.display]="isModalPaymentOpen ? 'block' : 'none'" [style.background]="isModalPaymentOpen ? 'rgba(0,0,0,0.5)' : 'transparent'">
   <form class="modal-dialog" role="document" #paymentForm="ngForm" (ngSubmit)="savePayment()">
-    <div class="modal-content">
-      <div class="modal-header">
-        @if (!sale.is_paid) {
-          <h3 class="modal-title" id="modal-title">Registrar abonos/finiquitos</h3>
-        }
-        @if (sale.is_paid) {
-          <h3 class="modal-title" id="modal-title">Paquete pagado</h3>
-        }
+    <div class="modal-content serene-container" style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+      <div class="modal-header serene-header" style="border-bottom: 1px solid var(--color-border); padding: 1.5rem;">
+        <h3 class="modal-title" style="font-family: 'Cormorant Garamond', serif; margin: 0; color: var(--color-text-primary);">
+          {{ sale.is_paid ? 'Paquete pagado' : 'Registrar abonos / finiquitos' }}
+        </h3>
       </div>
-      <div class="modal-body" id="modal-body">
+      <div class="modal-body" style="padding: 1.5rem;">
         @if (paymentForm.invalid) {
-          <div class="row">
+          <div class="row mb-3">
             <div class="col-md-12">
-              <label class="text-danger" >Los campos en rojo son requeridos.</label>
+              <label class="text-danger" style="font-size: 0.85rem;">Los campos en rojo son requeridos.</label>
             </div>
           </div>
         }
-        <div class="row">
-          <div class="col-lg-12">
-            <label class="text-default">Costo del paquete: {{ sale.total | currency:'MX $':true:'2.2-4' }} </label>
+        
+        <div class="row mb-2">
+          <div class="col-lg-12" style="font-size: 1.1rem; color: var(--color-text-primary);">
+            Costo total: <strong>{{ sale.total | currency:'MX $':'symbol':'2.2-4' }}</strong>
           </div>
         </div>
-        <div class="row mt-1">
-          <div class="col-md-12">
-            <label class="text-danger">Saldo pendiente: {{ balance | currency:'MX $':true:'2.2-4' }} </label>
+        <div class="row mb-4">
+          <div class="col-md-12" style="font-size: 1.1rem; color: var(--color-text-primary);">
+            Saldo pendiente: <strong>{{ balance | currency:'MX $':'symbol':'2.2-4' }}</strong>
           </div>
         </div>
+        
         @if (!sale.is_paid) {
-          <div class="row mt-1" >
-            <div class="col-lg-2">
-              Agente
-            </div>
-            <div class="col-lg-10">
-              <ng-select placeholder="Agente"
+          <div class="row mb-3">
+            <div class="col-lg-12">
+              <ng-select placeholder="Agente que recibe"
+                class="serene-select"
                 [items]="(agents$ | async) || []"
                 [(ngModel)]="payment.responsible_id"
                 bindValue="id"
@@ -189,22 +221,18 @@
                 <ng-template ng-label-tmp let-item="item">
                   {{ item.name + ' ' + item.lastname}}
                 </ng-template>
-                <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                <ng-template ng-option-tmp let-item="item">
                   <div >{{item.name + ' ' + item.lastname}}</div>
                 </ng-template>
               </ng-select>
             </div>
           </div>
-        }
-        @if (!sale.is_paid) {
-          <div class="row mt-1" >
-            <div class="col-lg-2">
-              Forma de pago
-            </div>
-            <div class="col-lg-10">
-              <ng-select
-                placeholder="Forma de pago"
-                name="typeSale$ | async"
+          
+          <div class="row mb-3">
+            <div class="col-lg-12">
+              <ng-select placeholder="Forma de pago"
+                class="serene-select"
+                name="typeSale"
                 [(ngModel)]="payment.type_sale_id"
                 [items]="(typeSale$ | async) || []"
                 bindLabel="name"
@@ -216,74 +244,75 @@
               </ng-select>
             </div>
           </div>
-        }
-        @if (!sale.is_paid) {
-          <div class="row mt-1">
-            <div class="col-lg-2">
-              Monto
-            </div>
-            <div class="col-lg-10">
-              <input type="number" min="0" class="form-control" name="amount" [(ngModel)]="payment.amount" (ngModelChange)="onChangeAmount()" required>
+          
+          <div class="row mb-4">
+            <div class="col-lg-12">
+              <input type="number" min="0" placeholder="Monto" class="serene-input" name="amount" [(ngModel)]="payment.amount" (ngModelChange)="onChangeAmount()" required>
             </div>
           </div>
         }
-        <br>
-          <ul class="list-group" style="max-height:150px;overflow-y: auto; overflow-x: hidden;">
-            @for (p of payments; track p) {
-              <li class="list-group-item row" >
-                <span class="col-md-2">{{ p.created_at | date:'dd/MM/yyyy' }}</span>
-                <span class="col-md-2">{{ p.amount | currency:'MX $ ':true:'2.2-4' }}</span>
-                <span class="float-right m-1">{{'Agente por ' + p.responsible?.name + ' ' + p.responsible?.lastname}}</span>
-              </li>
-            }
-          </ul>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-default" type="button" data-dismiss="modal">Cancel</button>
-          @if (sale.is_paid == '0') {
-            <button class="btn btn-primary" type="submit">Guardar</button>
+        
+        <label style="color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">Historial de abonos</label>
+        <ul class="list-group" style="max-height: 200px; overflow-y: auto; border: none;">
+          @for (p of payments; track p) {
+            <li class="list-group-item" style="border: none; padding: 0.5rem 0;">
+              <div style="display: flex; align-items: center; color: var(--color-text-primary);">
+                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--color-text-primary); margin-right: 0.5rem;"></span>
+                <span>{{ p.created_at | date:'dd/MMM/yyyy' }} &mdash; <strong>{{ p.amount | currency:'MX $ ':'symbol':'2.2-4' }}</strong></span>
+              </div>
+              <div style="font-size: 0.85rem; color: var(--color-text-muted); padding-left: 1rem;">
+                Recibió: {{ p.responsible?.name + ' ' + p.responsible?.lastname }}
+              </div>
+            </li>
           }
-        </div>
+        </ul>
       </div>
-    </form>
-  </div>
+      <div class="modal-footer" style="border-top: 1px solid var(--color-border); padding: 1.5rem;">
+        <button class="btn-serene-secondary" type="button" (click)="isModalPaymentOpen = false">Cerrar</button>
+        @if (sale.is_paid == '0') {
+          <button class="btn-serene-primary" type="submit" [disabled]="paymentForm.invalid">Guardar Abono</button>
+        }
+      </div>
+    </div>
+  </form>
+</div>
 
-  <div id="printTicket" style="max-width: 219.212598425px;">
-    <img src="assets/img/logo-fase2.svg" height="100pt" width="100%" />
-    <br />
-    <br />
-    @if (printPayment != null) {
-      <div>
-        <span >Cliente: {{ printPayment?.sale?.client?.name + ' ' + printPayment?.sale?.client?.lastname }}</span><br />
-        <span >Agente: {{ printPayment?.responsible?.name + ' ' + printPayment?.responsible?.lastname }}</span><br />
-        <div >
-          @if ((printPayment?.sale?.product_id || 0) > 0) {
-            <span>Producto: {{printPayment?.sale?.cat_product?.name}}</span>
-          }
-          @if ((printPayment?.sale?.service_id || 0) > 0) {
-            <span>Servicio: {{printPayment?.sale?.cat_service?.name}}</span>
-          }
-          @if ((printPayment?.sale?.package_id || 0) > 0) {
-            <span>Paquete: {{printPayment?.sale?.cat_package?.name}}</span>
-          }
-          @if ((printPayment?.sale?.pill_id || 0) > 0) {
-            <span>Pastillas: {{printPayment?.sale?.cat_pill?.name}}</span>
-          }
+<div id="printTicket" style="max-width: 219.212598425px; display: none;">
+  <img src="assets/img/logo-fase2.svg" height="100pt" width="100%" />
+  <br />
+  <br />
+  @if (printPayment != null) {
+    <div>
+      <span >Cliente: {{ printPayment.sale?.client?.name + ' ' + printPayment.sale?.client?.lastname }}</span><br />
+      <span >Agente: {{ printPayment.responsible?.name + ' ' + printPayment.responsible?.lastname }}</span><br />
+      <div >
+        @if ((printPayment.sale?.product_id || 0) > 0) {
+          <span>Producto: {{printPayment.sale?.cat_product?.name}}</span>
+        }
+        @if ((printPayment.sale?.service_id || 0) > 0) {
+          <span>Servicio: {{printPayment.sale?.cat_service?.name}}</span>
+        }
+        @if ((printPayment.sale?.package_id || 0) > 0) {
+          <span>Paquete: {{printPayment.sale?.cat_package?.name}}</span>
+        }
+        @if ((printPayment.sale?.pill_id || 0) > 0) {
+          <span>Pastillas: {{printPayment.sale?.cat_pill?.name}}</span>
+        }
+        <br />
+        <span >Precio: {{printPayment.sale?.price | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
+        <span >Cantidad: {{ printPayment.sale?.count }} </span><br />
+        @if ((printPayment.type_sale_id || 0) > 0) {
+          <span>Forma pago: {{ printPayment.type?.name}}</span>
+          }@if ((printPayment.type_sale_id || 0) > 0) {
           <br />
-          <span >Precio: {{printPayment?.sale?.price | currency:'MXN ':true:'2.2-4'}} </span><br />
-          <span >Cantidad: {{ printPayment?.sale?.count }} </span><br />
-          @if ((printPayment?.type_sale_id || 0) > 0) {
-            <span>Forma pago: {{ printPayment?.type?.name}}</span>
-            }@if ((printPayment?.type_sale_id || 0) > 0) {
-            <br />
-          }
-          <span >Abono: {{printPayment?.amount | currency:'MXN ':true:'2.2-4'}} </span><br />
-          <span >Pago: {{printPayment?.sale?.amount | currency:'MXN ':true:'2.2-4'}} </span><br />
-          <span >Saldo: {{printPayment?.sale?.balance | currency:'MXN ':true:'2.2-4'}} </span><br />
-        </div>
-        <small style="width: 100%; text-align: center;"><em>**** ESTIMADO CLIENTE ****</em></small><br>
-        <small style="width: 100%; text-align: center;"><em>ES IMPORTANTE VALIDAR QUE LOS DATOS IMPRESOS CORRESPONDEN A LA OPERECIOM SOLICITADA</em></small>
+        }
+        <span >Abono: {{printPayment.amount | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
+        <span >Pago: {{printPayment.sale?.amount | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
+        <span >Saldo: {{printPayment.sale?.balance | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
       </div>
-    }
-    <small style="width: 100%; text-align: center;"></small>
-  </div>
+      <small style="width: 100%; text-align: center;"><em>**** ESTIMADO CLIENTE ****</em></small><br>
+      <small style="width: 100%; text-align: center;"><em>ES IMPORTANTE VALIDAR QUE LOS DATOS IMPRESOS CORRESPONDEN A LA OPERECIOM SOLICITADA</em></small>
+    </div>
+  }
+  <small style="width: 100%; text-align: center;"></small>
+</div>

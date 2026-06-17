@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { PackageService, AgentService, PaymentService, PackageTrackingService, TypeService, SaleService,PaginateService } from '../../services';
 import { User, Package, PackageTracking, Payment, Sale, _Type, Paginate } from '../../models';
 import { Observable, Subject } from 'rxjs';
@@ -12,13 +12,13 @@ import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
 
-declare var $: any, iziToast: any, printJS: any;
+declare var iziToast: any, printJS: any;
 
 @Component({
     selector: 'app-packages',
     imports: [CommonModule, FormsModule, NgSelectModule, PaginationModule],
     templateUrl: './packages.component.html',
-    styleUrls: ['./packages.component.css']
+    styleUrls: ['./packages.component.scss']
 })
 
 export class PackagesComponent implements OnInit {
@@ -43,7 +43,9 @@ export class PackagesComponent implements OnInit {
 
   public disabledTracker = false;
   public amountChange: Subject<string> = new Subject();
-
+  
+  public isModalTrackerOpen = false;
+  public isModalPaymentOpen = false;
 
   constructor(
     private pS: PackageService,
@@ -52,7 +54,8 @@ export class PackagesComponent implements OnInit {
     private tS: TypeService,
     private ptS: PackageTrackingService,
     private pagS: PaginateService,
-    private sS: SaleService) {
+    private sS: SaleService,
+    private cdr: ChangeDetectorRef) {
       this.pagS.model = 'packages';
       this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
       this.getPackages();
@@ -61,15 +64,6 @@ export class PackagesComponent implements OnInit {
   ngOnInit() {
     this.agents$ = this.aS.get();
     this.typeSale$ = this.tS.getAll('cat_type_sales');
-    const that = this;
-
-    $('#modalTracker').on('hidden.bs.modal', function (event: any) {
-      that.getPackages();
-    });
-
-    $('#modalPayment').on('hidden.bs.modal', function (event: any) {
-      that.getPackages();
-    });
 
     this.amountChange.pipe(debounceTime(300)).subscribe(() => {
       if ((this.payment.amount || 0) > this.balance) {
@@ -78,17 +72,26 @@ export class PackagesComponent implements OnInit {
     });
   }
 
+  isLoading = true;
   getPackages() {
+    this.isLoading = true;
+    setTimeout(() => this.cdr.detectChanges(), 0);
     this.pagS.paginate(this.filters).subscribe(r => {
       this.paginate = r;
       this.packages = r.data; 
+      this.isLoading = false;
+      this.cdr.detectChanges();
     });
   }
 
   pageChanged(event: any){
+    this.isLoading = true;
+    setTimeout(() => this.cdr.detectChanges(), 0);
     this.pagS.getForUrl(event.page, this.filters).subscribe(res => {
       this.paginate = res;
       this.packages = res.data;
+      this.isLoading = false;
+      this.cdr.detectChanges();
     });
   }
   
@@ -157,7 +160,7 @@ export class PackagesComponent implements OnInit {
       });
       this.balance = ((this.sale.subtotal || 0) - this.subTotal);
       this.sale.is_paid = this.balance <= 0;
-      $('#modalPayment').modal('show');
+      this.isModalPaymentOpen = true;
     });
   }
 
@@ -181,7 +184,7 @@ export class PackagesComponent implements OnInit {
         }, 1000);
 
       }, 1000);
-      $('#modalPayment').modal('hide');
+      this.isModalPaymentOpen = false;
       iziToast.show({
         message: 'Registro creado'
       });
@@ -223,7 +226,7 @@ export class PackagesComponent implements OnInit {
     this.tracker.package_id = p.id;
     this.tracker.scheduled_date = '';
     this.getTracking();
-    $('#modalTracker').modal('show');
+    this.isModalTrackerOpen = true;
   }
 
   getTracking() {
@@ -235,7 +238,8 @@ export class PackagesComponent implements OnInit {
   saveTracking() {
     this.tracker.scheduled_date = format(new Date(this.tracker.scheduled_date!), 'yyyy-MM-dd HH:mm:ss');
     this.ptS.post(this.tracker).subscribe(xhr => {
-      $('#modalTracker').modal('hide');
+      this.isModalTrackerOpen = false;
+      this.getPackages();
       iziToast.show({
         message: 'Registro creado'
       });

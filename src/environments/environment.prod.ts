@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
-  urlApi: 'http://localhost:8000/api/',
-  qzTrayUrl: 'ws://localhost:8181'
+  urlApi: 'https://v2.fase2spa.com/api/',
+  qzTrayUrl: 'wss://localhost:8182',
+  useMocks: false
 };

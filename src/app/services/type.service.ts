@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { _Type, User, Paginate } from '../models';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class TypeService {
   private url: string = environment.urlApi;
   private currentUser: User = new User();

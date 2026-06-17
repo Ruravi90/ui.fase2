@@ -12,7 +12,7 @@
             <li class="list-group-item">
               <div class="row">
                 <div class="col-lg-4">{{i.product?.name}}</div>
-                <div class="col-lg-3">Precio: {{i.product?.price | currency:'MXN ':true:'4.2-4'}}</div>
+                <div class="col-lg-3">Precio: {{i.product?.price | currency:'MXN ':'symbol':'4.2-4'}}</div>
                 <div class="col-lg-3">En stock: {{i.count}}</div>
                 <div class="col-lg-2">
                   <button class="btn btn-sm btn-danger ml-2 float-right" (click)="delete(i)"><i class="fa fa-trash"></i></button>

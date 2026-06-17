@@ -57,7 +57,7 @@
                       <div class="col">Productos: <br/>{{_purchase.product_count}} {{_purchase.product.name}}</div>
                     }
                     <div class="col">
-                      {{_purchase.amount | currency:'MXN ':true:'2.2-4'}}
+                      {{_purchase.amount | currency:'MXN ':'symbol':'2.2-4'}}
                       @if (!_purchase.is_paid) {
                         <button class="btn btn-success btn-sm float-right" (click)="pay(_purchase)">Pagar</button>
                       }

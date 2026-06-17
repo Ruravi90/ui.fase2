@@ -1,0 +1,86 @@
+#printTicket {
+  position: fixed;
+  top:0;
+  right: -220px;
+}
+
+.serene-input {
+  border: none;
+  border-bottom: 1px solid var(--color-border, #E0E5E2);
+  border-radius: 0;
+  padding: 0.5rem 0;
+  background: transparent;
+  color: var(--color-text, #3A4A40);
+  transition: border-color 0.3s ease;
+  width: 100%;
+  height: 38px;
+
+  &:focus {
+    outline: none;
+    border-bottom: 2px solid var(--color-primary, #84A59D);
+    box-shadow: none;
+  }
+
+  &::placeholder {
+    color: var(--color-text-muted, #8C9C93);
+    font-weight: 300;
+  }
+}
+
+/* Sale of the day cards (reused for packages) */
+.sale-day-card {
+  border: 1px solid var(--color-border, #E0E5E2);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #fff;
+  transition: box-shadow 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(58, 74, 64, 0.05);
+  }
+
+  .sale-day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--color-border, #E0E5E2);
+
+    .client-name {
+      font-weight: 600;
+      color: var(--color-text, #3A4A40);
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.sale-item-detail {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .detail-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    gap: 1rem;
+    
+    .col-flex {
+      flex: 1;
+    }
+    
+    .price-value {
+      font-weight: 500;
+    }
+  }
+}
+
+.box-loading-skeleton { display: flex; flex-direction: column; gap: 8px; padding: 2rem; background: var(--color-surface, #fff); border-radius: 12px; box-shadow: 0 4px 12px rgba(58, 74, 64, 0.05); border: 1px solid rgba(0,0,0,0.03); }
+.skeleton-line { display: block; border-radius: 6px; background: linear-gradient(90deg, #e8ecea 25%, #d4dbd8 50%, #e8ecea 75%); background-size: 400% 100%; animation: shimmer 1.4s ease-in-out infinite; }
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }

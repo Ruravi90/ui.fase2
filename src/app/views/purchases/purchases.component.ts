@@ -15,7 +15,7 @@ import { PaginationModule } from 'ngx-bootstrap/pagination';
     selector: 'app-purchases',
     imports: [CommonModule, FormsModule, NgSelectModule, PaginationModule],
     templateUrl: 'purchases.component.html',
-    styleUrls: ['./purchases.component.css']
+    styleUrls: ['./purchases.component.scss']
 })
 export class PurchasesComponent implements OnInit {
   public currentUser: User = new User();

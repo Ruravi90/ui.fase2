@@ -5,8 +5,8 @@ import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { User, Paginate } from '../models';
 
-@Injectable()
-export class UserService {
+@Injectable({ providedIn: 'root' })
+export class UserService { // Trigger reload
     private url: string = environment.urlApi + 'users';
     private currentUser: User = new User();
     constructor(private http: HttpClient) {
@@ -21,15 +21,17 @@ export class UserService {
         return this.http.post<any>(this.url + '/login', model);
     }
     isLogin(): boolean {
-        if (!localStorage.getItem('currentUser') || '{}') {
+        const user = localStorage.getItem('currentUser');
+        if (!user || user === '{}') {
             return false;
         }
         return true;
     }
     getToken(): string {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}' || '{}');
-        if (localStorage.getItem('currentUser') || '{}') {
-            return currentUser.token;
+        const userStr = localStorage.getItem('currentUser');
+        if (userStr && userStr !== '{}') {
+            const currentUser = JSON.parse(userStr);
+            return currentUser.token || '';
         }
         return '';
     }

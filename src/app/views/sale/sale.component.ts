@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { ClientService,
   DepartmentService,
   AgentService,
@@ -32,7 +32,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
     selector: 'app-sale',
     imports: [CommonModule, FormsModule, NgSelectModule],
     templateUrl: 'sale.component.html',
-    styleUrls: ['./sale.component.css']
+    styleUrls: ['./sale.component.scss']
 })
 
 export class SaleComponent implements OnInit {
@@ -82,12 +82,16 @@ export class SaleComponent implements OnInit {
     private qS: QzTrayService,
     private piS: PillsInventoryService,
     private prS: ProductsInventaryService,
+    private cdr: ChangeDetectorRef,
     ) {
       this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
-      this.setCombos();
     }
 
   ngOnInit(): void {
+    this.isLoadingPage = true;
+    setTimeout(() => this.cdr.detectChanges(), 0);
+    this.setCombos();
+
     this.subject.pipe(debounceTime(800))
     .subscribe(() => this.onCalculateTotal());
 
@@ -101,9 +105,11 @@ export class SaleComponent implements OnInit {
     this.getSalesForDay();
   }
 
+  isLoadingPage = true;
   getSalesForDay() {
     this.sS.getSalesUserDay().subscribe(res => {
       this.salesForDay = res.sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+      this.cdr.detectChanges();
     });
   }
 
@@ -123,6 +129,8 @@ export class SaleComponent implements OnInit {
       this.departments = r[1];
       this.agents = r[2];
       this.typeSales = r[3];
+      this.isLoadingPage = false;
+      this.cdr.detectChanges();
     });
 
     this.typeConcepts = [
