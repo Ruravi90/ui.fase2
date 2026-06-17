@@ -19,17 +19,20 @@ import { Client,
 import { NgSelectComponent  } from '@ng-select/ng-select';
 
 import swal from 'sweetalert2';
-import { isUndefined } from 'util';
 import { Subject, forkJoin } from 'rxjs';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/switchMap';
-import * as print from 'print-js';
+import { debounceTime, switchMap } from 'rxjs/operators';
 
 declare var $: any, iziToast: any, document: any;
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
+
 @Component({
-  templateUrl: 'sale.component.html',
-  styleUrls: ['./sale.component.css']
+    selector: 'app-sale',
+    imports: [CommonModule, FormsModule, NgSelectModule],
+    templateUrl: 'sale.component.html',
+    styleUrls: ['./sale.component.css']
 })
 
 export class SaleComponent implements OnInit {
@@ -37,15 +40,21 @@ export class SaleComponent implements OnInit {
   public sale: Sale = new Sale();
   public sales: Sale[] = [];
   public salesForDay: Sale[] = [];
-  public cuteSales: Department[] = [];
-  public printSale?: Sale = null;
-  public isCopyPrint = false;
-  public sumSales = 0;
+  public sumTotal = 0;
+  public amount = 0;
+  public printSale?: Sale;
+  public total = 0;
+  public printSales: Sale[] = [];
   public clients: Client[] = [];
   public departments: Department[] = [];
   public agents: User[] = [];
+  public cuteSales: Department[] = [];
+  public isCopyPrint = false;
   public additional: SaleAdditional = new SaleAdditional();
-  public typeAdditionals: any[];
+  public balance = 0;
+  public dateNow = new Date();
+  public isBusy = false;
+  public typeAdditionals: any[] = [];
   public type_additional_id?: string;
   public conceptsAdditionals: _Type[] = [];
   // tslint:disable-next-line:no-inferrable-types
@@ -57,14 +66,10 @@ export class SaleComponent implements OnInit {
   public _selectedConcept: any = {};
   public typeSales: _Type[] = [];
 
-  public inventory: Inventory = null;
-
-  public isBusy = false;
-
-  public dateNow: Date = new Date();
-
-  @ViewChild('typeConceptId', {static: false}) public selectTypeConceptId: NgSelectComponent;
-  @ViewChild('conceptId', {static: false}) public selectConceptId: NgSelectComponent;
+  public department_id: number = undefined as any;
+  public inventory: Inventory = undefined as any;
+  public selectConceptId!: NgSelectComponent;
+  public selectTypeConceptId!: NgSelectComponent;
 
   private subject: Subject<string> = new Subject();
   private amountChange: Subject<string> = new Subject();
@@ -78,17 +83,17 @@ export class SaleComponent implements OnInit {
     private piS: PillsInventoryService,
     private prS: ProductsInventaryService,
     ) {
-      this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
       this.setCombos();
     }
 
   ngOnInit(): void {
-    this.subject.debounceTime(800)
+    this.subject.pipe(debounceTime(800))
     .subscribe(() => this.onCalculateTotal());
 
-    this.amountChange.debounceTime(800)
+    this.amountChange.pipe(debounceTime(800))
       .subscribe(() => {
-        if (this.sale.amount > this.sale.total) {
+        if ((this.sale.amount || 0) > (this.sale.total || 0)) {
           this.sale.amount = this.sale.total;
         }
     });
@@ -98,7 +103,7 @@ export class SaleComponent implements OnInit {
 
   getSalesForDay() {
     this.sS.getSalesUserDay().subscribe(res => {
-      this.salesForDay = res;
+      this.salesForDay = res.sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
     });
   }
 
@@ -134,11 +139,11 @@ export class SaleComponent implements OnInit {
 
   selectedTypeConcept() {
     let url = '';
-    this.selectConceptId = null;
-    this.concept_id = null;
-    this.inventory = null;
-    this.sale.product_id = null;
-    this.sale.pill_id = null;
+    this.selectConceptId = null as any;
+    this.concept_id = undefined;
+    this.inventory = undefined as any;
+    this.sale.product_id = undefined;
+    this.sale.pill_id = undefined;
     switch (this.type_concept_id) {
       case 'product':
           url = 'cat_products';
@@ -158,7 +163,7 @@ export class SaleComponent implements OnInit {
         this.concepts = r;
       });
     } else {
-      this.type_concept_id = null;
+      this.type_concept_id = undefined;
       this.concepts = [new _Type()];
     }
   }
@@ -168,13 +173,13 @@ export class SaleComponent implements OnInit {
     let index = this.concepts.findIndex(i => i.id === this.concept_id);
     // tslint:disable-next-line:prefer-const
     this._selectedConcept = this.concepts[index];
-    this.inventory = null;
+    this.inventory = undefined as any;
     this.onCalculateTotal();
     switch (this.type_concept_id) {
       case 'product':
           this.sale.product_id = this.concept_id;
           this.sale.cat_product =  this._selectedConcept;
-          this.prS.getForProduct(this.concept_id).subscribe(r => {
+          this.prS.getForProduct(this.concept_id!).subscribe(r => {
             this.inventory = r;
           });
           break;
@@ -189,7 +194,7 @@ export class SaleComponent implements OnInit {
       case 'pill':
           this.sale.pill_id = this.concept_id;
           this.sale.cat_pill =  this._selectedConcept;
-          this.piS.getForPill(this.concept_id).subscribe(r => {
+          this.piS.getForPill(this.concept_id!).subscribe(r => {
             this.inventory = r;
           });
           break;
@@ -197,7 +202,7 @@ export class SaleComponent implements OnInit {
     this.inventory.count = Number(this.inventory.count);
   }
 
-  addSale(isValid: boolean) {
+  addSale(isValid: boolean): void | boolean {
     if (!isValid) {
       return false;
     }
@@ -242,7 +247,7 @@ export class SaleComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, cancelar!'
     }).then((result) => {
-      this.sS.cancel(s.id).subscribe(r => {
+      this.sS.cancel(s.id!).subscribe((r: any) => {
         this.getSalesForDay();
         iziToast.show({
           message: 'Registro cancelado correctamente'
@@ -252,9 +257,14 @@ export class SaleComponent implements OnInit {
   }
 
   selectedTypeAdditional() {
+    this.sale = new Sale();
+    this.additional = new Sale();
+    this.additional.pill_id = undefined;
+    this.additional.product_id = undefined;
+    this.inventory = undefined as any;
     let url = '';
-    this.additional.pill_id = null;
-    this.additional.product_id = null;
+    this.additional.pill_id = undefined;
+    this.additional.product_id = undefined;
     switch (this.type_additional_id) {
       case 'product':
           url = 'cat_products';
@@ -268,26 +278,28 @@ export class SaleComponent implements OnInit {
         this.conceptsAdditionals = r;
       });
     } else {
-      this.type_additional_id = null;
-      this.conceptsAdditionals = null;
+      this.type_additional_id = undefined;
+      this.conceptsAdditionals = [];
     }
   }
 
-  selectedAdditional() {
+  setConceptAdditionals() {
+    this.conceptsAdditionals = [];
+    this.additional.price = 0;
+    this.inventory = undefined as any;
     let index = 0;
-    this.inventory = null;
     switch (this.type_additional_id) {
       case 'product':
           index = this.conceptsAdditionals.findIndex(i => i.id === this.additional.product_id);
           this.additional.cat_product = this.conceptsAdditionals[index];
-          this.prS.getForProduct(this.additional.product_id).subscribe(r => {
+          this.prS.getForProduct(this.additional.product_id!).subscribe(r => {
             this.inventory = r;
           });
           break;
       case 'pill':
           index = this.conceptsAdditionals.findIndex(i => i.id === this.additional.pill_id);
           this.additional.cat_pill = this.conceptsAdditionals[index];
-          this.piS.getForPill(this.additional.pill_id).subscribe(r => {
+          this.piS.getForPill(this.additional.pill_id!).subscribe(r => {
             this.inventory = r;
           });
           break;
@@ -296,8 +308,12 @@ export class SaleComponent implements OnInit {
 
   addAdditional() {
     this.sale.additionals.push(this.additional);
+    this.clearAdditional();
+  }
+
+  clearAdditional() {
     this.additional = new SaleAdditional();
-    this.type_additional_id = null;
+    this.type_additional_id = undefined;
     this.conceptsAdditionals = [];
   }
 
@@ -318,7 +334,13 @@ export class SaleComponent implements OnInit {
 
   onCalculateTotal() {
     this.sale.price = Number(this._selectedConcept.price);
-    this.sale.subtotal =  this.sale.price * this.sale.count;
+    this.sale.subtotal =  this.sale.price * (this.sale.count || 0);
+    if ((this.sale.discount || 0) > 0) {
+      const discount = this.sale.price * (this.sale.discount! / 100);
+      this.sale.subtotal =  (this.sale.price - discount) * (this.sale.count || 0);
+    } else {
+      this.sale.subtotal =  this.sale.price * (this.sale.count || 0);
+    }
     if (typeof this.sale.discount !== 'undefined') {
       this._selectedConcept.discount = ((Number(this.sale.discount) * this.sale.subtotal) / 100);
     } else {
@@ -330,27 +352,27 @@ export class SaleComponent implements OnInit {
   }
 
   onDebounce() {
-    this.subject.next();
+    this.subject.next('');
   }
 
   onChangeAmount() {
-    this.amountChange.next();
+    this.amountChange.next('');
   }
 
   clearForm() {
     this.sale = new Sale();
     this.sale.user_id = this.currentUser.id;
-    this.type_concept_id = null;
-    this.typeConcepts = null;
-    this.selectConceptId = null;
-    this.concept_id = null;
-    this.type_additional_id = null;
-    this.conceptsAdditionals = null;
+    this.type_concept_id = undefined;
+    this.typeConcepts = [];
+    this.selectConceptId = undefined as any;
+    this.concept_id = undefined;
+    this.type_additional_id = undefined;
+    this.conceptsAdditionals = [];
 
     this.setCombos();
   }
 
-  saveSales() {
+  saveSales(): void | boolean {
     if(this.isBusy)
       return false;
 
@@ -371,12 +393,12 @@ export class SaleComponent implements OnInit {
   }
 
   copyTicket(s: Sale) {
-    this.sS.getById(s.id).subscribe(res => {
+    this.sS.getById(s.id!).subscribe(res => {
       this.cuteSales = [];
       this.printSale = res;
       this.printSale.sumTotal = 0;
-      this.printSale.sales.forEach((e, i) => {
-        this.printSale.sumTotal =  this.printSale.sumTotal + Number(e.amount);
+      this.printSale.sales.forEach((e: any) => {
+        this.printSale!.sumTotal = (this.printSale!.sumTotal || 0) + Number(e.amount);
       });
 
       setTimeout(() => {
@@ -389,7 +411,7 @@ export class SaleComponent implements OnInit {
     this.copyTicket(s);
   }
 
-  async getCuteSales() {
+  async getCuteSales(): Promise<void | boolean> {
     if(this.isBusy)
       return false;
     this.isBusy = true;
@@ -405,27 +427,27 @@ export class SaleComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Generar corte!'
     }).then((result) => {
-      this.sS.getCuteSales().subscribe(r => {
-        this.printSale = null;
+      this.sS.getCuteSales().subscribe((r: any) => {
+        this.printSale = undefined;
         this.cuteSales = r;
-        this.cuteSales.forEach((d, i) => {
-          this.cuteSales[i].sumCardTotal = 0;
-          this.cuteSales[i].sumCashTotal = 0;
-          d.sales.forEach((s, i2) => {
-            this.cuteSales[i].sales[i2].sumCashTotal = 0;
-            this.cuteSales[i].sales[i2].sumCardTotal = 0;
-            s.sales.forEach((ss, i3) => {
-              ss.payments.forEach((p, i4) => {
+        this.cuteSales.forEach((d: any) => {
+          d.sumCardTotal = 0;
+          d.sumCashTotal = 0;
+          d.sales.forEach((s: any) => {
+            s.sumCashTotal = 0;
+            s.sumCardTotal = 0;
+            s.sales.forEach((ss: any) => {
+              ss.payments.forEach((p: any) => {
                 if(p.type.id === 1){
-                  this.cuteSales[i].sales[i2].sumCashTotal = this.cuteSales[i].sales[i2].sumCashTotal + Number(p.amount);
+                  s.sumCashTotal = (s.sumCashTotal || 0) + Number(p.amount);
                 }
                 else{
-                  this.cuteSales[i].sales[i2].sumCardTotal = this.cuteSales[i].sales[i2].sumCardTotal + Number(p.amount);
+                  s.sumCardTotal = (s.sumCardTotal || 0) + Number(p.amount);
                 }
               });
             });
-            this.cuteSales[i].sumCardTotal = this.cuteSales[i].sumCardTotal + this.cuteSales[i].sales[i2].sumCardTotal;
-            this.cuteSales[i].sumCashTotal = this.cuteSales[i].sumCashTotal + this.cuteSales[i].sales[i2].sumCashTotal;
+            d.sumCardTotal = (d.sumCardTotal || 0) + (s.sumCardTotal || 0);
+            d.sumCashTotal = (d.sumCashTotal || 0) + (s.sumCashTotal || 0);
           });
         });
 
@@ -447,19 +469,33 @@ export class SaleComponent implements OnInit {
  * @memberof SalesComponent
  */
   printToCart(printSectionId: string) {
-    print( {
-        printable: printSectionId,
-        type: 'html',
-        css: 'assets/css/print.css',
-        scanStyles: true,
-        showModal: true,
-        modalMessage: 'Preparando ticket',
-        onLoadingEnd: () => {
-          if (this.isCopyPrint) {
-            this.isCopyPrint = false;
-            this.printToCart(printSectionId);
-          }
-        }
-    });
+    const printContents = document.getElementById(printSectionId)?.innerHTML;
+    if (!printContents) return;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (doc) {
+      doc.open();
+      doc.write(`
+        <html>
+          <head>
+            <title>Imprimiendo Ticket...</title>
+            <link rel="stylesheet" type="text/css" href="assets/css/print.css">
+          </head>
+          <body onload="setTimeout(function() { window.print(); window.parent.document.body.removeChild(window.frameElement); }, 500);">
+            ${printContents}
+          </body>
+        </html>
+      `);
+      doc.close();
+    }
+
+    if (this.isCopyPrint) {
+      this.isCopyPrint = false;
+      setTimeout(() => this.printToCart(printSectionId), 1000);
+    }
   }
 }

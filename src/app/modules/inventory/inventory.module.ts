@@ -12,8 +12,7 @@ import { PopoverModule } from 'ngx-bootstrap/popover';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { NgDatepickerModule } from 'ng2-datepicker';
-import { OrderModule } from 'ngx-order-pipe';
+
 
 import { InventoryRoutingModule } from './inventory-route.module';
 import { PillsInventoryComponent } from '../../views/pills_inventory/pills_inventory.component';
@@ -26,21 +25,19 @@ import { ProductsInventoryComponent } from '../../views/products_inventory/produ
     CommonModule,
     FormsModule,
     InventoryRoutingModule,
-    BsDropdownModule.forRoot(),
+    BsDropdownModule,
     TabsModule,
-    CarouselModule.forRoot(),
-    CollapseModule.forRoot(),
-    PaginationModule.forRoot(),
-    PopoverModule.forRoot(),
-    ProgressbarModule.forRoot(),
-    TooltipModule.forRoot(),
+    CarouselModule,
+    CollapseModule,
+    PaginationModule,
+    PopoverModule,
+    ProgressbarModule,
+    TooltipModule,
     NgSelectModule,
-    NgDatepickerModule,
-    OrderModule
+    ProductsInventoryComponent,
+    PillsInventoryComponent
   ],
   declarations: [
-    PillsInventoryComponent,
-    ProductsInventoryComponent,
   ]
 })
 export class InventoryModule { }

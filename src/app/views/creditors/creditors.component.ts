@@ -1,18 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { CreditorService } from '../../services';
-import { Creditor} from '../../models';
+import { Creditor } from '../../models';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 import swal from 'sweetalert2';
-import { isUndefined } from 'util';
 import { Subject, Observable } from 'rxjs';
 declare var $: any, iziToast: any;
 
 @Component({
-  templateUrl: 'creditors.component.html'
+    selector: 'app-creditors',
+    imports: [CommonModule, FormsModule, PaginationModule],
+    templateUrl: 'creditors.component.html'
 })
 
 export class CreditorsComponent implements OnInit {
-  public creditors$: Observable<Creditor[]>;
+  public creditors$!: Observable<Creditor[]>;
   public model: Creditor = new Creditor();
   public isEdit: Boolean = false;
 
@@ -23,7 +27,7 @@ export class CreditorsComponent implements OnInit {
   ngOnInit(): void {
     this.getCreditors();
     const that = this;
-    $('#modal').on('hidden.bs.modal', function (event) {
+    $('#modal').on('hidden.bs.modal', function (event: any) {
       that.getCreditors();
     });
   }
@@ -71,7 +75,7 @@ export class CreditorsComponent implements OnInit {
   edit(c: Creditor): void {
     this.isEdit = true;
     setTimeout(() => {
-      this.cS.getById(c.id).subscribe(r => {
+      this.cS.getById(c.id!).subscribe(r => {
         this.model = r;
         $('#modal').modal('show');
       });
@@ -90,7 +94,7 @@ export class CreditorsComponent implements OnInit {
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
       if (result.value) {
-        this.cS.delete(c.id).subscribe(r => {
+        this.cS.delete(c.id!).subscribe(r => {
           this.getCreditors();
           iziToast.show({
             title: 'Registro eliminado'

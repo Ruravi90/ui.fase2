@@ -9,21 +9,21 @@ export class PermissionService {
     private url: string = environment.urlApi + 'permissions';
     private currentUser: User = new User();
     constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     }
     get(): Observable<Permission[]> {
-        return this.http.get<Permission[]>(this.url).map(r => r);
+        return this.http.get<Permission[]>(this.url);
     }
     getById(id: number): Observable<Permission> {
-        return this.http.get<Permission>(this.url + '/' + id).map(r => r);
+        return this.http.get<Permission>(this.url + '/' + id);
     }
     post(model: Permission): Observable<any> {
-      return this.http.post<any>(this.url, model).map(r => r);
+      return this.http.post<any>(this.url, model);
     }
     put(model: Permission): Observable<any> {
-      return this.http.put<any>(this.url + '/' + model.id, model ).map(r => r);
+      return this.http.put<any>(this.url + '/' + model.id, model );
     }
     delete(id: number): Observable<any> {
-      return this.http.delete<any>(this.url + '/' + id).map(r => r);
+      return this.http.delete<any>(this.url + '/' + id);
     }
 }

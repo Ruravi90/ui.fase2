@@ -28,28 +28,30 @@ import { AgentComponent } from '../../views/agents/agent.component';
 import { DepartmentsComponent } from '../../views/departments/departments.component';
 import { CreditorsComponent } from '../../views/creditors/creditors.component';
 import { RolesComponent } from '../../views/roles/roles.component';
+import { ClientsComponent } from '../../views/clients/clients.component';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     AdminRoutingModule,
-    BsDropdownModule.forRoot(),
+    BsDropdownModule,
     TabsModule,
-    CarouselModule.forRoot(),
-    CollapseModule.forRoot(),
-    PaginationModule.forRoot(),
-    PopoverModule.forRoot(),
-    ProgressbarModule.forRoot(),
-    TooltipModule.forRoot(),
-    NgSelectModule
+    CarouselModule,
+    CollapseModule,
+    PaginationModule,
+    PopoverModule,
+    ProgressbarModule,
+    TooltipModule,
+    NgSelectModule,
+    UserComponent,
+    RolesComponent,
+    CreditorsComponent,
+    ClientsComponent,
+    AgentComponent
   ],
   declarations: [
-    UserComponent,
-    AgentComponent,
-    DepartmentsComponent,
-    CreditorsComponent,
-    RolesComponent
+    DepartmentsComponent
   ]
 })
 export class AdminModule { }

@@ -12,9 +12,6 @@ import { PopoverModule } from 'ngx-bootstrap/popover';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { NgDatepickerModule } from 'ng2-datepicker';
-import { OrderModule } from 'ngx-order-pipe';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 import { BaseRoutingModule } from './base-route.module';
 import { DashboardComponent } from '../../views/dashboard/dashboard.component';
@@ -29,26 +26,22 @@ import { BoxComponent } from '../../views/box/box.component';
     CommonModule,
     FormsModule,
     BaseRoutingModule,
-    BsDropdownModule.forRoot(),
+    BsDropdownModule,
     TabsModule,
-    CarouselModule.forRoot(),
-    CollapseModule.forRoot(),
-    PaginationModule.forRoot(),
-    PopoverModule.forRoot(),
-    ProgressbarModule.forRoot(),
-    TooltipModule.forRoot(),
+    CarouselModule,
+    CollapseModule,
+    PaginationModule,
+    PopoverModule,
+    ProgressbarModule,
+    TooltipModule,
     NgSelectModule,
-    NgDatepickerModule,
-    OrderModule,
-    NgxChartsModule
-  ],
-  declarations: [
+    NgSelectModule,
     DashboardComponent,
     ClientsComponent,
-    SaleComponent,
-    PackagesComponent,
     BoxComponent,
-    SalesComponent
-  ]
+    SalesComponent,
+    SaleComponent
+  ],
+  declarations: []
 })
 export class BaseModule { }

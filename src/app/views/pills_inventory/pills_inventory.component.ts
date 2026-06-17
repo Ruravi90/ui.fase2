@@ -6,12 +6,19 @@ import swal from 'sweetalert2';
 import { Observable } from 'rxjs';
 declare var $: any, iziToast: any;
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
+
 @Component({
-  templateUrl: 'pills_inventory.component.html'
+    selector: 'app-pills-inventory',
+    imports: [CommonModule, FormsModule, NgSelectModule, PaginationModule],
+    templateUrl: 'pills_inventory.component.html'
 })
 export class PillsInventoryComponent implements OnInit {
-  public inventory: PillsInventory[];
-  public cmbPills$: Observable<_Type[]>;
+  public inventory: PillsInventory[] = [];
+  public cmbPills$!: Observable<_Type[]>;
   public item: PillsInventory = new PillsInventory();
   public isEdit = false;
   constructor(private pS: PillsInventoryService, private tS: TypeService) {
@@ -22,7 +29,7 @@ export class PillsInventoryComponent implements OnInit {
     this.getCatlog();
     // tslint:disable-next-line:prefer-const
     let that = this;
-    $('#modal').on('hidden.bs.modal', function (event) {
+    $('#modal').on('hidden.bs.modal', function (event: any) {
       that.getCatlog();
     });
   }
@@ -44,14 +51,14 @@ export class PillsInventoryComponent implements OnInit {
   update(_item: PillsInventory) {
     this.isEdit = true;
     this.cmbPills$ = this.tS.getAll('cat_pills');
-    this.pS.getById(_item.id).subscribe(r => {
+    this.pS.getById(_item.id!).subscribe(r => {
       this.item = r;
       $('#modal').modal('show');
     });
   }
 
   save() {
-    this.item.pill_id = this.item.pill.id;
+    this.item.pill_id = this.item.pill?.id;
     if (this.isEdit) {
       this.pS.put(this.item).subscribe(r => {
         this.item = r;
@@ -83,7 +90,7 @@ export class PillsInventoryComponent implements OnInit {
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
       if (result.value) {
-        this.pS.delete(_item.id).subscribe(r => {
+        this.pS.delete(_item.id!).subscribe(r => {
           this.getCatlog();
           iziToast.show({
             message: 'Registro eliminado'

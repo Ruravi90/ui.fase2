@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { PurchaseService, TypeService } from '../../services';
 import { Purchase, _Type, Paginate } from '../../models';
 
@@ -7,10 +10,12 @@ import { Observable } from 'rxjs';
 declare var $: any, iziToast: any;
 
 @Component({
-  templateUrl: 'to_pay.component.html'
+    selector: 'app-to-pay',
+    imports: [CommonModule, FormsModule, PaginationModule],
+    templateUrl: 'to_pay.component.html'
 })
 export class ToPayComponent implements OnInit {
-  public purchases: Purchase[];
+  public purchases!: Purchase[];
   public paginate: Paginate = new Paginate();
   public filters: any = { isPaid: 0, perPage:15 };
   

@@ -29,17 +29,15 @@ import { CatConceptsComponent } from '../../views/cat_concepts/cat_concepts.comp
     CommonModule,
     FormsModule,
     CatalogsRoutingModule,
-    BsDropdownModule.forRoot(),
+    BsDropdownModule,
     TabsModule,
-    CarouselModule.forRoot(),
-    CollapseModule.forRoot(),
-    PaginationModule.forRoot(),
-    PopoverModule.forRoot(),
-    ProgressbarModule.forRoot(),
-    TooltipModule.forRoot(),
-    NgSelectModule
-  ],
-  declarations: [
+    CarouselModule,
+    CollapseModule,
+    PaginationModule,
+    PopoverModule,
+    ProgressbarModule,
+    TooltipModule,
+    NgSelectModule,
     CatPackageComponent,
     CatProductsComponent,
     CatPillsComponent,
@@ -47,6 +45,7 @@ import { CatConceptsComponent } from '../../views/cat_concepts/cat_concepts.comp
     CatServicesComponent,
     CatExpensesComponent,
     CatConceptsComponent
-  ]
+  ],
+  declarations: []
 })
 export class CatalogsModule { }

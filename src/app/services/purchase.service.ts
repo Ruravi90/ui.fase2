@@ -9,33 +9,33 @@ export class PurchaseService {
     private url: string = environment.urlApi + 'purchases';
     private currentUser: User = new User();
     constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     }
     paginate(filter: any): Observable<Paginate> {
-      return this.http.post<Paginate>(this.url + '/paginate',filter).map(r => r);
+      return this.http.post<Paginate>(this.url + '/paginate',filter);
     }
     getForUrl(page: number, perPage: number): Observable<Paginate> {
-      return this.http.post<Paginate>(this.url + '/paginate?page=' + page, { per_page: perPage}).map(r => r);
+      return this.http.post<Paginate>(this.url + '/paginate?page=' + page, { per_page: perPage});
     }
     get(): Observable<Purchase[]> {
-        return this.http.get<Purchase[]>(this.url).map(r => r);
+        return this.http.get<Purchase[]>(this.url);
     }
     getById(id: number): Observable<Purchase> {
-        return this.http.get<Purchase>(this.url + '/' + id).map(r => r);
+        return this.http.get<Purchase>(this.url + '/' + id);
     }
     post(models: Purchase[]): Observable<any> {
-      return this.http.post<any>(this.url, { purchases: models }).map(r => r);
+      return this.http.post<any>(this.url, { purchases: models });
     }
     put(model: Purchase): Observable<any> {
-      return this.http.put<any>(this.url + '/' + model.id, model).map(r => r);
+      return this.http.put<any>(this.url + '/' + model.id, model);
     }
     pay(model: Purchase): Observable<any> {
-      return this.http.post<any>(this.url + '/pay/' + model.id, { is_paid: 1 }).map(r => r);
+      return this.http.post<any>(this.url + '/pay/' + model.id, { is_paid: 1 });
     }
     cancel(id: number): Observable<any> {
-      return this.http.post<any>(this.url + '/cancel/' + id,{ user_id:  this.currentUser.id }).map(r => r);
+      return this.http.post<any>(this.url + '/cancel/' + id,{ user_id:  this.currentUser.id });
     }
     delete(id: number): Observable<any> {
-      return this.http.delete<any>(this.url + '/' + id).map(r => r);
+      return this.http.delete<any>(this.url + '/' + id);
     }
 }

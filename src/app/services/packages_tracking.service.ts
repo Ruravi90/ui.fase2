@@ -9,24 +9,24 @@ export class PackageTrackingService {
     private url: string = environment.urlApi + 'packages_tracking';
     private currentUser: User = new User();
     constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     }
     get(): Observable<PackageTracking[]> {
-        return this.http.get<PackageTracking[]>(this.url).map(r => r);
+        return this.http.get<PackageTracking[]>(this.url);
     }
     getById(id: number): Observable<PackageTracking> {
-        return this.http.get<PackageTracking>(this.url + '/' + id).map(r => r);
+        return this.http.get<PackageTracking>(this.url + '/' + id);
     }
     geForPackage(id: number): Observable<PackageTracking[]> {
-        return this.http.get<PackageTracking[]>(this.url + '/for_package/' + id).map(r => r);
+        return this.http.get<PackageTracking[]>(this.url + '/for_package/' + id);
     }
     post(model: PackageTracking): Observable<any> {
-      return this.http.post<any>(this.url, model).map(r => r);
+      return this.http.post<any>(this.url, model);
     }
     put(model: PackageTracking): Observable<any> {
-      return this.http.put<any>(this.url + '/' + model.id, model ).map(r => r);
+      return this.http.put<any>(this.url + '/' + model.id, model );
     }
     delete(id: number): Observable<any> {
-      return this.http.delete<any>(this.url + '/' + id).map(r => r);
+      return this.http.delete<any>(this.url + '/' + id);
     }
 }

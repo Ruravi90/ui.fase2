@@ -4,19 +4,25 @@ import { _Type, CatPackage, ComplementPackage, Paginate } from '../../models';
 
 import swal from 'sweetalert2';
 import { Observable, Subject } from 'rxjs';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/distinctUntilChanged';
-import { isArray, isString } from 'util';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+
 declare var $: any, iziToast: any;
 
+
+import { FormsModule } from '@angular/forms';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { NgSelectModule } from '@ng-select/ng-select';
+
 @Component({
-  templateUrl: 'cat_package.component.html'
+    selector: 'app-cat-package',
+    imports: [FormsModule, PaginationModule, NgSelectModule],
+    templateUrl: 'cat_package.component.html'
 })
 export class CatPackageComponent implements OnInit {
   public nameCalog = 'cat_packages';
-  public catalog: CatPackage[];
+  public catalog: CatPackage[] = [];
   public elements: _Type[] = [];
-  public element: _Type;
+  public element!: _Type;
   public item: CatPackage = new CatPackage();
   public isEdit = false;
   public optElements = 'na';
@@ -29,32 +35,31 @@ export class CatPackageComponent implements OnInit {
 
   constructor(private tS: TypeService) {
     this.filterChanged
-    .debounceTime(500) // wait 300ms after the last event before emitting last event
-    //.distinctUntilChanged() // only emit if value is different from previous value
+    .pipe(
+      debounceTime(500)
+    )
     .subscribe(() => {
       this.getCatlog();
     });
   }
 
   ngOnInit(): void {
-    // generate random values for mainChart
     this.getCatlog();
-    // tslint:disable-next-line:prefer-const
-    let that = this;
-    $('#modal').on('hidden.bs.modal', function (event) {
+    const that = this;
+    $('#modal').on('hidden.bs.modal', function (event: any) {
       that.getCatlog();
     });
   }
 
   getCatlog() {
-    this.tS.paginate(this.nameCalog,this.filters).subscribe(r => {
+    this.tS.paginate(this.nameCalog,this.filters).subscribe((r: any) => {
       this.paginate = r;
       this.catalog = r.data;
     });
   }
 
   pageChanged(event: any){
-    this.tS.getForUrl(this.nameCalog,event.page, this.filters).subscribe(r => {
+    this.tS.getForUrl(this.nameCalog,event.page, this.filters).subscribe((r: any) => {
       this.paginate = r;
       this.catalog = r.data;
     });
@@ -72,7 +77,7 @@ export class CatPackageComponent implements OnInit {
 
   updateItem(_item: _Type) {
     this.isEdit = true;
-    this.tS.getById(this.nameCalog, _item.id).subscribe(r => {
+    this.tS.getById(this.nameCalog, _item.id!).subscribe((r: any) => {
       this.item = r;
       $('#modal').modal('show');
     });
@@ -80,7 +85,7 @@ export class CatPackageComponent implements OnInit {
 
   save() {
     if (this.isEdit) {
-      this.tS.put(this.nameCalog, this.item).subscribe(r => {
+      this.tS.put(this.nameCalog, this.item).subscribe((r: any) => {
         this.item = r;
         $('#modal').modal('hide');
         iziToast.show({
@@ -88,7 +93,7 @@ export class CatPackageComponent implements OnInit {
         });
       });
     } else {
-      this.tS.post(this.nameCalog, this.item).subscribe(r => {
+      this.tS.post(this.nameCalog, this.item).subscribe((r: any) => {
         this.item = r;
         $('#modal').modal('hide');
         iziToast.show({
@@ -108,24 +113,15 @@ export class CatPackageComponent implements OnInit {
       showCancelButton: true,
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
-    }).then((result) => {
+    }).then((result: any) => {
       if (result.value) {
-        this.tS.delete(this.nameCalog, _item.id).subscribe(r => {
+        this.tS.delete(this.nameCalog, _item.id!).subscribe((r: any) => {
           this.getCatlog();
           iziToast.show({
             message: 'Registro eliminado'
           });
         });
-      // For more information about handling dismissals please visit
-      // https://sweetalert2.github.io/#handling-dismissals
       }
-      // else if (result.dismiss === swal.DismissReason.cancel) {
-      //  swal.fire(
-      //    'Cancelled',
-      //    'Your imaginary file is safe :)',
-      //    'error'
-      //  );
-      //}
     });
   }
 
@@ -141,16 +137,16 @@ export class CatPackageComponent implements OnInit {
     } else if (this.optElements === 'products') {
       _name += 'cat_products';
     } else {
-        return false;
+        return;
     }
 
-    this.tS.getAll(_name).subscribe(r => {
+    this.tS.getAll(_name).subscribe((r: any) => {
       this.elements = r;
     });
   }
 
   addElements() {
-    if (!isArray(this.item.complements)) {
+    if (!Array.isArray(this.item.complements)) {
       this.item.complements = [];
     }
 
@@ -167,13 +163,13 @@ export class CatPackageComponent implements OnInit {
         count: this.element.count,
       });
     } else {
-      return false;
+      return;
     }
 
     this.element = new _Type();
   }
 
-  async deleteElements(index) {
+  async deleteElements(index: number) {
     swal.fire({
       title: 'Alerta!',
       text: 'Estas seguro de continuar',
@@ -183,20 +179,10 @@ export class CatPackageComponent implements OnInit {
       showCancelButton: true,
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
-    }).then((result) => {
+    }).then((result: any) => {
       if (result.value) {
-        this.item.complements.splice(index, 1);
-      // For more information about handling dismissals please visit
-      // https://sweetalert2.github.io/#handling-dismissals
+        this.item.complements?.splice(index, 1);
       }
-      // else if (result.dismiss === swal.DismissReason.cancel) {
-      //  swal.fire(
-      //    'Cancelled',
-      //    'Your imaginary file is safe :)',
-      //    'error'
-      //  );
-      //}
     });
   }
-
 }

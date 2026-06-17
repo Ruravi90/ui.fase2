@@ -3,14 +3,17 @@ import { Router } from '@angular/router';
 import { UserService } from '../../services';
 import { User } from '../../models';
 
+import { FormsModule } from '@angular/forms';
+
 declare var iziToast: any;
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: 'login.component.html'
+    selector: 'app-login',
+    imports: [FormsModule],
+    templateUrl: 'login.component.html'
 })
 export class LoginComponent implements OnInit {
-  user: User = new User();
+  public user: User = new User();
   isBusy: Boolean = false;
   isAuthorized: Boolean | null = null;
   constructor(private uS: UserService, private router: Router) {

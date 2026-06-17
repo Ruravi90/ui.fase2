@@ -8,38 +8,40 @@
           </h4>
         </div>
         <ul class="list-group">
-          <li class="list-group-item" *ngFor="let i of inventory">
-            <div class="row">
-                <div class="col-lg-4">{{i.pill.name}}</div>
-                <div class="col-lg-3">Precio: {{i.pill.price | currency:'MXN ':true:'4.2-2'}}</div>
+          @for (i of inventory; track i) {
+            <li class="list-group-item">
+              <div class="row">
+                <div class="col-lg-4">{{i.pill?.name}}</div>
+                <div class="col-lg-3">Precio: {{i.pill?.price | currency:'MXN ':true:'4.2-4'}}</div>
                 <div class="col-lg-3">En stock: {{i.count}}</div>
                 <div class="col-lg-2">
                   <button class="btn btn-sm btn-danger ml-2 float-right" (click)="delete(i)"><i class="fa fa-trash"></i></button>
                   <button class="btn btn-sm btn-default float-right" (click)="update(i)"><i class="fa fa-edit"></i></button>
                 </div>
-            </div>
-          </li>
+              </div>
+            </li>
+          }
         </ul>
       </div>
     </div>
   </div>
 </div>
 
- <!-- Modal -->
+<!-- Modal -->
 <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
   <form class="modal-dialog" role="document" #form="ngForm" (ngSubmit)="save()">
-      <div class="modal-content">
+    <div class="modal-content">
       <div class="modal-header">
-          <h5 class="modal-title" id="modalLabel">{{(isEdit?'Editar':'Agregar')}} inventario</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <h5 class="modal-title" id="modalLabel">{{(isEdit?'Editar':'Agregar')}} inventario</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
-          </button>
+        </button>
       </div>
       <div class="modal-body">
         <div class="row">
           <div class="col-lg-8">
             <ng-select
-              [items]="cmbPills$ | async"
+              [items]="(cmbPills$ | async) || []"
               bindLabel="name"
               bindId="id"
               placeholder="Seleciona la pastilla"
@@ -55,9 +57,9 @@
         </div>
       </div>
       <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-          <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button>
       </div>
-      </div>
+    </div>
   </form>
 </div>

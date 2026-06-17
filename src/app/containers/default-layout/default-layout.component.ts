@@ -1,22 +1,27 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { User} from '../../models';
-import { isArray, isString } from 'util';
+
 import { Router } from '@angular/router';
 
 
+import { RouterModule } from '@angular/router';
+
+
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './default-layout.component.html',
-  styleUrls: ['./default-layout.component.css']
+    selector: 'app-dashboard',
+    templateUrl: './default-layout.component.html',
+    styleUrls: ['./default-layout.component.css'],
+    imports: [RouterModule],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
 })
 export class DefaultLayoutComponent {
   public currentUser: User;
-  public navItems = [];
+  public navItems: any[] = [];
   public sidebarMinimized = true;
   private changes: MutationObserver;
   public element: HTMLElement = document.body;
   constructor(private router: Router) {
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     this.getMenu();
 
     this.changes = new MutationObserver((mutations) => {
@@ -32,24 +37,23 @@ export class DefaultLayoutComponent {
     if (this.getRoles(['super_admin','admin'])) {
       this.navItems.push(
         {
-          name: 'Dashboard',
-          url: '/page/dashboard',
+          name: 'Panel Principal',
+          url: '/dashboard',
           icon: 'icon-speedometer',
-          children: null
-          /*badge: {
-            variant: 'info',
-            text: 'NEW'
-          }*/
         },
       );
     }
     if (this.getRoles(['admin','user'])) {
       this.navItems.push(
         {
+          name: 'Caja',
+          url: '/box',
+          icon: 'fa fa-usd',
+        },
+        {
           name: 'Clientes',
-          url: '/page/clients',
-          icon: 'fas fa-users',
-          children: null
+          url: '/clients',
+          icon: 'fa fa-users',
         },
         {
           name: 'Punto de venta',
@@ -198,15 +202,15 @@ export class DefaultLayoutComponent {
       return false;
     }
     let result = false;
-    if (isArray(p)) {
-      p.forEach(v => {
-        const i = this.currentUser.roles.findIndex(r => r.slug === v);
+    if (Array.isArray(p)) {
+      p.forEach((v: any) => {
+        const i = this.currentUser.roles?.findIndex(r => r.slug === v);
         if (i !== -1) {
           result = true;
         }
       });
-    } else if (isString(p)) {
-      const i = this.currentUser.roles.findIndex(r => r.slug === p);
+    } else if (typeof p === 'string') {
+      const i = this.currentUser.roles?.findIndex(r => r.slug === p);
       if (i !== -1) {
         result = true;
       }

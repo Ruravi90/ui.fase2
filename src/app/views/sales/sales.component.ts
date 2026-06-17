@@ -1,20 +1,22 @@
 import { Component, OnInit, InjectionToken, Inject } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { PaginateService, SaleService, PaymentService, AgentService, TypeService } from '../../services';
 import { Department, User, Sale, _Type, Paginate, Payment } from '../../models';
 import { environment } from '../../../environments/environment';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 import swal from 'sweetalert2';
-import { isUndefined } from 'util';
 import { Subject, Observable } from 'rxjs';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/switchMap';
-import { DatePipe } from '@angular/common';
+import { debounceTime, switchMap } from 'rxjs/operators';
 declare var $: any, iziToast: any;
-import * as print from 'print-js';
 
-@Component({ 
-  templateUrl: 'sales.component.html',
-  styleUrls: ['./sales.component.css']
+@Component({
+    selector: 'app-sales',
+    imports: [CommonModule, FormsModule, PaginationModule, DatePipe, NgSelectModule],
+    templateUrl: 'sales.component.html',
+    styleUrls: ['./sales.component.css']
 })
 
 export class SalesComponent implements OnInit {
@@ -24,9 +26,9 @@ export class SalesComponent implements OnInit {
   public sale:  Sale = new Sale();
   public payment:  Payment = new Payment();
   public payments: Payment[] = [];
-  public printPayment: Payment;
-  public cuteSales: Department[] = [];
-  public printSale: Sale;
+  public printPayment?: Payment | null;
+  public cuteSales: Department[] | null = [];
+  public printSale?: Sale | null;
   public dateNow: Date = new Date();
   public paginate: Paginate = new Paginate();
   public isBusy: boolean = false;
@@ -37,8 +39,8 @@ export class SalesComponent implements OnInit {
     isPaid: 0
   };
 
-  public typeSale$: Observable<_Type[]>;
-  public agents$: Observable<User[]>;
+  public typeSale$!: Observable<_Type[]>;
+  public agents$!: Observable<User[]>;
 
   public subTotal = 0;
   public balance = 0;
@@ -54,22 +56,27 @@ export class SalesComponent implements OnInit {
   ) {
     this.pS.model = 'sales';
 
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
   }
 
   ngOnInit(): void {
     this.getSales();
     this.agents$ = this.aS.get();
     this.typeSale$ = this.tS.getAll('cat_type_sales');
-    this.amountChange.debounceTime(300).subscribe(() => {
-      if (this.payment.amount > this.balance) {
+    this.amountChange.pipe(debounceTime(300)).subscribe(() => {
+      if ((this.payment.amount || 0) > this.balance) {
         this.payment.amount = this.balance;
       }
     });
     const that = this;
-    $('#modalPayment').on('hidden.bs.modal', function (event) {
+    $('#modalPayment').on('hidden.bs.modal', function (event: any) {
       that.getSales();
     });
+  }
+
+  getRoles(p: string) {
+    if (!this.currentUser) return false;
+    return this.currentUser.roles?.some(r => r.slug === p) ?? false;
   }
 
   getSales() {
@@ -96,9 +103,9 @@ export class SalesComponent implements OnInit {
       showCancelButton: true,
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, Cancelar!'
-    }).then((result) => {
-      this.sS.cancel(s.id).subscribe((r)=>{
-        const index = this.sales.findIndex(r=> r.id === s.id);
+    }).then((result: any) => {
+      this.sS.cancel(s.id!).subscribe((r: any)=>{
+        const index = this.sales.findIndex((r: any) => r.id === s.id);
         if (index > -1) {
           this.sales.splice(index, 1);
         }
@@ -110,7 +117,7 @@ export class SalesComponent implements OnInit {
   }
 
   onChangeAmount() {
-    this.amountChange.next();
+    this.amountChange.next('');
   }
 
   addPayment(s: Sale) {
@@ -136,13 +143,13 @@ export class SalesComponent implements OnInit {
   }
 
   getPayments() {
-    this.paS.geForSales(this.payment.sale_id).subscribe(r => {
-      this.payments = r;
+    this.paS.geForSales(this.payment.sale_id!).subscribe((r: any) => {
+      this.payments = r.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       this.subTotal = 0;
-      r.forEach((e) => {
-          this.subTotal = this.subTotal + Number(e.amount);
+      r.forEach((e: any) => {
+        this.subTotal = this.subTotal + Number(e.amount);
       });
-      this.balance = (this.sale.subtotal - this.subTotal);
+      this.balance = (this.sale.subtotal! - this.subTotal);
       this.sale.is_paid = this.balance <= 0;
       $('#modalPayment').modal('show');
     });
@@ -165,23 +172,23 @@ export class SalesComponent implements OnInit {
     this.printSale = null;
     this.sS.getCuteDay(date).subscribe(r => {
       this.cuteSales = r;
-      this.cuteSales.forEach((d, i) => {
-        this.cuteSales[i].sumCardTotal = 0;
-          this.cuteSales[i].sumCashTotal = 0;
-          d.sales.forEach((s, i2) => {
-          this.cuteSales[i].sales[i2].sumCashTotal = 0;
-          this.cuteSales[i].sales[i2].sumCardTotal = 0;
-          s.sales.forEach((ss, i3) => {
-            ss.payments.forEach((p, i4) => {
+      this.cuteSales!.forEach((d: any) => {
+        d.sumCardTotal = 0;
+        d.sumCashTotal = 0;
+        d.sales.forEach((s: any) => {
+          s.sumCashTotal = 0;
+          s.sumCardTotal = 0;
+          s.sales.forEach((ss: any) => {
+            ss.payments.forEach((p: any) => {
               if (p.type.id === 1){
-                this.cuteSales[i].sales[i2].sumCashTotal = this.cuteSales[i].sales[i2].sumCashTotal + Number(p.amount);
+                s.sumCashTotal = (s.sumCashTotal || 0) + Number(p.amount);
               } else {
-                this.cuteSales[i].sales[i2].sumCardTotal = this.cuteSales[i].sales[i2].sumCardTotal + Number(p.amount);
+                s.sumCardTotal = (s.sumCardTotal || 0) + Number(p.amount);
               }
             });
           });
-          this.cuteSales[i].sumCardTotal = this.cuteSales[i].sumCardTotal + this.cuteSales[i].sales[i2].sumCardTotal;
-          this.cuteSales[i].sumCashTotal = this.cuteSales[i].sumCashTotal + this.cuteSales[i].sales[i2].sumCashTotal;
+          d.sumCardTotal = (d.sumCardTotal || 0) + (s.sumCardTotal || 0);
+          d.sumCashTotal = (d.sumCashTotal || 0) + (s.sumCashTotal || 0);
         });
       });
 
@@ -195,27 +202,41 @@ export class SalesComponent implements OnInit {
   }
 
   printToCart(printSectionId: string) {
-    print({
-      printable: printSectionId,
-      type: 'html',
-      css: 'assets/css/print.css',
-      scanStyles: false,
-      showModal: true,
-      modalMessage: 'Preparando ticket',
-      onLoadingEnd: () => {
-        if (this.isCopyPrint) {
-          this.isCopyPrint = false;
-          this.printToCart(printSectionId);
-        }
-      }
-  });
+    const printContents = document.getElementById(printSectionId)?.innerHTML;
+    if (!printContents) return;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (doc) {
+      doc.open();
+      doc.write(`
+        <html>
+          <head>
+            <title>Imprimiendo Ticket...</title>
+            <link rel="stylesheet" type="text/css" href="assets/css/print.css">
+          </head>
+          <body onload="setTimeout(function() { window.print(); window.parent.document.body.removeChild(window.frameElement); }, 500);">
+            ${printContents}
+          </body>
+        </html>
+      `);
+      doc.close();
+    }
+
+    if (this.isCopyPrint) {
+      this.isCopyPrint = false;
+      setTimeout(() => this.printToCart(printSectionId), 1000);
+    }
   }
 
 
   async printTicket(id: number) {
     this.printSale = null;
     this.cuteSales = null;
-    this.paS.getById(id).subscribe(r => {
+    this.paS.getById(id!).subscribe((r: any) => {
       this.printPayment = r;
       setTimeout(() => {
         setTimeout(() => {
@@ -229,11 +250,11 @@ export class SalesComponent implements OnInit {
   copyTicket(s: Sale) {
     this.printPayment = null;
     this.cuteSales = null;
-    this.sS.getById(s.id).subscribe(r => {
+    this.sS.getById(s.id!).subscribe((r: any) => {
       this.printSale = r;
-      this.printSale.sumTotal = 0;
-      this.printSale.sales.forEach((e, i) => {
-        this.printSale.sumTotal =  this.printSale.sumTotal + Number(e.amount);
+      this.printSale!.sumTotal = 0;
+      this.printSale!.sales.forEach((e: any, i: any) => {
+        this.printSale!.sumTotal =  this.printSale!.sumTotal! + Number(e.amount);
       });
       setTimeout(() => {
         setTimeout(() => {

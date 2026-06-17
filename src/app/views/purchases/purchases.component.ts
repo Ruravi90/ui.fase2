@@ -6,20 +6,27 @@ import swal from 'sweetalert2';
 import { Observable } from 'rxjs';
 declare var $: any, iziToast: any;
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
+
 @Component({
-  templateUrl: 'purchases.component.html',
-  styleUrls:['./purchases.component.css']
+    selector: 'app-purchases',
+    imports: [CommonModule, FormsModule, NgSelectModule, PaginationModule],
+    templateUrl: 'purchases.component.html',
+    styleUrls: ['./purchases.component.css']
 })
 export class PurchasesComponent implements OnInit {
   public currentUser: User = new User();
   public purchases: Purchase[] = [];
   public _purchases: Purchase[] = [];
-  public cmbDepartment$: Observable<_Type[]>;
-  public cmbCreditors$: Observable<_Type[]>;
-  public cmbExpenses$: Observable<_Type[]>;
-  public cmbProducts$: Observable<_Type[]>;
-  public cmbPills$: Observable<_Type[]>;
-  public cmbConcepts$: Observable<_Type[]>;
+  public cmbDepartment$!: Observable<_Type[]>;
+  public cmbCreditors$!: Observable<_Type[]>;
+  public cmbExpenses$!: Observable<_Type[]>;
+  public cmbProducts$!: Observable<_Type[]>;
+  public cmbPills$!: Observable<_Type[]>;
+  public cmbConcepts$!: Observable<_Type[]>;
   public purchase: Purchase = new Purchase();
   public isEdit = false;
   public paginate: Paginate = new Paginate();
@@ -27,7 +34,7 @@ export class PurchasesComponent implements OnInit {
 
 
   constructor(private pS: PurchaseService, private dS: DepartmentService, private cS: CreditorService, private tS: TypeService) {
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
   }
 
   ngOnInit(): void {
@@ -97,7 +104,7 @@ export class PurchasesComponent implements OnInit {
     });
   }
 
-  toggleIsPaid(e){
+  toggleIsPaid(e: any){
     this.purchase.is_paid = e.target.checked;
   }
 

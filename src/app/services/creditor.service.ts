@@ -9,21 +9,21 @@ export class CreditorService {
     private url: string = environment.urlApi + 'providers';
     private currentUser: User = new User();
     constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     }
     get(): Observable<Creditor[]> {
-        return this.http.get<Creditor[]>(this.url).map(r => r);
+        return this.http.get<Creditor[]>(this.url);
     }
     getById(id: number): Observable<Creditor> {
-        return this.http.get<Creditor>(this.url + '/' + id).map(r => r);
+        return this.http.get<Creditor>(this.url + '/' + id);
     }
     post(model: Creditor): Observable<any> {
-      return this.http.post<any>(this.url, model).map(r => r);
+      return this.http.post<any>(this.url, model);
     }
     put(model: Creditor): Observable<any> {
-      return this.http.put<any>(this.url + '/' + model.id, model ).map(r => r);
+      return this.http.put<any>(this.url + '/' + model.id, model );
     }
     delete(id: number): Observable<any> {
-      return this.http.delete<any>(this.url + '/' + id).map(r => r);
+      return this.http.delete<any>(this.url + '/' + id);
     }
 }

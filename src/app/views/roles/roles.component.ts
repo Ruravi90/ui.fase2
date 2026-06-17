@@ -3,19 +3,24 @@ import { RoleService, PermissionService } from '../../services';
 import { Role, Permission } from '../../models';
 
 import swal from 'sweetalert2';
-import { isUndefined } from 'util';
-import { Subject, Observable } from 'rxjs';
+import { Subject, Observable, of } from 'rxjs';
 declare var $: any, iziToast: any;
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
+
 @Component({
-  templateUrl: 'roles.component.html'
+    selector: 'app-roles',
+    imports: [CommonModule, FormsModule, NgSelectModule],
+    templateUrl: 'roles.component.html'
 })
 export class RolesComponent implements OnInit {
   public isEdit =  false;
-  public roles$: Observable<Role[]>;
+  public roles$!: Observable<Role[]>;
   public rol: Role = new Role();
-  public permissions$:  Observable<Permission[]>;
-  public comboPermissions$: Observable<Permission[]>;
+  public permissions$!:  Observable<Permission[]>;
+  public comboPermissions$!: Observable<Permission[]>;
   public permission: Permission = new Permission();
 
   constructor(private rS: RoleService, private pS: PermissionService) {
@@ -26,11 +31,11 @@ export class RolesComponent implements OnInit {
   ngOnInit(): void {
     // generate random values for mainChart
     const that = this;
-    $('#modalRol').on('hidden.bs.modal', function (event) {
-      that.getRoles();
+    $('#modalRole').on('hidden.bs.modal', function (event: any) {
+      if (that.rol.name === '' || that.rol.name === undefined) { }
     });
 
-    $('#modalPermission').on('hidden.bs.modal', function (event) {
+    $('#modalPermission').on('hidden.bs.modal', function (event: any) {
       that.getPermissions();
     });
   }
@@ -65,8 +70,8 @@ export class RolesComponent implements OnInit {
   }
 
   editRol(r: Role) {
-    this.rS.getById(r.id).subscribe(result => {
-      this.isEdit = true;
+    this.rS.getById(r.id!).subscribe(result => {
+      this.rol = result;
       this.rol = result;
       this.comboPermissions$ = this.pS.get();
       $('#modalRol').modal('show');
@@ -84,8 +89,13 @@ export class RolesComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      this.pS.delete(r.id).subscribe(result => {
-        $('#modalRol').modal('hide');
+      this.rS.delete(r.id!).subscribe(result => {
+        if (result === true) {
+          iziToast.show({
+            message: 'Registro eliminado'
+          });
+        }
+        $('#modalPermission').modal('hide');
       });
     });
   }
@@ -117,8 +127,8 @@ export class RolesComponent implements OnInit {
     }
   }
   editPermission(p: Permission) {
-    this.pS.getById(p.id).subscribe(result => {
-      this.isEdit = true;
+    this.pS.getById(p.id!).subscribe(result => {
+      this.permission = result;
       this.permission = result;
       $('#modalPermission').modal('show');
     });
@@ -134,7 +144,7 @@ export class RolesComponent implements OnInit {
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
-      this.pS.delete(p.id).subscribe(result => {
+      this.pS.delete(p.id!).subscribe(result => {
         iziToast.show({
           message: 'Registro eliminado'
         });

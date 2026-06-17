@@ -32,19 +32,19 @@ import { ToPayComponent } from '../../views/to_pay/to_pay.component';
     CommonModule,
     FormsModule,
     PurchasesRoutingModule,
-    BsDropdownModule.forRoot(),
+    BsDropdownModule,
     TabsModule,
-    CarouselModule.forRoot(),
-    CollapseModule.forRoot(),
-    PaginationModule.forRoot(),
-    PopoverModule.forRoot(),
-    ProgressbarModule.forRoot(),
-    TooltipModule.forRoot(),
-    NgSelectModule
+    CarouselModule,
+    CollapseModule,
+    PaginationModule,
+    PopoverModule,
+    ProgressbarModule,
+    TooltipModule,
+    NgSelectModule,
+    ToPayComponent,
+    PurchasesComponent
   ],
   declarations: [
-    PurchasesComponent,
-    ToPayComponent
   ]
 })
 export class PurchasesModule { }

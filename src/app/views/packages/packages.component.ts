@@ -1,17 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { PackageService, AgentService, PaymentService, PackageTrackingService, TypeService, SaleService,PaginateService } from '../../services';
 import { User, Package, PackageTracking, Payment, Sale, _Type, Paginate } from '../../models';
-import { Subject, Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import swal from 'sweetalert2';
-import * as moment from 'moment';
+import { format } from 'date-fns';
 import { environment } from '../../../environments/environment';
 
-import { DatepickerOptions } from 'ng2-datepicker';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 declare var $: any, iziToast: any, printJS: any;
 
 @Component({
     selector: 'app-packages',
+    imports: [CommonModule, FormsModule, NgSelectModule, PaginationModule],
     templateUrl: './packages.component.html',
     styleUrls: ['./packages.component.css']
 })
@@ -21,36 +26,23 @@ export class PackagesComponent implements OnInit {
   public currentUser: User = new User();
   public filters: any = { isCompleted: 0, perPage:15 };
   public packages: Package [] = [];
-  public package: Package;
-  public agents$: Observable<User[]>;
+  public package: Package = new Package();
+  public agents$!: Observable<User[]>;
   public tracker: PackageTracking = new PackageTracking();
-  public trackers: PackageTracking[];
+  public trackers: PackageTracking[] = [];
   public sale: Sale = new Sale();
-  public typeSale$: Observable<_Type[]>;
+  public typeSale$!: Observable<_Type[]>;
   public payment: Payment = new Payment();
-  public printPayment?: Payment = null;
+  public printPayment?: Payment;
   public payments: Payment [] = [];
   // tslint:disable-next-line:no-inferrable-types
   public subTotal: number = 0;
-  public balance: number;
+  public balance: number = 0;
 
   public paginate: Paginate = new Paginate();
 
   public disabledTracker = false;
-  private amountChange: Subject<string> = new Subject();
-
-  public options: DatepickerOptions = {
-    minYear: 1970,
-    displayFormat: 'D/MM/YYYY',
-    barTitleFormat: 'MMMM YYYY',
-    dayNamesFormat: 'dd',
-    firstCalendarDay: 0, // 0 - Sunday, 1 - Monday
-    barTitleIfEmpty: 'Click para selecionar el dia',
-    placeholder: 'Click para selecionar el dia', // HTML input placeholder attribute (default: '')
-    addClass: 'form-control', // Optional, value to pass on to [ngClass] on the input field
-    fieldId: 'my-date-picker', // ID to assign to the input field. Defaults to datepicker-<counter>
-    useEmptyBarTitle: false, // Defaults to true. If set to false then barTitleIfEmpty will be disregarded and a date will always be shown
-  };
+  public amountChange: Subject<string> = new Subject();
 
 
   constructor(
@@ -62,7 +54,7 @@ export class PackagesComponent implements OnInit {
     private pagS: PaginateService,
     private sS: SaleService) {
       this.pagS.model = 'packages';
-      this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
       this.getPackages();
   }
 
@@ -71,16 +63,16 @@ export class PackagesComponent implements OnInit {
     this.typeSale$ = this.tS.getAll('cat_type_sales');
     const that = this;
 
-    $('#modalTracker').on('hidden.bs.modal', function (event) {
+    $('#modalTracker').on('hidden.bs.modal', function (event: any) {
       that.getPackages();
     });
 
-    $('#modalPayment').on('hidden.bs.modal', function (event) {
+    $('#modalPayment').on('hidden.bs.modal', function (event: any) {
       that.getPackages();
     });
 
-    this.amountChange.debounceTime(300).subscribe(() => {
-      if (this.payment.amount > this.balance) {
+    this.amountChange.pipe(debounceTime(300)).subscribe(() => {
+      if ((this.payment.amount || 0) > this.balance) {
         this.payment.amount = this.balance;
       }
     });
@@ -113,7 +105,7 @@ export class PackagesComponent implements OnInit {
       confirmButtonText: 'Si, eliminar!'
     }).then((result) => {
       if (result.value) {
-        this.pS.delete(p.id).subscribe((r) => {
+        this.pS.delete(p.id!).subscribe((r) => {
           const index = this.packages.findIndex(p => p.id === p.id);
           if (index > -1) {
             this.packages.splice(index, 1);
@@ -138,7 +130,7 @@ export class PackagesComponent implements OnInit {
   addPayment(p: Package) {
     this.payment = new Payment();
     this.payment.sale_id = p.sale_id;
-    this.sale = p.sale;
+    this.sale = p.sale!;
     this.onCalculateTotal();
     this.getPayments();
   }
@@ -157,24 +149,24 @@ export class PackagesComponent implements OnInit {
 
 
   getPayments() {
-    this.paS.geForSales(this.payment.sale_id).subscribe(r => {
+    this.paS.geForSales(this.payment.sale_id!).subscribe(r => {
       this.payments = r;
       this.subTotal = 0;
-      r.forEach((e) => {
-          this.subTotal = this.subTotal + parseInt(e.amount.toString(), 10);
+      this.payments.forEach((e) => {
+          this.subTotal = this.subTotal + parseInt((e.amount || 0).toString(), 10);
       });
-      this.balance = (this.sale.subtotal - this.subTotal);
+      this.balance = ((this.sale.subtotal || 0) - this.subTotal);
       this.sale.is_paid = this.balance <= 0;
       $('#modalPayment').modal('show');
     });
   }
 
   onChangeAmount() {
-    this.amountChange.next();
+    this.amountChange.next('');
   }
 
   savePayment() {
-    this.printPayment = null;
+    this.printPayment = undefined;
     this.payment.user_id = this.currentUser.id;
     this.paS.post(this.payment).subscribe(r => {
       this.copyTicket(r);
@@ -197,8 +189,8 @@ export class PackagesComponent implements OnInit {
   }
 
   copyTicket(p: Payment) {
-    this.printPayment = null;
-    this.paS.getById(p.id).subscribe(r => {
+    this.printPayment = undefined;
+    this.paS.getById(p.id!).subscribe(r => {
       this.printPayment = r;
     });
   }
@@ -224,7 +216,7 @@ export class PackagesComponent implements OnInit {
 
 
   addTracker(p: Package) {
-    this.disabledTracker = (p.type.session_count <= p.tracking.length);
+    this.disabledTracker = ((p.type?.session_count || 0) <= (p.tracking?.length || 0));
     this.tracker = new PackageTracking();
     this.package = p;
     this.tracker.is_taken = true;
@@ -235,13 +227,13 @@ export class PackagesComponent implements OnInit {
   }
 
   getTracking() {
-    this.ptS.geForPackage(this.tracker.package_id).subscribe(r => {
-      this.trackers = r;
+    this.ptS.geForPackage(this.tracker.package_id!).subscribe(r => {
+      this.trackers = r.sort((a: any, b: any) => new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime());
     });
   }
 
   saveTracking() {
-    this.tracker.scheduled_date = moment(this.tracker.scheduled_date).format('Y-MM-D h:mm:ss');
+    this.tracker.scheduled_date = format(new Date(this.tracker.scheduled_date!), 'yyyy-MM-dd HH:mm:ss');
     this.ptS.post(this.tracker).subscribe(xhr => {
       $('#modalTracker').modal('hide');
       iziToast.show({
@@ -251,7 +243,7 @@ export class PackagesComponent implements OnInit {
   }
 
   getDateFinish(p: Package): Date {
-    const date = new Date(p.created_at);
+    const date = new Date(p.created_at!);
     date.setDate(date.getDate() + 84);
     return date;
  }

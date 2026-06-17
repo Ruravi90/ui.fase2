@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { BalanceService } from '../../services';
 
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 @Component({
-  templateUrl: 'dashboard.component.html'
+    selector: 'app-dashboard',
+    imports: [NgxChartsModule],
+    templateUrl: 'dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
   salesChart: any[]=[];
@@ -12,6 +15,8 @@ export class DashboardComponent implements OnInit {
   packages: any[]=[];
   servicesChart: any[]=[];
   services: any[]=[];
+  pillsChart: any[]=[];
+  productsChart: any[]=[];
   constructor(private bS:BalanceService) {
     //Object.assign(this, { single })
     
@@ -19,7 +24,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.bS.getSaleChart().subscribe((r)=>{
       this.sales = r;
-      r.forEach(element => {
+      r.forEach((element: any) => {
         this.salesChart.push( {
           name: element.date,
           value: element.sales
@@ -30,7 +35,7 @@ export class DashboardComponent implements OnInit {
 
     this.bS.getPackageChart().subscribe((r)=>{
       this.packages = r;
-      r.forEach(element => {
+      r.forEach((element: any) => {
         this.packagesChart.push( {
           name: (element.cat_package?element.cat_package.name:''),
           value: element.sales
@@ -40,7 +45,7 @@ export class DashboardComponent implements OnInit {
 
     this.bS.getServiceChart().subscribe((r)=>{
       this.services = r;
-      r.forEach(element => {
+      r.forEach((element: any) => {
         this.servicesChart.push( {
           name: (element.cat_service?element.cat_service.name:''),
           value: element.sales
@@ -50,7 +55,7 @@ export class DashboardComponent implements OnInit {
     // generate random values for mainChart
   }
 
-  setLabelFormatting(c): string {
+  setLabelFormatting(c: any): string {
     return c;
   }
 

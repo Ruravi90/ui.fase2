@@ -7,15 +7,15 @@ import { Sale, User, Paginate} from '../models';
 @Injectable()
 export class PaginateService {
     private url: string = environment.urlApi;
-    public model: string;
+    public model: string = '';
     private currentUser: User = new User();
     constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     }
     paginate(filter: any): Observable<Paginate> {
-      return this.http.post<Paginate>(this.url + this.model + '/paginate', filter).map(r => r);
+      return this.http.post<Paginate>(this.url + this.model + '/paginate', filter);
     }
     getForUrl(page: number, filter: any): Observable<Paginate> {
-      return this.http.post<Paginate>(this.url + this.model + '/paginate?page=' + page, filter).map(r => r);
+      return this.http.post<Paginate>(this.url + this.model + '/paginate?page=' + page, filter);
     }
 }

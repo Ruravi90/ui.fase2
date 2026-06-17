@@ -9,26 +9,26 @@ export class PaymentService {
     private url: string = environment.urlApi + 'payments';
     private currentUser: User = new User();
     constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     }
     get(): Observable<Payment[]> {
-        return this.http.get<Payment[]>(this.url).map(r => r);
+        return this.http.get<Payment[]>(this.url);
     }
     getById(id: number): Observable<Payment> {
         return this.http.get<Payment>(this.url + '/' + id)
-        .map(r => r);
+        ;
     }
     geForSales(id: number): Observable<Payment[]> {
         return this.http.get<Payment[]>(this.url + '/for_sale/' + id)
-        .map(r => r);
+        ;
     }
     post(model: Payment): Observable<any> {
-      return this.http.post<any>(this.url, model).map(r => r);
+      return this.http.post<any>(this.url, model);
     }
     put(model: Payment): Observable<any> {
-      return this.http.put<any>(this.url + '/' + model.id, model ).map(r => r);
+      return this.http.put<any>(this.url + '/' + model.id, model );
     }
     delete(id: number): Observable<any> {
-      return this.http.delete<any>(this.url + '/' + id).map(r => r);
+      return this.http.delete<any>(this.url + '/' + id);
     }
 }

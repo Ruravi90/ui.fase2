@@ -3,4 +3,5 @@ export class Balance {
     purchaseTotal?: number;
     salesTotal?: number;
     total?: number;
+    expenses?: any[];
 }

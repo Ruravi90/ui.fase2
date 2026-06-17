@@ -8,16 +8,17 @@
           </h4>
         </div>
         <ul class="list-group">
-          <li class="list-group-item" *ngFor="let u of agents">
-            {{u.initials + ' ' + u.name + ' ' + u.lastname}}
-            
-            <button class="btn btn-sm btn-danger ml-2 float-right" (click)="deleteAgent(u)">
+          @for (u of agents; track u) {
+            <li class="list-group-item">
+              {{u.initials + ' ' + u.name + ' ' + u.lastname}}
+              <button class="btn btn-sm btn-danger ml-2 float-right" (click)="deleteAgent(u)">
                 <i class="fa fa-trash"></i>
-            </button>
-            <button class="btn btn-sm btn-default float-right" (click)="editAgent(u)">
+              </button>
+              <button class="btn btn-sm btn-default float-right" (click)="editAgent(u)">
                 <i class="fa fa-edit"></i>
-            </button>
-          </li>
+              </button>
+            </li>
+          }
         </ul>
       </div>
     </div>
@@ -28,42 +29,48 @@
 <!-- Modal -->
 <div class="modal fade" id="modalAgent" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <form class="modal-dialog" role="document" #agentForm="ngForm" (ngSubmit)="save()">
-      <div class="modal-content">
+    <div class="modal-content">
       <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">{{(isEdit?'Editar agente':'Agregar agente')}}</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <h5 class="modal-title" id="exampleModalLabel">{{(isEdit?'Editar agente':'Agregar agente')}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
-          </button>
+        </button>
       </div>
       <div class="modal-body">
-          <div class="row">
-              <div class="col-lg-4">
-                <input class="form-control" [ngClass]="{'is-invalid':!existUser && !isEdit}" placeholder="Usuario" name="user" [disabled]="isEdit" [(ngModel)]="agent.username" #username="ngModel" (ngModelChange)="onExistUser()" required>
-              </div>
-              <div class="col-lg-4">
-                <input class="form-control" placeholder="Iniciales" name="initials" [(ngModel)]="agent.initials" #initials="ngModel" required>
-              </div>
-              <div class="col-lg-4" *ngIf="!isEdit">
-                  <label class="text-danger" *ngIf="!existUser">El usuario existente</label>
-                  <label class="text-success" *ngIf="existUser">Usuario disponible</label>
-              </div>
+        <div class="row">
+          <div class="col-lg-4">
+            <input class="form-control" [ngClass]="{'is-invalid':!existUser && !isEdit}" placeholder="Usuario" name="user" [disabled]="isEdit" [(ngModel)]="agent.username" #username="ngModel" (ngModelChange)="onExistUser()" required>
           </div>
-          <div class="row mt-1">
+          <div class="col-lg-4">
+            <input class="form-control" placeholder="Iniciales" name="initials" [(ngModel)]="agent.initials" #initials="ngModel" required>
+          </div>
+          @if (!isEdit) {
             <div class="col-lg-4">
-              <input class="form-control" placeholder="Nombre(s)" name="name" [(ngModel)]="agent.name" #name="ngModel" required>
+              @if (!existUser) {
+                <label class="text-danger">El usuario existente</label>
+              }
+              @if (existUser) {
+                <label class="text-success">Usuario disponible</label>
+              }
             </div>
-            <div class="col-lg-4">
-              <input class="form-control" placeholder="Paterno" name="lastname" [(ngModel)]="agent.lastname" #lastname="ngModel" required>
-            </div>
-            <div class="col-lg-4">
-              <input class="form-control" placeholder="Materno" name="motherlastname" [(ngModel)]="agent.motherlastname" #motherlastname="ngModel">
-            </div>
+          }
+        </div>
+        <div class="row mt-1">
+          <div class="col-lg-4">
+            <input class="form-control" placeholder="Nombre(s)" name="name" [(ngModel)]="agent.name" #name="ngModel" required>
+          </div>
+          <div class="col-lg-4">
+            <input class="form-control" placeholder="Paterno" name="lastname" [(ngModel)]="agent.lastname" #lastname="ngModel" required>
+          </div>
+          <div class="col-lg-4">
+            <input class="form-control" placeholder="Materno" name="motherlastname" [(ngModel)]="agent.motherlastname" #motherlastname="ngModel">
+          </div>
         </div>
       </div>
       <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-          <button type="submit" class="btn btn-primary" [disabled]="agentForm.invalid">Guardar</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="agentForm.invalid">Guardar</button>
       </div>
-      </div>
+    </div>
   </form>
 </div>

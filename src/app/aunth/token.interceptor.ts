@@ -2,18 +2,18 @@ import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpResponse } from '@angular/common/http';
 import { finalize, tap } from 'rxjs/operators';
 import { UserService } from '../services';
-import { NgxSpinnerService } from 'ngx-spinner';
+
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
 
-  constructor(public auth: UserService,private spinner: NgxSpinnerService) {}
+  constructor(public auth: UserService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     const startTime = Date.now();
     //const loading = document.getElementById('loading');
     //loading.classList.add('show');
-    this.spinner.show(); 
+    //this.spinner.show(); 
     let status: string;
     req = req.clone({
       setHeaders: {
@@ -35,7 +35,7 @@ export class TokenInterceptor implements HttpInterceptor {
           const elapsedTime = Date.now() - startTime;
           const message = req.method + ' ' + req.urlWithParams + ' ' + status + ' in ' + elapsedTime + 'ms';
           this.logDetails(message);
-          this.spinner.hide();
+          //this.spinner.hide();
           //loading.classList.remove('show');
         })
     );

@@ -1,30 +1,35 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { UserService, RoleService, PaginateService } from '../../services';
 import { User, Role, Paginate } from '../../models';
 import { Subject, Observable } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import swal from 'sweetalert2';
-import { isObject } from 'util';
-import 'rxjs/add/operator/debounceTime';
 
 declare var $: any, iziToast: any;
 
 @Component({
-  templateUrl: './user.component.html'
+    selector: 'app-user',
+    imports: [CommonModule, FormsModule, NgSelectModule, PaginationModule],
+    templateUrl: './user.component.html'
 })
 
 export class UserComponent implements OnInit {
   public users: User[] = [];
-  public roles$: Observable<Role[]>;
+  public roles$!: Observable<Role[]>;
   public user: User = new User();
-  public isEdit: Boolean = false;
-  public existUser: Boolean = false;
+  public isEdit: boolean = false;
+  public existUser: boolean = false;
   public paginate: Paginate = new Paginate();
   public filters: any = {
     perPage: 15,
     isPaid: 0
   };
 
-  private usernameChange: Subject<string> = new Subject();
+  private usernameChange: Subject<void> = new Subject();
   
   constructor(
     private aS: UserService, 
@@ -39,29 +44,29 @@ export class UserComponent implements OnInit {
     const that = this;
     that.getUsers();
     // generate random values for mainChart
-    $('#modalUser').on('show.bs.modal', function (event) {
+    $('#modalUser').on('show.bs.modal', function (event: any) {
     });
 
-    $('#modalUser').on('hidden.bs.modal', function (event) {
+    $('#modalUser').on('hidden.bs.modal', function (event: any) {
       that.getUsers();
     });
 
-    this.usernameChange.debounceTime(300).subscribe(() => {
-      this.aS.getExist(this.user.username).subscribe((r) => {
+    this.usernameChange.pipe(debounceTime(300)).subscribe(() => {
+      this.aS.getExist(this.user.username || '').subscribe((r: any) => {
         this.existUser = r;
       });
     });
   }
 
   getUsers() {
-    this.pS.paginate(this.filters).subscribe((r) => {
+    this.pS.paginate(this.filters).subscribe((r: any) => {
       this.paginate = r;
       this.users = this.paginate.data;
     });
   }
 
   pageChanged(event: any){
-    this.pS.getForUrl(event.page, this.filters).subscribe(res => {
+    this.pS.getForUrl(event.page, this.filters).subscribe((res: any) => {
       this.paginate = res;
       this.users = this.paginate.data;
     });
@@ -80,7 +85,7 @@ export class UserComponent implements OnInit {
   editUser(c: User): void {
     this.isEdit = true;
     setTimeout(() => {
-      this.aS.getById(c.id).subscribe(r => {
+      this.aS.getById(c.id!).subscribe((r: any) => {
         this.user = r;
         $('#modalUser').modal('show');
       });
@@ -97,19 +102,21 @@ export class UserComponent implements OnInit {
       showCancelButton: true,
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Si, eliminar!'
-    }).then((result) => {
-      this.aS.delete(c.id).subscribe(r => {
-        this.getUsers();
-        iziToast.show({
-          title: 'Registro eliminado'
+    }).then((result: any) => {
+      if(result.isConfirmed) {
+        this.aS.delete(c.id!).subscribe((r: any) => {
+          this.getUsers();
+          iziToast.show({
+            title: 'Registro eliminado'
+          });
         });
-      });
+      }
     });
   }
 
   save() {
     if (this.isEdit && !this.existUser) {
-      this.aS.put(this.user).subscribe(r => {
+      this.aS.put(this.user).subscribe((r: any) => {
         if (r === 200) {
           $('#modalUser').modal('hide');
           iziToast.show({
@@ -123,8 +130,8 @@ export class UserComponent implements OnInit {
         }
        });
     } else {
-      this.aS.post(this.user).subscribe(r => {
-        if (isObject(r)) {
+      this.aS.post(this.user).subscribe((r: any) => {
+        if (typeof r === 'object' && r !== null) {
           $('#modalUser').modal('hide');
           iziToast.show({
               message: 'Registro creado'
@@ -135,7 +142,7 @@ export class UserComponent implements OnInit {
             color: 'red'
           });
         }
-       },error=>{
+       },(error: any)=>{
           iziToast.show({
             title: error.msj,
             color: 'red'
