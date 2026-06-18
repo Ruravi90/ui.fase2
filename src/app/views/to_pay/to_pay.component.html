@@ -1,79 +1,137 @@
 <div class="animated fadeIn">
-  <div class="card">
-    <div class="card-header p-2">
-      <div class="row">
-        <div class="col-lg-6">
-          <h4>Egresos pendientes por pagar</h4>
-        </div>
-        <div class="col-lg-6">
-          <div class="float-right">
-            <div class="form-check form-check-inline">
-              <input class="form-check-input is-invalid" type="radio"
-                id="isNotCompleted"
-                name="optionsRadios" [value]="0"
-                [(ngModel)]="filters.isPaid" (ngModelChange)="getCatlog()">
-              <label class="form-check-label" for="isNotCompleted">Egresos pendientes</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input is-valid" type="radio"
-                id="isCompleted"
-                name="optionsRadios"
-                [value]="1"
-                [(ngModel)]="filters.isPaid" (ngModelChange)="getCatlog()">
-              <label class="form-check-label" for="isCompleted">Egresos pagados</label>
-            </div>
-          </div>
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">
+          Egresos por pagar
+        </h4>
+        <div class="serene-radio-group">
+          <label class="radio-label" [class.active]="filters.isPaid === 0">
+            <input type="radio" name="filterPaid" [value]="0" [(ngModel)]="filters.isPaid" (ngModelChange)="getCatlog()" style="display:none;">
+            <span class="status-indicator error"></span> Pendientes
+          </label>
+          <label class="radio-label" [class.active]="filters.isPaid === 1">
+            <input type="radio" name="filterPaid" [value]="1" [(ngModel)]="filters.isPaid" (ngModelChange)="getCatlog()" style="display:none;">
+            <span class="status-indicator success"></span> Pagados
+          </label>
         </div>
       </div>
-    </div>
-    <!-- List group -->
-    <ul class="list-group">
-      @for (purchase of purchases; track purchase) {
-        <li class="list-group-item p-1 disabled"  style="padding-bottom:0px; margin-bottom: 5px;">
-          <div class="card m-0">
-            <div class="card-header p-2">
-              <small class="text-muted">Registrada por {{  purchase.user?.name }} el día {{ purchase.created_at | date:'dd/MM/yyyy hh:mm' }}</small>
+
+      <!-- Cards List -->
+      <div>
+        @if (loading) {
+          <div class="box-loading-skeleton" style="margin-bottom: 1.5rem;">
+            <div class="skeleton-line" style="width: 30%; height: 24px; margin-bottom: 16px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 90px; margin-bottom: 12px; border-radius: 8px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 90px; margin-bottom: 12px; border-radius: 8px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 90px; border-radius: 8px;"></div>
+          </div>
+        } @else {
+          @if (purchases.length === 0) {
+            <div style="text-align: center; padding: 3rem; color: var(--color-text-muted);">
+              No hay egresos {{ filters.isPaid === 0 ? 'pendientes' : 'pagados' }}.
             </div>
-            <ul class="list-group">
-              @for (_purchase of purchase.purchases; track _purchase) {
-                <li class="list-group-item p-1" >
-                  <div class="row">
-                    @if (_purchase.department) {
-                      <div class="col">Departamento: <br/>{{_purchase.department.name}}</div>
+          }
+
+          @for (purchase of purchases; track purchase.id) {
+            <div class="sale-day-card">
+              <!-- Card Header -->
+              <div class="sale-day-header">
+                <div>
+                  <span class="client-name">
+                    {{ purchase.provider?.business_name || 'Sin proveedor' }}
+                  </span>
+                  <span class="sale-time">{{ purchase.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  @if (!purchase.is_paid) {
+                    <button class="btn-serene-primary" style="padding: 0.4rem 1rem; font-size: 0.85rem;" (click)="pay(purchase)">
+                      Pagar
+                    </button>
+                  }
+                  @if (purchase.is_paid) {
+                    <span class="status-badge status-paid">Pagado</span>
+                  }
+                </div>
+              </div>
+
+              <!-- Card Body -->
+              <div class="sale-day-body">
+                <div class="sale-item-detail">
+                  <div class="detail-grid">
+                    <!-- Registrado por -->
+                    <div class="col-flex" style="flex: 1.5;">
+                      <small style="color: var(--color-text-muted);">Registrado por</small><br>
+                      <span>{{ purchase.user?.name || '—' }}</span>
+                    </div>
+
+                    <!-- Departamento -->
+                    @if (purchase.department) {
+                      <div class="col-flex">
+                        <small style="color: var(--color-text-muted);">Departamento</small><br>
+                        <span>{{ purchase.department.name }}</span>
+                      </div>
                     }
-                    @if (_purchase.provider) {
-                      <div class="col">Provee: <br/>{{_purchase.provider.business_name}}</div>
+
+                    <!-- Tipo de gasto -->
+                    @if (purchase.cat_expense) {
+                      <div class="col-flex">
+                        <small style="color: var(--color-text-muted);">Tipo de gasto</small><br>
+                        <span>{{ purchase.cat_expense.name }}</span>
+                      </div>
                     }
-                    @if (_purchase.cat_expense) {
-                      <div class="col">Concepto: <br/>{{_purchase.cat_expense.name}}</div>
+
+                    <!-- Detalle producto/pastilla -->
+                    @if (purchase.product) {
+                      <div class="col-flex" style="flex: 2;">
+                        <small style="color: var(--color-text-muted);">Producto</small><br>
+                        <span>{{ purchase.product_count }}× {{ purchase.product.name }}</span>
+                      </div>
                     }
-                    @if (_purchase.cat_expense) {
-                      <div class="col">Tipo gasto: <br/>{{_purchase.cat_expense.name}}</div>
+                    @if (purchase.pill) {
+                      <div class="col-flex" style="flex: 2;">
+                        <small style="color: var(--color-text-muted);">Pastilla</small><br>
+                        <span>{{ purchase.pill_count }}× {{ purchase.pill.name }}</span>
+                      </div>
                     }
-                    @if (_purchase.pill) {
-                      <div class="col">Pastillas: <br/>{{_purchase.pill_count}} {{_purchase.pill.name}}</div>
+                    @if (purchase.name_expense) {
+                      <div class="col-flex" style="flex: 2;">
+                        <small style="color: var(--color-text-muted);">Concepto</small><br>
+                        <span>{{ purchase.name_expense }}</span>
+                      </div>
                     }
-                    @if (_purchase.product) {
-                      <div class="col">Productos: <br/>{{_purchase.product_count}} {{_purchase.product.name}}</div>
-                    }
-                    <div class="col">
-                      {{_purchase.amount | currency:'MXN ':'symbol':'2.2-4'}}
-                      @if (!_purchase.is_paid) {
-                        <button class="btn btn-success btn-sm float-right" (click)="pay(_purchase)">Pagar</button>
-                      }
+
+                    <!-- Monto -->
+                    <div class="col-flex text-right">
+                      <small style="color: var(--color-text-muted);">Monto:</small><br>
+                      <span class="price-value" [style.color]="purchase.is_paid ? 'var(--color-primary)' : 'var(--color-text-primary)'">
+                        {{ purchase.amount | currency:'MXN ':'symbol':'1.2-2' }}
+                      </span>
                     </div>
                   </div>
-                </li>
-              }
-            </ul>
-          </div>
-        </li>
-      }
-    </ul>
-    <div class="card-footer">
-      <pagination [boundaryLinks]="true" [totalItems]="paginate.total || 0" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
-        previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
-      </pagination>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Pagination -->
+      <div style="padding: 1rem 0; display: flex; justify-content: center;">
+        <pagination
+          [totalItems]="paginate.total || 0"
+          [maxSize]="9"
+          [itemsPerPage]="filters.perPage"
+          (pageChanged)="pageChanged($event)"
+          previousText="&lsaquo;"
+          nextText="&rsaquo;"
+          firstText="&laquo;"
+          lastText="&raquo;"
+        ></pagination>
+      </div>
+
     </div>
   </div>
 </div>

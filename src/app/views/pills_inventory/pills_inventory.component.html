@@ -1,65 +1,101 @@
 <div class="animated fadeIn">
   <div class="row justify-content-center">
     <div class="col-lg-8">
-      <div class="card">
-        <div class="card-header">
-          <h4>Inventario de pastillas
-            <button class="btn btn-sm btn-primary float-right" (click)="add()">Nuevo</button>
-          </h4>
+
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">
+          Inventario de Pastillas
+        </h4>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <button type="button" class="btn-serene-primary" (click)="add()">
+            Ingresar Inventario
+          </button>
         </div>
-        <ul class="list-group">
-          @for (i of inventory; track i) {
-            <li class="list-group-item">
-              <div class="row">
-                <div class="col-lg-4">{{i.pill?.name}}</div>
-                <div class="col-lg-3">Precio: {{i.pill?.price | currency:'MXN ':'symbol':'4.2-4'}}</div>
-                <div class="col-lg-3">En stock: {{i.count}}</div>
-                <div class="col-lg-2">
-                  <button class="btn btn-sm btn-danger ml-2 float-right" (click)="delete(i)"><i class="fa fa-trash"></i></button>
-                  <button class="btn btn-sm btn-default float-right" (click)="update(i)"><i class="fa fa-edit"></i></button>
+      </div>
+
+      <!-- Content -->
+      <div>
+        @if (loading) {
+          <div class="box-loading-skeleton" style="margin-bottom: 1.5rem;">
+            <div class="skeleton-line" style="width: 30%; height: 24px; margin-bottom: 16px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 60px; margin-bottom: 12px; border-radius: 8px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 60px; margin-bottom: 12px; border-radius: 8px;"></div>
+          </div>
+        } @else {
+          @if (inventory.length === 0) {
+            <div style="text-align: center; padding: 3rem; color: var(--color-text-muted);">
+              No hay inventario registrado.
+            </div>
+          }
+
+          @for (i of inventory; track i.id) {
+            <div class="sale-day-card" style="margin-bottom: 0.75rem; padding: 1rem 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex: 2;">
+                  <span class="client-name" style="font-size: 1.1rem;">{{ i.pill?.name }}</span>
+                </div>
+                <div style="flex: 2; text-align: left;">
+                  <span style="font-size: 0.9rem; color: var(--color-text-muted);">Stock actual:</span><br>
+                  <span style="font-size: 1.2rem; font-weight: 600; color: var(--color-primary-dark);">{{ i.count }} unidades</span>
+                </div>
+                <div style="flex: 1; text-align: right; padding-right: 2rem;">
+                  <span class="price-value">{{ i.pill?.price | currency:'MXN ':'symbol':'1.2-2' }}</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="btn-serene-icon-primary" title="Editar" (click)="update(i)">
+                    <i class="fa fa-edit"></i>
+                  </button>
+                  <button class="btn-serene-icon-danger" title="Eliminar" (click)="delete(i)">
+                    <i class="fa fa-trash"></i>
+                  </button>
                 </div>
               </div>
-            </li>
+            </div>
           }
-        </ul>
+        }
       </div>
+
     </div>
   </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-  <form class="modal-dialog" role="document" #form="ngForm" (ngSubmit)="save()">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalLabel">{{(isEdit?'Editar':'Agregar')}} inventario</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+<!-- Modal Nativo -->
+<div class="sc-modal-overlay" [class.active]="showModal" (click)="closeModal()">
+  <div class="sc-modal-panel" (click)="$event.stopPropagation()">
+    <form #form="ngForm" (ngSubmit)="save()">
+      <div class="sc-modal-header">
+        <h4 class="sc-modal-title">{{ isEdit ? 'Editar Inventario' : 'Ingresar Inventario' }}</h4>
+        <button type="button" class="sc-close-btn" (click)="closeModal()">✕</button>
       </div>
-      <div class="modal-body">
+      
+      <div class="sc-modal-body">
         <div class="row">
-          <div class="col-lg-8">
+          <div class="col-lg-8" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Selecciona la pastilla</label>
             <ng-select
+              class="serene-select"
               [items]="(cmbPills$ | async) || []"
               bindLabel="name"
               bindId="id"
-              placeholder="Seleciona la pastilla"
+              placeholder="Ej. L-Carnitina"
               name="pillId"
               [(ngModel)]="item.pill"
               #pillId="ngModel"
               required>
             </ng-select>
           </div>
-          <div class="col-lg-4">
-            <input type="numero" class="form-control" name="count" [(ngModel)]="item.count" #count="ngModel"/>
+          <div class="col-lg-4" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Cantidad</label>
+            <input type="number" min="0" class="serene-input" name="count" [(ngModel)]="item.count" #count="ngModel" required />
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button>
+      
+      <div class="sc-modal-footer">
+        <button type="button" class="sc-btn sc-btn-ghost" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="sc-btn sc-btn-primary" [disabled]="form.invalid">Guardar</button>
       </div>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>

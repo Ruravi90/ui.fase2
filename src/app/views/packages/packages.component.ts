@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { PackageService, AgentService, PaymentService, PackageTrackingService, TypeService, SaleService,PaginateService } from '../../services';
 import { User, Package, PackageTracking, Payment, Sale, _Type, Paginate } from '../../models';
 import { Observable, Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import swal from 'sweetalert2';
 import { format } from 'date-fns';
 import { environment } from '../../../environments/environment';
@@ -43,6 +43,8 @@ export class PackagesComponent implements OnInit {
 
   public disabledTracker = false;
   public amountChange: Subject<string> = new Subject();
+  public searchSubject: Subject<string> = new Subject();
+  public searchTerm = '';
   
   public isModalTrackerOpen = false;
   public isModalPaymentOpen = false;
@@ -70,6 +72,21 @@ export class PackagesComponent implements OnInit {
         this.payment.amount = this.balance;
       }
     });
+
+    this.searchSubject.pipe(debounceTime(400), distinctUntilChanged()).subscribe(term => {
+      if (term.trim()) {
+        this.filters.search = term.trim();
+      } else {
+        delete this.filters.search;
+      }
+      this.getPackages();
+    });
+  }
+
+  clearSearch() {
+    this.searchTerm = '';
+    delete this.filters.search;
+    this.getPackages();
   }
 
   isLoading = true;

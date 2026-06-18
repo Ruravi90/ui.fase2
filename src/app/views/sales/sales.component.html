@@ -5,6 +5,25 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
           <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">Ventas</h4>
           <div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
+
+            <!-- Buscador por cliente -->
+            <div class="pkg-search-wrap">
+              <i class="fas fa-search pkg-search-icon"></i>
+              <input
+                id="sales-client-search"
+                type="text"
+                class="pkg-search-input"
+                placeholder="Buscar por cliente..."
+                name="sales-search"
+                [(ngModel)]="searchTerm"
+                (ngModelChange)="searchSubject.next($event)">
+              @if (searchTerm) {
+                <button class="pkg-search-clear" type="button" (click)="clearSearch()" title="Limpiar búsqueda">
+                  <i class="fas fa-times"></i>
+                </button>
+              }
+            </div>
+
             <div class="serene-radio-group">
               <label class="radio-label" [class.active]="filters.isPaid === 2">
                 <input type="radio" name="optionsRadios" [value]="2" [(ngModel)]="filters.isPaid" (ngModelChange)="getSales()" style="display: none;">

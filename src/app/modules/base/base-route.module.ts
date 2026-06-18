@@ -7,6 +7,7 @@ import { SaleComponent } from '../../views/sale/sale.component';
 import { PackagesComponent } from '../../views/packages/packages.component';
 import { SalesComponent } from '../../views/sales/sales.component';
 import { BoxComponent } from '../../views/box/box.component';
+import { ScheduleComponent } from '../../views/schedule/schedule.component';
 
 const routes: Routes = [
   {
@@ -57,6 +58,13 @@ const routes: Routes = [
         component: PackagesComponent,
         data: {
           title: 'Paquetes'
+        }
+      },
+      {
+        path: 'schedule',
+        component: ScheduleComponent,
+        data: {
+          title: 'Agenda'
         }
       },
     ]

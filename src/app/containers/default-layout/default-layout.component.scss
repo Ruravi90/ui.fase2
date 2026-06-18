@@ -24,6 +24,9 @@
   z-index: 10;
   width: 260px;
   transition: transform 0.3s ease;
+  position: sticky;
+  top: 0;
+  height: 100vh;
 }
 
 .serene-sidebar-brand {

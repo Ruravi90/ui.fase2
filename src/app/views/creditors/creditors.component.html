@@ -1,71 +1,106 @@
 <div class="animated fadeIn">
   <div class="row justify-content-center">
-    <div class="col-lg-6">
-      <div class="card">
-        <h3 class="card-header">
+    <div class="col-lg-8">
+
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">
           Acreedores / Proveedores
-          <button type="button" class="btn btn-sm btn-primary float-right"  (click)="add()">
-            Nuevo
+        </h4>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <button type="button" class="btn-serene-primary" (click)="add()">
+            Nuevo Proveedor
           </button>
-        </h3>
-        <ul class="list-group list-group-flush">
-          @for (c of creditors$ | async; track c) {
-            <li class="list-group-item">
-              {{ c.business_name }}
-              <button type="button" class="btn btn-sm btn-danger float-right ml-2" (click)="delete(c)">
-                <i class="fa fa-trash"></i>
-              </button>
-              <button type="button" class="btn btn-sm btn-default float-right" (click)="edit(c)">
-                <i class="fa fa-edit"></i>
-              </button>
-            </li>
-          }
-        </ul>
+        </div>
       </div>
+
+      <!-- Content -->
+      <div>
+        @if (loading) {
+          <div class="box-loading-skeleton" style="margin-bottom: 1.5rem;">
+            <div class="skeleton-line" style="width: 30%; height: 24px; margin-bottom: 16px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 60px; margin-bottom: 12px; border-radius: 8px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 60px; margin-bottom: 12px; border-radius: 8px;"></div>
+          </div>
+        } @else {
+          @if (creditors.length === 0) {
+            <div style="text-align: center; padding: 3rem; color: var(--color-text-muted);">
+              No hay proveedores registrados.
+            </div>
+          }
+
+          @for (c of creditors; track c.id) {
+            <div class="sale-day-card" style="margin-bottom: 0.75rem; padding: 1rem 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex: 2;">
+                  <span class="client-name" style="font-size: 1.1rem;">{{ c.business_name }}</span>
+                </div>
+                <div style="flex: 1;">
+                  <span style="font-size: 0.85rem; color: var(--color-text-muted);"><i class="fa fa-user"></i> {{ c.contact_name || 'N/A' }}</span>
+                </div>
+                <div style="flex: 1;">
+                  <span style="font-size: 0.85rem; color: var(--color-text-muted);"><i class="fa fa-phone"></i> {{ c.office_phone || 'N/A' }}</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="btn-serene-icon-primary" title="Editar" (click)="edit(c)">
+                    <i class="fa fa-edit"></i>
+                  </button>
+                  <button class="btn-serene-icon-danger" title="Eliminar" (click)="delete(c)">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
     </div>
   </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <form class="modal-dialog" role="document" #form="ngForm" (ngSubmit)="save()">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">{{(isEdit?'Editar cliente':'Agregar cliente')}}</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+<!-- Modal Nativo -->
+<div class="sc-modal-overlay" [class.active]="showModal" (click)="closeModal()">
+  <div class="sc-modal-panel" (click)="$event.stopPropagation()">
+    <form #form="ngForm" (ngSubmit)="save()">
+      <div class="sc-modal-header">
+        <h4 class="sc-modal-title">{{ isEdit ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h4>
+        <button type="button" class="sc-close-btn" (click)="closeModal()">✕</button>
       </div>
-      <div class="modal-body">
+      
+      <div class="sc-modal-body">
         <div class="row">
-          <div class="form-group col-md-6">
-            <input type="text" name="business_name" class="form-control" #businessName="ngModel" [(ngModel)]="model.business_name" placeholder="Razón Comercial" required>
+          <div class="col-lg-6" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Razón Comercial</label>
+            <input type="text" class="serene-input" name="business_name" [(ngModel)]="model.business_name" #businessName="ngModel" placeholder="Ej. Distribuidora Médica" required />
           </div>
-          <div class="form-group col-md-6">
-            <input type="text" name="contact_name" class="form-control" #contactName="ngModel" [(ngModel)]="model.contact_name" placeholder="Nombre del contacto" required>
+          <div class="col-lg-6" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Nombre del contacto</label>
+            <input type="text" class="serene-input" name="contact_name" [(ngModel)]="model.contact_name" #contactName="ngModel" placeholder="Ej. Juan Pérez" required />
           </div>
         </div>
         <div class="row">
-          <div class="form-group col-md-6">
-            <input type="text" minlength="10" maxlength="10" name="office_phone" class="form-control" #phone="ngModel" [(ngModel)]="model.office_phone" placeholder="Telefono de contacto" pattern="[0-9]*" required>
-            @if (phone.hasError('minlength')) {
-              <span class="text-danger">
-                Telefono a 10 numeros.
-              </span>
+          <div class="col-lg-6" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Teléfono de contacto</label>
+            <input type="text" class="serene-input" minlength="10" maxlength="10" name="office_phone" [(ngModel)]="model.office_phone" #phone="ngModel" placeholder="Ej. 5512345678" pattern="[0-9]*" required />
+            @if (phone.hasError('minlength') && phone.touched) {
+              <div style="color: #e85d5d; font-size: 0.75rem; margin-top: 0.25rem;">
+                Debe tener 10 números.
+              </div>
             }
-            @if (phone.hasError('pattern')) {
-              <span class="text-danger">
-                Solo numeros.
-              </span>
+            @if (phone.hasError('pattern') && phone.touched) {
+              <div style="color: #e85d5d; font-size: 0.75rem; margin-top: 0.25rem;">
+                Solo se permiten números.
+              </div>
             }
-            <!--{{phone.errors | json}}-->
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button>
+      
+      <div class="sc-modal-footer">
+        <button type="button" class="sc-btn sc-btn-ghost" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="sc-btn sc-btn-primary" [disabled]="form.invalid">Guardar</button>
       </div>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>

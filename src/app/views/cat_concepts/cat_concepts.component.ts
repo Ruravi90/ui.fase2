@@ -1,20 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { TypeService } from '../../services';
 import { _Type, Paginate } from '../../models';
 
-import swal from 'sweetalert2';
+import Swal from 'sweetalert2';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-declare var $: any, iziToast: any;
-
-
 import { FormsModule } from '@angular/forms';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 @Component({
-    selector: 'app-cat-concepts',
-    imports: [FormsModule, PaginationModule],
-    templateUrl: './cat_concepts.component.html'
+  selector: 'app-cat-concepts',
+  standalone: true,
+  imports: [FormsModule, PaginationModule],
+  templateUrl: './cat_concepts.component.html'
 })
 export class CatConceptsComponent implements OnInit {
   public nameCalog = 'cat_concepts';
@@ -22,99 +20,146 @@ export class CatConceptsComponent implements OnInit {
   public item: _Type = new _Type();
   public isEdit = false;
   public filterChanged: Subject<void> = new Subject<void>();
-  public paginate: Paginate =  new Paginate();
+  public paginate: Paginate = new Paginate();
   public filters: any = {
     perPage: 15,
     name: ''
   };
 
-  constructor(private tS: TypeService) {
+  public loading = false;
+  public showModal = false;
+
+  constructor(private tS: TypeService, private cdr: ChangeDetectorRef) {
     this.filterChanged
-    .pipe(
-      debounceTime(500),
-      distinctUntilChanged()
-    )
-    .subscribe(() => this.getCatlog());
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged()
+      )
+      .subscribe(() => this.getCatlog());
   }
 
   ngOnInit(): void {
-    // generate random values for mainChart
     this.getCatlog();
-    // tslint:disable-next-line:prefer-const
-    let that = this;
-    $('#modal').on('hidden.bs.modal', function (event: any) {
-      that.getCatlog();
-    });
   }
 
   getCatlog() {
-    this.tS.paginate(this.nameCalog,this.filters).subscribe(r => {
-      this.paginate = r;
-      this.catalog = r.data;
+    this.loading = true;
+    this.tS.paginate(this.nameCalog, this.filters).subscribe({
+      next: (r) => {
+        this.paginate = r;
+        this.catalog = r.data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
-  pageChanged(event: any){
-    this.tS.getForUrl(this.nameCalog,event.page, this.filters).subscribe(r => {
-      this.paginate = r;
-      this.catalog = r.data;
+  pageChanged(event: any) {
+    this.loading = true;
+    this.tS.getForUrl(this.nameCalog, event.page, this.filters.perPage).subscribe({
+      next: (r) => {
+        this.paginate = r;
+        this.catalog = r.data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
-  filterName(event: any){
+  filterName(event: any) {
     this.filterChanged.next(event);
   }
 
   addItem() {
     this.isEdit = false;
     this.item = new _Type();
-    $('#modal').modal('show');
+    this.showModal = true;
+    this.cdr.detectChanges();
   }
 
   updateItem(_item: _Type) {
     this.isEdit = true;
-    this.tS.getById(this.nameCalog, _item.id!).subscribe((r: any) => {
-      this.item = r;
-      $('#modal').modal('show');
+    this.loading = true;
+    this.tS.getById(this.nameCalog, _item.id!).subscribe({
+      next: (r: any) => {
+        this.item = r;
+        this.loading = false;
+        this.showModal = true;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.cdr.detectChanges();
   }
 
   save() {
     if (this.isEdit) {
-      this.tS.put(this.nameCalog, this.item).subscribe(r => {
-        this.item = r;
-        $('#modal').modal('hide');
-        iziToast.show({
-          message: 'Registro actualizado'
+      this.tS.put(this.nameCalog, this.item).subscribe(() => {
+        this.closeModal();
+        this.getCatlog();
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Concepto actualizado',
+          showConfirmButton: false,
+          timer: 2000
         });
       });
     } else {
-      this.tS.post(this.nameCalog, this.item).subscribe(r => {
-        this.item = r;
-        $('#modal').modal('hide');
-        iziToast.show({
-          message: 'Registro creado'
+      this.tS.post(this.nameCalog, this.item).subscribe(() => {
+        this.closeModal();
+        this.getCatlog();
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Concepto creado',
+          showConfirmButton: false,
+          timer: 2000
         });
       });
     }
   }
 
-  async deleteItem(_item: _Type) {
-    swal.fire({
-      title: 'Alerta!',
-      text: 'Estas seguro de continuar',
-      icon: 'question',
+  deleteItem(_item: _Type) {
+    Swal.fire({
+      title: '¿Eliminar concepto?',
+      html: `<p style="color:#555;font-size:0.95rem">Se eliminará el concepto <strong>${_item.name}</strong>. Esta acción no se puede deshacer.</p>`,
+      icon: 'warning',
       reverseButtons: true,
       allowOutsideClick: false,
       showCancelButton: true,
+      cancelButtonColor: '#bdc3c7',
+      confirmButtonColor: '#e85d5d',
       cancelButtonText: 'Cancelar',
-      confirmButtonText: 'Si, eliminar!'
+      confirmButtonText: 'Sí, eliminar!'
     }).then((result) => {
-      if (result.value) {
-        this.tS.delete(this.nameCalog, _item.id!).subscribe((r: any) => {
+      if (result.isConfirmed) {
+        this.tS.delete(this.nameCalog, _item.id!).subscribe(() => {
           this.getCatlog();
-          iziToast.show({
-            message: 'Registro eliminado'
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Concepto eliminado',
+            showConfirmButton: false,
+            timer: 2000
           });
         });
       }

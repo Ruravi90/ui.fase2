@@ -1,53 +1,61 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { AgentService } from '../../services';
 import { User } from '../../models';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import swal from "sweetalert2";
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
 
-declare var $: any, iziToast: any;
+import Swal from "sweetalert2";
 
 @Component({
-    selector: 'app-agents',
-    imports: [CommonModule, FormsModule, PaginationModule],
-    templateUrl: './agent.component.html'
+  selector: 'app-agents',
+  standalone: true,
+  imports: [CommonModule, FormsModule, PaginationModule],
+  templateUrl: './agent.component.html'
 })
-
 export class AgentComponent implements OnInit {
   public agents: User[] = [];
   public agent: User = new User();
-  public isEdit: boolean = false;
-  public existUser: boolean = false;
+  public isEdit = false;
+  public existUser = false;
+
+  public loading = false;
+  public showModal = false;
 
   private usernameChange: Subject<string> = new Subject();
 
-  constructor(private aS: AgentService) {
-  }
+  constructor(
+    private aS: AgentService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    const that = this;
-    that.getAgents();
-    // generate random values for mainChart
-    $('#modalAgent').on('show.bs.modal', function (event: any) {
-    });
-
-    $('#modalAgent').on('hidden.bs.modal', function (event: any) {
-      that.getAgents();
-    });
+    this.getAgents();
 
     this.usernameChange.pipe(debounceTime(300)).subscribe(() => {
-      this.aS.getExist(this.agent.username!).subscribe((r) => {
-        this.existUser = r;
-      });
+      if (this.agent.username) {
+        this.aS.getExist(this.agent.username).subscribe((r) => {
+          this.existUser = r;
+          this.cdr.detectChanges();
+        });
+      }
     });
   }
 
   getAgents() {
-    this.aS.get().subscribe((r) => {
-      this.agents = r;
+    this.loading = true;
+    this.aS.get().subscribe({
+      next: (r: any) => {
+        this.agents = r;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -57,79 +65,96 @@ export class AgentComponent implements OnInit {
 
   addAgent(): void {
     this.isEdit = false;
+    this.existUser = false;
     this.agent = new User();
-    $('#modalAgent').modal('show');
+    this.showModal = true;
+    this.cdr.detectChanges();
   }
 
   editAgent(c: User): void {
     this.isEdit = true;
-    setTimeout(() => {
-      this.aS.getById(c.id!).subscribe(r => {
+    this.existUser = true; // when editing, we assume valid
+    this.loading = true;
+
+    this.aS.getById(c.id!).subscribe({
+      next: (r: any) => {
         this.agent = r;
-        $('#modalAgent').modal('show');
-      });
-    }, 300);
+        this.loading = false;
+        this.showModal = true;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
-  async deleteAgent(c: User) {
-    swal.fire({
-      title: 'Alerta!',
-      text: 'Estas seguro de continuar',
-      icon: 'question',
+  closeModal() {
+    this.showModal = false;
+    this.cdr.detectChanges();
+  }
+
+  deleteAgent(c: User) {
+    Swal.fire({
+      title: '¿Eliminar agente?',
+      html: `<p style="color:#555;font-size:0.95rem">Se eliminará al agente <b>${c.name} ${c.lastname}</b>. Esta acción no se puede deshacer.</p>`,
+      icon: 'warning',
       reverseButtons: true,
       allowOutsideClick: false,
       showCancelButton: true,
+      cancelButtonColor: '#bdc3c7',
+      confirmButtonColor: '#e85d5d',
       cancelButtonText: 'Cancelar',
-      confirmButtonText: 'Si, eliminar!'
+      confirmButtonText: 'Sí, eliminar!'
     }).then((result) => {
-      if (result.value) {
-        this.aS.delete(c.id!).subscribe(r => {
+      if (result.isConfirmed) {
+        this.aS.delete(c.id!).subscribe(() => {
           this.getAgents();
-          iziToast.show({
-            title: 'Registro eliminado'
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Agente eliminado',
+            showConfirmButton: false,
+            timer: 2000
           });
         });
-      // For more information about handling dismissals please visit
-      // https://sweetalert2.github.io/#handling-dismissals
-      } else if (result.dismiss === swal.DismissReason.cancel) {
-        swal.fire(
-          'Cancelled',
-          'Your imaginary file is safe :)',
-          'error'
-        );
       }
     });
   }
 
   save() {
     if (this.isEdit && this.existUser) {
-      this.aS.put(this.agent).subscribe(r => {
-        if (r === 200) {
-          $('#modalAgent').modal('hide');
-          iziToast.show({
-              title: 'Registro actualizado'
-          });
-        } else {
-          iziToast.show({
-              title: 'No fue posible actualizar el registro',
-              color: 'red'
-          });
+      this.aS.put(this.agent).subscribe({
+        next: (r: any) => {
+          if (r === 200) {
+            this.closeModal();
+            this.getAgents();
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Agente actualizado', showConfirmButton: false, timer: 2000 });
+          } else {
+            Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'No fue posible actualizar', showConfirmButton: false, timer: 3000 });
+          }
+        },
+        error: () => {
+          Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Error al actualizar', showConfirmButton: false, timer: 3000 });
         }
-       });
-    } else {
-      this.aS.post(this.agent).subscribe(r => {
-        if (r === 200) {
-          $('#modalAgent').modal('hide');
-          iziToast.show({
-              title: 'Registro creado'
-          });
-        } else {
-          iziToast.show({
-            title: 'No fue posible crear el registro',
-            color: 'red'
-          });
+      });
+    } else if (!this.isEdit) {
+      this.aS.post(this.agent).subscribe({
+        next: (r: any) => {
+          if (r === 200) {
+            this.closeModal();
+            this.getAgents();
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Agente creado', showConfirmButton: false, timer: 2000 });
+          } else {
+            Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'No fue posible crear', showConfirmButton: false, timer: 3000 });
+          }
+        },
+        error: () => {
+          Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Error al crear', showConfirmButton: false, timer: 3000 });
         }
-       });
+      });
     }
   }
 

@@ -1,39 +1,49 @@
-import { Component, OnInit } from '@angular/core';
-import { PurchaseService, DepartmentService, CreditorService, TypeService } from '../../services';
-import { Purchase, _Type, User, Paginate } from '../../models';
-
-import swal from 'sweetalert2';
-import { Observable } from 'rxjs';
-declare var $: any, iziToast: any;
-
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { Observable } from 'rxjs';
+import Swal from 'sweetalert2';
+
+import { PurchaseService, DepartmentService, CreditorService, TypeService } from '../../services';
+import { Purchase, _Type, User, Paginate } from '../../models';
 
 @Component({
-    selector: 'app-purchases',
-    imports: [CommonModule, FormsModule, NgSelectModule, PaginationModule],
-    templateUrl: 'purchases.component.html',
-    styleUrls: ['./purchases.component.scss']
+  selector: 'app-purchases',
+  standalone: true,
+  imports: [CommonModule, FormsModule, NgSelectModule, PaginationModule],
+  templateUrl: 'purchases.component.html',
+  styleUrls: ['./purchases.component.scss']
 })
 export class PurchasesComponent implements OnInit {
-  public currentUser: User = new User();
-  public purchases: Purchase[] = [];
-  public _purchases: Purchase[] = [];
-  public cmbDepartment$!: Observable<_Type[]>;
-  public cmbCreditors$!: Observable<_Type[]>;
-  public cmbExpenses$!: Observable<_Type[]>;
-  public cmbProducts$!: Observable<_Type[]>;
-  public cmbPills$!: Observable<_Type[]>;
-  public cmbConcepts$!: Observable<_Type[]>;
-  public purchase: Purchase = new Purchase();
-  public isEdit = false;
-  public paginate: Paginate = new Paginate();
-  public filters: any = { isPaid: 'null', perPage:15 };
+  currentUser: User = new User();
+  purchases: Purchase[] = [];
+  _purchases: Purchase[] = [];
+  cmbDepartment$!: Observable<_Type[]>;
+  cmbCreditors$!: Observable<_Type[]>;
+  cmbExpenses$!: Observable<_Type[]>;
+  cmbProducts$!: Observable<_Type[]>;
+  cmbPills$!: Observable<_Type[]>;
+  cmbConcepts$!: Observable<_Type[]>;
+  purchase: Purchase = new Purchase();
+  isEdit = false;
+  paginate: Paginate = new Paginate();
+  filters: any = { isPaid: 'null', perPage: 15 };
+  saving = false;
+  loading = false;
 
+  get cartTotal(): number {
+    return this._purchases.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+  }
 
-  constructor(private pS: PurchaseService, private dS: DepartmentService, private cS: CreditorService, private tS: TypeService) {
+  constructor(
+    private pS: PurchaseService,
+    private dS: DepartmentService,
+    private cS: CreditorService,
+    private tS: TypeService,
+    private cdr: ChangeDetectorRef
+  ) {
     this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
   }
 
@@ -43,16 +53,34 @@ export class PurchasesComponent implements OnInit {
   }
 
   getCatlog() {
-    this.pS.paginate(this.filters).subscribe(r => {
-      this.paginate = r;
-      this.purchases = r.data;
+    this.loading = true;
+    this.pS.paginate(this.filters).subscribe({
+      next: (r: any) => {
+        this.paginate = r;
+        this.purchases = r.data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
-  pageChanged(event: any){
-    this.pS.getForUrl(event.page, this.filters).subscribe(r => {
-      this.paginate = r;
-      this.purchases = r.data;
+  pageChanged(event: any) {
+    this.loading = true;
+    this.pS.getForUrl(event.page, this.filters).subscribe({
+      next: (r: any) => {
+        this.paginate = r;
+        this.purchases = r.data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -74,6 +102,10 @@ export class PurchasesComponent implements OnInit {
           this.purchase.user_id = this.currentUser.id;
           this._purchases.push(Object.assign({}, this.purchase));
           this.clearForm();
+          Swal.fire({
+            toast: true, position: 'top-end', icon: 'success',
+            title: 'Egreso añadido al carrito', showConfirmButton: false, timer: 1500
+          });
         }, 500);
       });
     });
@@ -87,35 +119,44 @@ export class PurchasesComponent implements OnInit {
     this.setCombos();
   }
 
-  async delete(index: number) {
-    swal.fire({
-      title: 'Alerta!',
-      text: 'Estas seguro de continuar',
+  delete(index: number) {
+    Swal.fire({
+      title: '¿Eliminar del carrito?',
+      text: 'Se quitará este egreso de la lista.',
       icon: 'question',
-      reverseButtons: true,
-      allowOutsideClick: false,
       showCancelButton: true,
+      confirmButtonColor: '#e85d5d',
+      cancelButtonColor: '#bdc3c7',
+      confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
-      confirmButtonText: 'Si, eliminar!'
-    }).then((result) => {
-      if (result.value) {
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
         this._purchases.splice(index, 1);
       }
     });
   }
 
-  toggleIsPaid(e: any){
+  toggleIsPaid(e: any) {
     this.purchase.is_paid = e.target.checked;
   }
 
   save() {
-    this.pS.post(this._purchases).subscribe(r => {
-      iziToast.show({
-        message: 'Registro creado'
-      });
-      this._purchases = [];
-      this.getCatlog();
+    this.saving = true;
+    this.pS.post(this._purchases).subscribe({
+      next: () => {
+        this.saving = false;
+        this._purchases = [];
+        this.getCatlog();
+        Swal.fire({
+          toast: true, position: 'top-end', icon: 'success',
+          title: 'Egresos registrados correctamente', showConfirmButton: false, timer: 2500
+        });
+      },
+      error: () => {
+        this.saving = false;
+        Swal.fire('Error', 'No se pudieron guardar los egresos.', 'error');
+      }
     });
   }
-
 }

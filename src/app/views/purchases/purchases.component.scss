@@ -196,3 +196,27 @@
 .text-right { text-align: right; }
 .text-center { text-align: center; }
 .w-100 { width: 100%; }
+
+/* Cart Total Strip */
+.cart-total-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(132, 165, 157, 0.08);
+  border: 1px solid rgba(132, 165, 157, 0.2);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.cart-total-label {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #8C9C93);
+  font-weight: 500;
+}
+
+.cart-total-amount {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-primary, #84A59D);
+}

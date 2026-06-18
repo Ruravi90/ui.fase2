@@ -1,42 +1,51 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ProductsInventaryService, TypeService } from '../../services';
 import { ProductsInventory, _Type } from '../../models';
 
-import swal from 'sweetalert2';
+import Swal from 'sweetalert2';
 import { Observable } from 'rxjs';
-declare var $: any, iziToast: any;
-
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 @Component({
-    selector: 'app-products-inventory',
-    imports: [CommonModule, FormsModule, NgSelectModule, PaginationModule],
-    templateUrl: 'products_inventory.component.html'
+  selector: 'app-products-inventory',
+  standalone: true,
+  imports: [CommonModule, FormsModule, NgSelectModule, PaginationModule],
+  templateUrl: './products_inventory.component.html'
 })
 export class ProductsInventoryComponent implements OnInit {
   public inventory: ProductsInventory[] = [];
   public cmbProducts$!: Observable<_Type[]>;
   public item: ProductsInventory = new ProductsInventory();
   public isEdit = false;
-  constructor(private pS: ProductsInventaryService, private tS: TypeService) {
-  }
+
+  public loading = false;
+  public showModal = false;
+
+  constructor(
+    private pS: ProductsInventaryService, 
+    private tS: TypeService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-    // generate random values for mainChart
     this.getCatlog();
-    // tslint:disable-next-line:prefer-const
-    let that = this;
-    $('#modal').on('hidden.bs.modal', function (event: any) {
-      that.getCatlog();
-    });
   }
 
   getCatlog() {
-    this.pS.getAll().subscribe(r => {
-      this.inventory = r;
+    this.loading = true;
+    this.pS.getAll().subscribe({
+      next: (r: any) => {
+        this.inventory = r;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -44,55 +53,88 @@ export class ProductsInventoryComponent implements OnInit {
     this.isEdit = false;
     this.item = new ProductsInventory();
     this.cmbProducts$ = this.tS.getAll('cat_products');
-    $('#modal').modal('show');
+    this.showModal = true;
+    this.cdr.detectChanges();
   }
 
   update(_item: ProductsInventory) {
     this.isEdit = true;
     this.cmbProducts$ = this.tS.getAll('cat_products');
-    this.pS.getById(_item.id!).subscribe(r => {
-      this.item = r;
-      $('#modal').modal('show');
+    this.loading = true;
+
+    this.pS.getById(_item.id!).subscribe({
+      next: (r: any) => {
+        this.item = r;
+        this.loading = false;
+        this.showModal = true;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.cdr.detectChanges();
   }
 
   save() {
     this.item.product_id = this.item.product?.id;
     if (this.isEdit) {
-      this.pS.put(this.item).subscribe(r => {
-        this.item = r;
-        $('#modal').modal('hide');
-        iziToast.show({
-          message: 'Registro actualizado'
+      this.pS.put(this.item).subscribe(() => {
+        this.closeModal();
+        this.getCatlog();
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Stock actualizado',
+          showConfirmButton: false,
+          timer: 2000
         });
       });
     } else {
-      this.pS.post(this.item).subscribe(r => {
-        this.item = r;
-        $('#modal').modal('hide');
-        iziToast.show({
-          message: 'Registro creado'
+      this.pS.post(this.item).subscribe(() => {
+        this.closeModal();
+        this.getCatlog();
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Stock creado',
+          showConfirmButton: false,
+          timer: 2000
         });
       });
     }
   }
 
-  async delete(_item: _Type) {
-    swal.fire({
-      title: 'Alerta!',
-      text: 'Estas seguro de continuar',
-      icon: 'question',
+  delete(_item: _Type) {
+    Swal.fire({
+      title: '¿Eliminar del inventario?',
+      html: `<p style="color:#555;font-size:0.95rem">Se eliminará este registro de inventario. Esta acción no se puede deshacer.</p>`,
+      icon: 'warning',
       reverseButtons: true,
       allowOutsideClick: false,
       showCancelButton: true,
+      cancelButtonColor: '#bdc3c7',
+      confirmButtonColor: '#e85d5d',
       cancelButtonText: 'Cancelar',
-      confirmButtonText: 'Si, eliminar!'
+      confirmButtonText: 'Sí, eliminar!'
     }).then((result) => {
-      if (result.value) {
-        this.pS.delete(_item.id!).subscribe(r => {
+      if (result.isConfirmed) {
+        this.pS.delete(_item.id!).subscribe(() => {
           this.getCatlog();
-          iziToast.show({
-            message: 'Registro eliminado'
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Registro eliminado',
+            showConfirmButton: false,
+            timer: 2000
           });
         });
       }

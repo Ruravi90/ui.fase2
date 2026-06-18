@@ -409,6 +409,7 @@ export class SaleComponent implements OnInit {
         this.printSale!.sumTotal = (this.printSale!.sumTotal || 0) + Number(e.amount);
       });
 
+      this.cdr.detectChanges();
       setTimeout(() => {
         this.printTicket();
       }, 500);
@@ -461,6 +462,7 @@ export class SaleComponent implements OnInit {
 
         this.getSalesForDay();
         if (this.cuteSales !== null) {
+          this.cdr.detectChanges();
           setTimeout(() => {
             this.isBusy = false;
             that.printTicket();
@@ -490,6 +492,7 @@ export class SaleComponent implements OnInit {
       doc.write(`
         <html>
           <head>
+            <base href="${window.location.origin}/">
             <title>Imprimiendo Ticket...</title>
             <link rel="stylesheet" type="text/css" href="assets/css/print.css">
           </head>

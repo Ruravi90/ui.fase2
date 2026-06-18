@@ -20,6 +20,7 @@ import { SaleComponent } from '../../views/sale/sale.component';
 import { SalesComponent } from '../../views/sales/sales.component';
 import { PackagesComponent } from '../../views/packages/packages.component';
 import { BoxComponent } from '../../views/box/box.component';
+import { ScheduleComponent } from '../../views/schedule/schedule.component';
 
 @NgModule({
   imports: [
@@ -40,7 +41,8 @@ import { BoxComponent } from '../../views/box/box.component';
     ClientsComponent,
     BoxComponent,
     SalesComponent,
-    SaleComponent
+    SaleComponent,
+    ScheduleComponent
   ],
   declarations: []
 })

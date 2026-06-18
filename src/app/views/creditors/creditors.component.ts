@@ -1,115 +1,160 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CreditorService } from '../../services';
 import { Creditor } from '../../models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
 
-import swal from 'sweetalert2';
-import { Subject, Observable } from 'rxjs';
-declare var $: any, iziToast: any;
+import Swal from 'sweetalert2';
 
 @Component({
-    selector: 'app-creditors',
-    imports: [CommonModule, FormsModule, PaginationModule],
-    templateUrl: 'creditors.component.html'
+  selector: 'app-creditors',
+  standalone: true,
+  imports: [CommonModule, FormsModule, PaginationModule],
+  templateUrl: './creditors.component.html'
 })
-
 export class CreditorsComponent implements OnInit {
-  public creditors$!: Observable<Creditor[]>;
+  public creditors: Creditor[] = [];
   public model: Creditor = new Creditor();
-  public isEdit: Boolean = false;
+  public isEdit = false;
+
+  public loading = false;
+  public showModal = false;
 
   constructor(
-    private cS: CreditorService) {
-  }
+    private cS: CreditorService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.getCreditors();
-    const that = this;
-    $('#modal').on('hidden.bs.modal', function (event: any) {
-      that.getCreditors();
-    });
   }
 
   getCreditors() {
-    this.creditors$ = this.cS.get();
-  }
-
-  save() {
-    if (this.isEdit) {
-      this.cS.put(this.model).subscribe(r => {
-        this.getCreditors();
-        $('#modal').modal('hide');
-        iziToast.show({
-            title: 'Registro actualizado'
-        });
-       }, e =>{
-        iziToast.show({
-          title: 'No fue posible actualizar el registro',
-          color: 'red'
-      });
-       });
-    } else {
-      this.cS.post(this.model).subscribe(r => {
-        this.getCreditors();
-        $('#modal').modal('hide');
-        iziToast.show({
-            title: 'Registro creado'
-        });
-       },e =>{
-        iziToast.show({
-          title: 'No fue posible crear el registro',
-          color: 'red'
-        });
-       });
-    }
+    this.loading = true;
+    this.cS.get().subscribe({
+      next: (r: any) => {
+        this.creditors = r;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   add(): void {
     this.isEdit = false;
     this.model = new Creditor();
-    $('#modal').modal('show');
+    this.showModal = true;
+    this.cdr.detectChanges();
   }
 
   edit(c: Creditor): void {
     this.isEdit = true;
-    setTimeout(() => {
-      this.cS.getById(c.id!).subscribe(r => {
+    this.loading = true;
+
+    this.cS.getById(c.id!).subscribe({
+      next: (r: any) => {
         this.model = r;
-        $('#modal').modal('show');
-      });
-    }, 300);
+        this.loading = false;
+        this.showModal = true;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
-  async delete(c: Creditor) {
-    swal.fire({
-      title: 'Alerta!',
-      text: 'Estas seguro de continuar',
-      icon: 'question',
+  closeModal() {
+    this.showModal = false;
+    this.cdr.detectChanges();
+  }
+
+  save() {
+    if (this.isEdit) {
+      this.cS.put(this.model).subscribe({
+        next: () => {
+          this.closeModal();
+          this.getCreditors();
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Proveedor actualizado',
+            showConfirmButton: false,
+            timer: 2000
+          });
+        },
+        error: () => {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'No fue posible actualizar el registro',
+            showConfirmButton: false,
+            timer: 3000
+          });
+        }
+      });
+    } else {
+      this.cS.post(this.model).subscribe({
+        next: () => {
+          this.closeModal();
+          this.getCreditors();
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Proveedor creado',
+            showConfirmButton: false,
+            timer: 2000
+          });
+        },
+        error: () => {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'No fue posible crear el registro',
+            showConfirmButton: false,
+            timer: 3000
+          });
+        }
+      });
+    }
+  }
+
+  delete(c: Creditor) {
+    Swal.fire({
+      title: '¿Eliminar proveedor?',
+      html: `<p style="color:#555;font-size:0.95rem">Se eliminará al proveedor <b>${c.business_name}</b>. Esta acción no se puede deshacer.</p>`,
+      icon: 'warning',
       reverseButtons: true,
       allowOutsideClick: false,
       showCancelButton: true,
+      cancelButtonColor: '#bdc3c7',
+      confirmButtonColor: '#e85d5d',
       cancelButtonText: 'Cancelar',
-      confirmButtonText: 'Si, eliminar!'
+      confirmButtonText: 'Sí, eliminar!'
     }).then((result) => {
-      if (result.value) {
-        this.cS.delete(c.id!).subscribe(r => {
+      if (result.isConfirmed) {
+        this.cS.delete(c.id!).subscribe(() => {
           this.getCreditors();
-          iziToast.show({
-            title: 'Registro eliminado'
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Registro eliminado',
+            showConfirmButton: false,
+            timer: 2000
           });
         });
-      // For more information about handling dismissals please visit
-      // https://sweetalert2.github.io/#handling-dismissals
       }
-      // else if (result.dismiss === swal.DismissReason.cancel) {
-      //  swal.fire(
-      //    'Cancelled',
-      //    'Your imaginary file is safe :)',
-      //    'error'
-      //  );
-      //}
     });
   }
 }

@@ -227,7 +227,16 @@ export const mockRoutes: MockRoute[] = [
   {
     method: 'POST',
     pattern: /^purchases\/paginate$/,
-    response: req => makePaginate(purchases, req)
+    response: (req) => {
+      const isPaid = req.body?.isPaid;
+      let result = purchases;
+      if (isPaid === 0 || isPaid === '0') {
+        result = purchases.filter(p => !p.is_paid);
+      } else if (isPaid === 1 || isPaid === '1') {
+        result = purchases.filter(p => p.is_paid);
+      }
+      return makePaginate(result, req);
+    }
   },
   {
     method: 'POST',

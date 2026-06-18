@@ -48,10 +48,9 @@ import { ClientsComponent } from '../../views/clients/clients.component';
     RolesComponent,
     CreditorsComponent,
     ClientsComponent,
-    AgentComponent
-  ],
-  declarations: [
+    AgentComponent,
     DepartmentsComponent
-  ]
+  ],
+  declarations: []
 })
 export class AdminModule { }

@@ -1,167 +1,186 @@
 <div class="animated fadeIn">
   <div class="row justify-content-center">
-    <div class="col-lg-5">
-      <div class="card">
-        <div class="card-header">
-          <div class="row">
-            <div class="col-9">
-              <h3>Paquetes</h3>
-            </div>
-            <div class="col-3">
-              <button type="button" class="btn btn-sm btn-primary float-right"  (click)="addItem()">
-                Nuevo
+    <div class="col-lg-8">
+
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">
+          Catálogo de Paquetes
+        </h4>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <div style="position: relative;">
+            <input class="serene-input" placeholder="Buscar paquete..." name="shared" [(ngModel)]="filters.name" (keyup)="filterName($event)" style="padding-right: 2rem;" />
+            @if (filters.name !== '') {
+              <button class="btn-serene-icon-danger" style="position: absolute; right: 5px; top: 5px; padding: 2px 6px;" (click)="filters.name = '';getCatlog()" title="Limpiar búsqueda">
+                <i class="fa fa-times"></i>
               </button>
-            </div>
+            }
           </div>
-          <div class="row">
-            <div class="col-10">
-              <input class="form-control" placeholder="Buscar cliente" name="shared" [(ngModel)]="filters.name" #sharedModel="ngModel" (keyup)="filterName($event)"/>
-            </div>
-            <div class="col-2">
-              @if (filters.name !== '') {
-                <button type="button" class="btn btn-sm btn-danger ml-1" (click)="filters.name = '';getCatlog()">
-                  <i class="fa fa-trash"></i>
-                </button>
-              }
-            </div>
-          </div>
-        </div>
-        <ul class="list-group">
-          @for (c of catalog; track c) {
-            <li class="list-group-item">
-              {{ c.name }}
-              <button class="btn btn-sm btn-danger ml-2 float-right" (click)="deleteItem(c)">
-                <i class="fa fa-trash"></i>
-              </button>
-              <button class="btn btn-sm btn-default float-right" (click)="updateItem(c)">
-                <i class="fa fa-edit"></i>
-              </button>
-            </li>
-          }
-        </ul>
-        <div class="card-footer justify-content-center">
-          <pagination [boundaryLinks]="true" [totalItems]="paginate.total || 0" [maxSize]="9" [itemsPerPage]="filters.perPage"  (pageChanged)="pageChanged($event)"
-            previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
-          </pagination>
+          <button type="button" class="btn-serene-primary" (click)="addItem()">
+            Nuevo Paquete
+          </button>
         </div>
       </div>
+
+      <!-- Content -->
+      <div>
+        @if (loading) {
+          <div class="box-loading-skeleton" style="margin-bottom: 1.5rem;">
+            <div class="skeleton-line" style="width: 30%; height: 24px; margin-bottom: 16px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 60px; margin-bottom: 12px; border-radius: 8px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 60px; margin-bottom: 12px; border-radius: 8px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 60px; border-radius: 8px;"></div>
+          </div>
+        } @else {
+          @if (catalog.length === 0) {
+            <div style="text-align: center; padding: 3rem; color: var(--color-text-muted);">
+              No se encontraron paquetes.
+            </div>
+          }
+
+          @for (c of catalog; track c.id) {
+            <div class="sale-day-card" style="margin-bottom: 0.75rem; padding: 1rem 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex: 2;">
+                  <span class="client-name" style="font-size: 1.1rem;">{{ c.name }}</span>
+                  <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 0.2rem;">
+                    Sesiones: {{ c.session_count || 0 }}
+                  </div>
+                </div>
+                <div style="flex: 1; text-align: right; padding-right: 2rem;">
+                  <span class="price-value">{{ c.price | currency:'MXN ':'symbol':'1.2-2' }}</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="btn-serene-icon-primary" title="Editar" (click)="updateItem(c)">
+                    <i class="fa fa-edit"></i>
+                  </button>
+                  <button class="btn-serene-icon-danger" title="Eliminar" (click)="deleteItem(c)">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Pagination -->
+      <div style="padding: 1rem 0; display: flex; justify-content: center;">
+        <pagination 
+          [boundaryLinks]="true" 
+          [totalItems]="paginate.total || 0" 
+          [maxSize]="9" 
+          [itemsPerPage]="filters.perPage"  
+          (pageChanged)="pageChanged($event)"
+          previousText="&lsaquo;" 
+          nextText="&rsaquo;" 
+          firstText="&laquo;" 
+          lastText="&raquo;">
+        </pagination>
+      </div>
+
     </div>
   </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-  <form class="modal-dialog" role="document" #form="ngForm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalLabel">{{(isEdit?'Editar paquete':'Agregar paquete')}}</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+<!-- Modal Nativo -->
+<div class="sc-modal-overlay" [class.active]="showModal" (click)="closeModal()">
+  <div class="sc-modal-panel" style="max-width: 600px;" (click)="$event.stopPropagation()">
+    <form #form="ngForm" (ngSubmit)="save()">
+      <div class="sc-modal-header">
+        <h4 class="sc-modal-title">{{ isEdit ? 'Editar Paquete' : 'Nuevo Paquete' }}</h4>
+        <button type="button" class="sc-close-btn" (click)="closeModal()">✕</button>
       </div>
-      <div class="modal-body">
+      
+      <div class="sc-modal-body" style="max-height: 65vh; overflow-y: auto;">
+        <!-- Datos básicos -->
         <div class="row">
-          <div class="col-lg-4">
-            <input type="text" name="name" #name="ngModel" class="form-control" [(ngModel)]="item.name" placeholder="Nombre" required>
+          <div class="col-lg-12" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Nombre del paquete</label>
+            <input class="serene-input" placeholder="Ej. Paquete Novia" name="name" [(ngModel)]="item.name" #name="ngModel" required>
           </div>
-          <div class="col-lg-4">
-            <input type="text" name="price" #price="ngModel" class="form-control" [(ngModel)]="item.price" placeholder="Precio" required>
+          <div class="col-lg-6" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Precio</label>
+            <input type="number" min="0" class="serene-input" placeholder="Ej. 2500" name="price" [(ngModel)]="item.price" #price="ngModel" required>
           </div>
-          <div class="col-lg-4">
-            <input type="number" name="sessionCount" #sessionCount="ngModel" class="form-control" [(ngModel)]="item.session_count" placeholder="Sesiones" required>
-          </div>
-        </div>
-        <div class="row mt-1">
-          <div class="col-lg-12">
-            <label>Elementos adicionales</label>
+          <div class="col-lg-6" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Número de Sesiones</label>
+            <input type="number" min="1" class="serene-input" placeholder="Ej. 5" name="sessionCount" [(ngModel)]="item.session_count" #sessionCount="ngModel" required>
           </div>
         </div>
-        <div class="row mt-1">
-          <div class="col-lg-12">
-            <div class="form-check form-check-inline">
-              <input
-                class="form-check-input is-invalid"
-                type="radio"
-                id="NA"
-                name="optElements"
-                [(ngModel)]="optElements"
-                #na="ngModel"
-                value="na"
-                checked
-                (ngModelChange)="changeOptions()">
-              <label class="form-check-label" for="NA">N/A</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input is-valid"
-                type="radio"
-                id="isCompleted"
-                name="optionsRadios"
-                #pill="ngModel"
-                [(ngModel)]="optElements"
-                value="pill"
-                (ngModelChange)="changeOptions()">
-              <label class="form-check-label" for="isCompleted">Pastillas</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input is-valid"
-                type="radio"
-                id="isCompleted"
-                name="optionsRadios"
-                #products="ngModel"
-                [(ngModel)]="optElements"
-                value="products"
-                (ngModelChange)="changeOptions()">
-              <label class="form-check-label" for="isCompleted">Productos</label>
-            </div>
-          </div>
+
+        <hr style="border-color: var(--color-border); margin: 1.5rem 0;" />
+
+        <!-- Adicionales / Complementos -->
+        <label class="form-label" style="color: var(--color-text-primary); font-size: 1rem; margin-bottom: 1rem;">Elementos Adicionales (Opcional)</label>
+        
+        <div class="serene-radio-group" style="margin-bottom: 1.5rem; justify-content: flex-start;">
+          <label class="radio-label" [class.active]="optElements === 'na'">
+            <input type="radio" name="optElements" [(ngModel)]="optElements" value="na" (ngModelChange)="changeOptions()" style="display:none;">
+            Ninguno
+          </label>
+          <label class="radio-label" [class.active]="optElements === 'pill'">
+            <input type="radio" name="optElements" [(ngModel)]="optElements" value="pill" (ngModelChange)="changeOptions()" style="display:none;">
+            Pastillas
+          </label>
+          <label class="radio-label" [class.active]="optElements === 'products'">
+            <input type="radio" name="optElements" [(ngModel)]="optElements" value="products" (ngModelChange)="changeOptions()" style="display:none;">
+            Productos
+          </label>
         </div>
+
         @if (elements.length > 0) {
-          <div class="row mt-1">
+          <div class="row align-items-end" style="background: rgba(132, 165, 157, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
             <div class="col-lg-6">
+              <label class="form-label" style="font-size: 0.85rem;">Selecciona el elemento</label>
               <ng-select
                 [items]="elements"
                 bindLabel="name"
                 bindId="id"
-                placeholder="Seleciona..."
+                placeholder="Buscar..."
                 name="elementId"
                 [(ngModel)]="element"
                 #elementId="ngModel" >
               </ng-select>
             </div>
             <div class="col-lg-4">
-              <input type="number" class="form-control" name="count" #count="ngModel" [(ngModel)]="element.count"/>
+              <label class="form-label" style="font-size: 0.85rem;">Cantidad por sesión</label>
+              <input type="number" min="1" class="serene-input" name="count" #count="ngModel" [(ngModel)]="element.count"/>
             </div>
-            <div class="col-lg-2">
-              <button class="btn btn-primary btn-sm" (click)="addElements()"><i class="fas fa-plus"></i></button>
+            <div class="col-lg-2 text-right">
+              <button type="button" class="sc-btn sc-btn-primary" style="padding: 0.6rem 1rem;" (click)="addElements()" [disabled]="!element?.id">
+                <i class="fas fa-plus"></i>
+              </button>
             </div>
           </div>
         }
-        <div class="row mt-1">
-          <div class="col-lg-12">
-            <ul class="list-group">
-              @for (c of item.complements; track c; let i = $index) {
-                <li class="list-group-item">
-                  Cant: <strong>{{ c.count }} </strong>
-                  @if (c.cat_pill) {
-                    <span>{{ c.cat_pill.name }}</span>
-                  }
-                  @if (c.cat_product) {
-                    <span>{{ c.cat_product.name }}</span>
-                  }
-                  <span> por sesión</span>
-                  <button class="btn btn-sm btn-danger ml-2 float-right" (click)="deleteElements(i)">
-                    <i class="fa fa-trash"></i>
-                  </button>
-                </li>
-              }
-            </ul>
+
+        <!-- Lista de complementos añadidos -->
+        @if (item.complements && item.complements.length > 0) {
+          <div class="sale-day-body" style="background: var(--color-bg); padding: 1rem; border-radius: 8px; border: 1px solid var(--color-border);">
+            @for (c of item.complements; track c; let i = $index) {
+              <div class="sale-item-detail" style="border: none; padding: 0.5rem 0; display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex: 1;">
+                  <span style="font-weight: 500;">
+                    @if (c.cat_pill) { {{ c.cat_pill.name }} }
+                    @if (c.cat_product) { {{ c.cat_product.name }} }
+                  </span>
+                  <br>
+                  <small style="color: var(--color-text-muted);">Cant: {{ c.count }} por sesión</small>
+                </div>
+                <button type="button" class="btn-serene-icon-danger" (click)="deleteElements(i)" title="Quitar">
+                  <i class="fa fa-times"></i>
+                </button>
+              </div>
+            }
           </div>
-        </div>
+        }
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-primary" [disabled]="form.invalid" (click)="save()">Guardar</button>
+      
+      <div class="sc-modal-footer">
+        <button type="button" class="sc-btn sc-btn-ghost" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="sc-btn sc-btn-primary" [disabled]="form.invalid">Guardar</button>
       </div>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>

@@ -58,6 +58,12 @@ export class DefaultLayoutComponent {
           children: null
         },
         {
+          name: 'Agenda',
+          url: '/page/schedule',
+          icon: 'fas fa-calendar-alt',
+          children: null
+        },
+        {
           name: 'Ventas',
           url: '/page/sales',
           icon: 'fas fa-piggy-bank',

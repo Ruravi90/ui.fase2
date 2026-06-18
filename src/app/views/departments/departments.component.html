@@ -1,3 +1,80 @@
 <div class="animated fadeIn">
-    balance
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">
+          Departamentos
+        </h4>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <button type="button" class="btn-serene-primary" (click)="add()">
+            Nuevo Departamento
+          </button>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div>
+        @if (loading) {
+          <div class="box-loading-skeleton" style="margin-bottom: 1.5rem;">
+            <div class="skeleton-line" style="width: 30%; height: 24px; margin-bottom: 16px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 60px; margin-bottom: 12px; border-radius: 8px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 60px; margin-bottom: 12px; border-radius: 8px;"></div>
+          </div>
+        } @else {
+          @if (departments.length === 0) {
+            <div style="text-align: center; padding: 3rem; color: var(--color-text-muted);">
+              No hay departamentos registrados.
+            </div>
+          }
+
+          @for (d of departments; track d.id) {
+            <div class="sale-day-card" style="margin-bottom: 0.75rem; padding: 1rem 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex: 1;">
+                  <span class="client-name" style="font-size: 1.1rem;">{{ d.name }}</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="btn-serene-icon-primary" title="Editar" (click)="update(d)">
+                    <i class="fa fa-edit"></i>
+                  </button>
+                  <button class="btn-serene-icon-danger" title="Eliminar" (click)="delete(d)">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nativo -->
+<div class="sc-modal-overlay" [class.active]="showModal" (click)="closeModal()">
+  <div class="sc-modal-panel" (click)="$event.stopPropagation()">
+    <form #form="ngForm" (ngSubmit)="save()">
+      <div class="sc-modal-header">
+        <h4 class="sc-modal-title">{{ isEdit ? 'Editar Departamento' : 'Nuevo Departamento' }}</h4>
+        <button type="button" class="sc-close-btn" (click)="closeModal()">✕</button>
+      </div>
+      
+      <div class="sc-modal-body">
+        <div class="row">
+          <div class="col-lg-12" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Nombre del Departamento</label>
+            <input type="text" class="serene-input" name="name" [(ngModel)]="item.name" #name="ngModel" placeholder="Ej. Ventas" required />
+          </div>
+        </div>
+      </div>
+      
+      <div class="sc-modal-footer">
+        <button type="button" class="sc-btn sc-btn-ghost" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="sc-btn sc-btn-primary" [disabled]="form.invalid">Guardar</button>
+      </div>
+    </form>
+  </div>
 </div>

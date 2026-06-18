@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BalanceService } from '../../services';
 
@@ -12,7 +12,7 @@ import { forkJoin } from 'rxjs';
     templateUrl: 'dashboard.component.html',
     styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   salesChart: any[] = [];
   sales: any[] = [];
   packagesChart: any[] = [];
@@ -27,6 +27,14 @@ export class DashboardComponent implements OnInit {
   activity: any[] = [];
   alerts: any[] = [];
   isLoading = true;
+
+  // Infinite scroll
+  activityPage = 1;
+  activityHasMore = true;
+  activityLoading = false;
+  private sentinelObserver?: IntersectionObserver;
+
+  @ViewChild('activitySentinel') activitySentinel?: ElementRef;
 
   constructor(private bS: BalanceService, private cdr: ChangeDetectorRef) {}
 
@@ -49,7 +57,8 @@ export class DashboardComponent implements OnInit {
       this.packages = res.packages || [];
       this.services = res.services || [];
       this.topSellers = res.topSellers || { packages: [], services: [], products: [] };
-      this.activity = res.activity || [];
+      this.activity = res.activity?.data || [];
+      this.activityHasMore = res.activity?.has_more ?? false;
       this.alerts = res.alerts || [];
 
       this.salesChart = this.sales.map((element: any) => ({
@@ -57,12 +66,12 @@ export class DashboardComponent implements OnInit {
         value: Number(element.sales || 0)
       }));
 
-      this.packagesChart = this.packages.map((element: any) => ({
+      this.packagesChart = this.packages.slice(0, 5).map((element: any) => ({
         name: element.cat_package ? element.cat_package.name : 'Paquete',
         value: Number(element.sales || 0)
       }));
 
-      this.servicesChart = this.services.map((element: any) => ({
+      this.servicesChart = this.services.slice(0, 5).map((element: any) => ({
         name: element.cat_service ? element.cat_service.name : 'Servicio',
         value: Number(element.sales || 0)
       }));
@@ -78,7 +87,7 @@ export class DashboardComponent implements OnInit {
       }));
 
       this.kpis = [
-        { label: 'Ingresos hoy', value: this.summary.revenueToday || 0, format: 'currency', icon: 'fa-arrow-trend-up', tone: 'mint' },
+        { label: 'Ingresos hoy', value: this.summary.revenueToday || 0, format: 'currency', icon: 'fa-chart-line', tone: 'mint' },
         { label: 'Ventas del mes', value: this.summary.salesMonth || 0, format: 'number', icon: 'fa-receipt', tone: 'rose' },
         { label: 'Por cobrar', value: this.summary.pendingAmount || 0, format: 'currency', icon: 'fa-clock', tone: 'amber' },
         { label: 'Paquetes activos', value: this.summary.activePackages || 0, format: 'number', icon: 'fa-layer-group', tone: 'sage' },
@@ -87,11 +96,47 @@ export class DashboardComponent implements OnInit {
 
       this.isLoading = false;
       this.cdr.detectChanges();
+      // Setup infinite scroll after initial load
+      setTimeout(() => this.setupSentinel(), 100);
     }, (error) => {
       console.error('Error in forkJoin:', error);
       this.isLoading = false;
       this.cdr.detectChanges();
     });
+  }
+
+  ngAfterViewInit(): void {
+    // Sentinel may not exist until data loads; setupSentinel is called after load
+  }
+
+  setupSentinel(): void {
+    if (this.sentinelObserver) this.sentinelObserver.disconnect();
+    const sentinel = document.getElementById('activity-sentinel');
+    if (!sentinel) return;
+    this.sentinelObserver = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && this.activityHasMore && !this.activityLoading) {
+        this.loadMoreActivity();
+      }
+    }, { threshold: 0.1 });
+    this.sentinelObserver.observe(sentinel);
+  }
+
+  loadMoreActivity(): void {
+    if (!this.activityHasMore || this.activityLoading) return;
+    this.activityLoading = true;
+    this.activityPage++;
+    this.bS.getRecentActivity(this.activityPage).subscribe((res: any) => {
+      this.activity = [...this.activity, ...(res.data || [])];
+      this.activityHasMore = res.has_more;
+      this.activityLoading = false;
+      this.cdr.detectChanges();
+    }, () => {
+      this.activityLoading = false;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.sentinelObserver) this.sentinelObserver.disconnect();
   }
 
   setLabelFormatting(c: any): string {

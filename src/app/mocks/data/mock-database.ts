@@ -443,9 +443,39 @@ export const purchases = [
   }
 ];
 
+const nextDays = (days: number) => new Date(Date.now() + days * 86400000).toISOString();
+
 export const schedules = [
-  { id: 1, client_id: 1, client: clients[0], user_id: 3, user: users[2], date: daysAgo(-1), description: 'Seguimiento facial' },
-  { id: 2, client_id: 4, client: clients[3], user_id: 3, user: users[2], date: daysAgo(-3), description: 'Sesion laser' }
+  {
+    id: 1, title: 'Limpieza Facial - Maria G.', client_id: 1, client: clients[0],
+    start: new Date(Date.now() + 1 * 86400000).toISOString().substring(0, 10) + 'T10:00:00',
+    end:   new Date(Date.now() + 1 * 86400000).toISOString().substring(0, 10) + 'T11:00:00',
+    color: '#a2d2ff', description: 'Limpieza facial profunda, 1 sesión', allDay: 0
+  },
+  {
+    id: 2, title: 'Masaje Relajante - Sofia R.', client_id: 4, client: clients[3],
+    start: new Date(Date.now() + 2 * 86400000).toISOString().substring(0, 10) + 'T14:30:00',
+    end:   new Date(Date.now() + 2 * 86400000).toISOString().substring(0, 10) + 'T15:30:00',
+    color: '#ffc8dd', description: 'Masaje relajante zona espalda', allDay: 0
+  },
+  {
+    id: 3, title: 'Radiofrecuencia - Ana L.', client_id: 3, client: clients[2],
+    start: new Date(Date.now() + 3 * 86400000).toISOString().substring(0, 10) + 'T09:00:00',
+    end:   new Date(Date.now() + 3 * 86400000).toISOString().substring(0, 10) + 'T10:00:00',
+    color: '#caffbf', description: 'Radiofrecuencia facial sesión 2', allDay: 0
+  },
+  {
+    id: 4, title: 'Depilación Láser - Roberto M.', client_id: 2, client: clients[1],
+    start: new Date(Date.now() + 5 * 86400000).toISOString().substring(0, 10) + 'T11:00:00',
+    end:   new Date(Date.now() + 5 * 86400000).toISOString().substring(0, 10) + 'T12:00:00',
+    color: '#ffadad', description: 'Sesión 3 - depilación axilas', allDay: 0
+  },
+  {
+    id: 5, title: 'Consulta - Maria G.', client_id: 1, client: clients[0],
+    start: new Date(Date.now()).toISOString().substring(0, 10) + 'T16:00:00',
+    end:   new Date(Date.now()).toISOString().substring(0, 10) + 'T16:30:00',
+    color: '#c9b1ff', description: 'Consulta seguimiento tratamiento', allDay: 0
+  }
 ];
 
 export const saleAdditionals: any[] = [];

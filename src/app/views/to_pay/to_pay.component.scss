@@ -1,0 +1,29 @@
+/* Status badge adicional para egresos */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+
+  &.status-paid {
+    background: rgba(90, 158, 122, 0.1);
+    color: #3d8a62;
+    border: 1px solid rgba(90, 158, 122, 0.25);
+  }
+
+  &.status-error {
+    background: rgba(217, 83, 79, 0.1);
+    color: var(--color-error);
+    border: 1px solid rgba(217, 83, 79, 0.2);
+  }
+}
+
+/* Tiempo en header de tarjeta */
+.sale-time {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-left: 0.5rem;
+}

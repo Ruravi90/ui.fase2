@@ -138,3 +138,59 @@
   0%   { background-position: 100% 0; }
   100% { background-position: -100% 0; }
 }
+
+/* ── Buscador de cliente (compartido con paquetes) ── */
+.pkg-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--color-surface, #fff);
+  border: 1.5px solid var(--color-border, #E0E5E2);
+  border-radius: 24px;
+  padding: 0 0.75rem;
+  gap: 0.5rem;
+  height: 40px;
+  min-width: 240px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+
+  &:focus-within {
+    border-color: var(--color-primary, #84A59D);
+    box-shadow: 0 0 0 3px rgba(132, 165, 157, 0.12);
+  }
+
+  .pkg-search-icon {
+    color: var(--color-text-muted, #8C9C93);
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  .pkg-search-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    color: var(--color-text-primary, #3A4A40);
+
+    &::placeholder {
+      color: var(--color-text-muted, #8C9C93);
+      font-weight: 300;
+    }
+  }
+
+  .pkg-search-clear {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--color-text-muted, #8C9C93);
+    font-size: 0.8rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    transition: color 0.2s;
+
+    &:hover { color: var(--color-text-primary, #3A4A40); }
+  }
+}

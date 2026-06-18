@@ -1,76 +1,116 @@
 <div class="animated fadeIn">
   <div class="row justify-content-center">
-    <div class="col-lg-6">
-      <div class="card">
-        <div class="card-header">
-          <h4>Agentes
-            <button class="btn btn-sm btn-primary float-right" (click)="addAgent()">Nuevo</button>
-          </h4>
+    <div class="col-lg-8">
+
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">
+          Agentes
+        </h4>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <button type="button" class="btn-serene-primary" (click)="addAgent()">
+            Nuevo Agente
+          </button>
         </div>
-        <ul class="list-group">
-          @for (u of agents; track u) {
-            <li class="list-group-item">
-              {{u.initials + ' ' + u.name + ' ' + u.lastname}}
-              <button class="btn btn-sm btn-danger ml-2 float-right" (click)="deleteAgent(u)">
-                <i class="fa fa-trash"></i>
-              </button>
-              <button class="btn btn-sm btn-default float-right" (click)="editAgent(u)">
-                <i class="fa fa-edit"></i>
-              </button>
-            </li>
-          }
-        </ul>
       </div>
+
+      <!-- Content -->
+      <div>
+        @if (loading) {
+          <div class="box-loading-skeleton" style="margin-bottom: 1.5rem;">
+            <div class="skeleton-line" style="width: 30%; height: 24px; margin-bottom: 16px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 60px; margin-bottom: 12px; border-radius: 8px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 60px; margin-bottom: 12px; border-radius: 8px;"></div>
+          </div>
+        } @else {
+          @if (agents.length === 0) {
+            <div style="text-align: center; padding: 3rem; color: var(--color-text-muted);">
+              No hay agentes registrados.
+            </div>
+          }
+
+          @for (u of agents; track u.id) {
+            <div class="sale-day-card" style="margin-bottom: 0.75rem; padding: 1rem 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex: 2;">
+                  <span class="client-name" style="font-size: 1.1rem;">{{ u.name }} {{ u.lastname }} {{ u.motherlastname || '' }}</span>
+                </div>
+                <div style="flex: 1;">
+                  <span style="font-size: 0.85rem; color: var(--color-text-muted);">Iniciales:</span><br>
+                  <span style="font-size: 1rem; font-weight: 500;">{{ u.initials || 'N/A' }}</span>
+                </div>
+                <div style="flex: 1;">
+                  <span style="font-size: 0.85rem; color: var(--color-text-muted);">Usuario:</span><br>
+                  <span style="font-size: 1rem; font-weight: 500;">{{ u.username }}</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="btn-serene-icon-primary" title="Editar" (click)="editAgent(u)">
+                    <i class="fa fa-edit"></i>
+                  </button>
+                  <button class="btn-serene-icon-danger" title="Eliminar" (click)="deleteAgent(u)">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
     </div>
   </div>
 </div>
 
-
-<!-- Modal -->
-<div class="modal fade" id="modalAgent" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <form class="modal-dialog" role="document" #agentForm="ngForm" (ngSubmit)="save()">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">{{(isEdit?'Editar agente':'Agregar agente')}}</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+<!-- Modal Nativo -->
+<div class="sc-modal-overlay" [class.active]="showModal" (click)="closeModal()">
+  <div class="sc-modal-panel" (click)="$event.stopPropagation()">
+    <form #agentForm="ngForm" (ngSubmit)="save()">
+      <div class="sc-modal-header">
+        <h4 class="sc-modal-title">{{ isEdit ? 'Editar Agente' : 'Nuevo Agente' }}</h4>
+        <button type="button" class="sc-close-btn" (click)="closeModal()">✕</button>
       </div>
-      <div class="modal-body">
+      
+      <div class="sc-modal-body">
         <div class="row">
-          <div class="col-lg-4">
-            <input class="form-control" [ngClass]="{'is-invalid':!existUser && !isEdit}" placeholder="Usuario" name="user" [disabled]="isEdit" [(ngModel)]="agent.username" #username="ngModel" (ngModelChange)="onExistUser()" required>
+          <div class="col-lg-6" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Nombre de Usuario</label>
+            <input type="text" class="serene-input" name="user" [(ngModel)]="agent.username" #username="ngModel" (ngModelChange)="onExistUser()" placeholder="Ej. jperez" [disabled]="isEdit" required />
+            @if (!isEdit) {
+              <div style="margin-top: 0.25rem; font-size: 0.75rem;">
+                @if (!existUser && agent.username) {
+                  <span style="color: #e85d5d;">✕ El usuario ya existe o no está disponible</span>
+                }
+                @if (existUser && agent.username) {
+                  <span style="color: #84A59D;">✓ Usuario disponible</span>
+                }
+              </div>
+            }
           </div>
-          <div class="col-lg-4">
-            <input class="form-control" placeholder="Iniciales" name="initials" [(ngModel)]="agent.initials" #initials="ngModel" required>
+          <div class="col-lg-6" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Iniciales</label>
+            <input type="text" class="serene-input" name="initials" [(ngModel)]="agent.initials" #initials="ngModel" placeholder="Ej. JP" required />
           </div>
-          @if (!isEdit) {
-            <div class="col-lg-4">
-              @if (!existUser) {
-                <label class="text-danger">El usuario existente</label>
-              }
-              @if (existUser) {
-                <label class="text-success">Usuario disponible</label>
-              }
-            </div>
-          }
         </div>
-        <div class="row mt-1">
-          <div class="col-lg-4">
-            <input class="form-control" placeholder="Nombre(s)" name="name" [(ngModel)]="agent.name" #name="ngModel" required>
+        <div class="row">
+          <div class="col-lg-4" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Nombre(s)</label>
+            <input type="text" class="serene-input" name="name" [(ngModel)]="agent.name" #name="ngModel" placeholder="Ej. Juan" required />
           </div>
-          <div class="col-lg-4">
-            <input class="form-control" placeholder="Paterno" name="lastname" [(ngModel)]="agent.lastname" #lastname="ngModel" required>
+          <div class="col-lg-4" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Apellido Paterno</label>
+            <input type="text" class="serene-input" name="lastname" [(ngModel)]="agent.lastname" #lastname="ngModel" placeholder="Ej. Pérez" required />
           </div>
-          <div class="col-lg-4">
-            <input class="form-control" placeholder="Materno" name="motherlastname" [(ngModel)]="agent.motherlastname" #motherlastname="ngModel">
+          <div class="col-lg-4" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Apellido Materno</label>
+            <input type="text" class="serene-input" name="motherlastname" [(ngModel)]="agent.motherlastname" #motherlastname="ngModel" placeholder="Ej. López" />
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-primary" [disabled]="agentForm.invalid">Guardar</button>
+      
+      <div class="sc-modal-footer">
+        <button type="button" class="sc-btn sc-btn-ghost" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="sc-btn sc-btn-primary" [disabled]="agentForm.invalid || (!isEdit && !existUser)">Guardar</button>
       </div>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>

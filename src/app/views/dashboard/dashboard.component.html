@@ -82,7 +82,7 @@
         <div class="chart-container">
           <ngx-charts-pie-chart
             [legend]="true"
-            [labels]="true"
+            [labels]="false"
             [doughnut]="true"
             [gradient]="true"
             [results]="paymentMethodsChart"
@@ -101,7 +101,7 @@
         <div class="chart-container">
           <ngx-charts-pie-chart
             [legend]="true"
-            [labels]="true"
+            [labels]="false"
             [doughnut]="false"
             [gradient]="true"
             [results]="departmentsChart"
@@ -113,14 +113,14 @@
       <section class="chart-card">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">Servicios</p>
+            <p class="section-kicker">Top 5 · Año</p>
             <h4>Mas vendidos</h4>
           </div>
         </div>
         <div class="chart-container">
           <ngx-charts-pie-chart
             [legend]="true"
-            [labels]="true"
+            [labels]="false"
             [doughnut]="false"
             [gradient]="true"
             [results]="servicesChart"
@@ -136,14 +136,14 @@
       <section class="chart-card">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">Paquetes</p>
+            <p class="section-kicker">Top 5 · Año</p>
             <h4>Sesiones vendidas</h4>
           </div>
         </div>
         <div class="chart-container">
           <ngx-charts-pie-chart
             [legend]="true"
-            [labels]="true"
+            [labels]="false"
             [doughnut]="false"
             [gradient]="true"
             [results]="packagesChart"
@@ -162,13 +162,14 @@
         <div class="section-heading">
           <div>
             <p class="section-kicker">Ranking</p>
-            <h4>Top sellers</h4>
+            <h4>Los más vendidos</h4>
           </div>
         </div>
         <div class="seller-columns">
           @for (group of ['services', 'products', 'packages']; track group) {
             <div class="seller-column">
               <h5>{{group === 'services' ? 'Servicios' : group === 'products' ? 'Productos' : 'Paquetes'}}</h5>
+              <div class="seller-column-scroll">
               @for (item of topSellers[group]; track item.id || item.service_id || item.product_id || item.package_id) {
                 <div class="seller-row">
                   <span>{{getSellerName(item, group)}}</span>
@@ -177,6 +178,7 @@
               } @empty {
                 <p class="empty-state">Sin datos</p>
               }
+              </div>
             </div>
           }
         </div>
@@ -189,7 +191,7 @@
             <h4>Alertas</h4>
           </div>
         </div>
-        <div class="alert-list">
+        <div class="alert-list alert-scroll">
           @for (alert of alerts; track alert.message) {
             <div class="alert-item" [class]="'level-' + alert.level">
               <i class="fas" [ngClass]="getAlertIcon(alert.type)"></i>
@@ -208,7 +210,7 @@
             <h4>Actividad reciente</h4>
           </div>
         </div>
-        <div class="activity-list">
+        <div class="activity-list activity-scroll">
           @for (item of activity; track item.title + item.created_at) {
             <div class="activity-item">
               <div class="activity-icon">
@@ -223,6 +225,12 @@
           } @empty {
             <p class="empty-state">Sin actividad reciente</p>
           }
+          <!-- Sentinel for infinite scroll -->
+          <div id="activity-sentinel" class="activity-sentinel">
+            @if (activityLoading) {
+              <span class="activity-loading-dots"><span></span><span></span><span></span></span>
+            }
+          </div>
         </div>
       </section>
     </div>

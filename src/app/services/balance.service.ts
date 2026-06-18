@@ -35,8 +35,8 @@ export class BalanceService {
     public getTopSellers(): Observable<any> {
         return this.http.post<any>(this.url + '/top_sellers', {});
     }
-    public getRecentActivity(): Observable<any> {
-        return this.http.get<any>(this.url + '/recent_activity');
+    public getRecentActivity(page: number = 1, perPage: number = 8): Observable<any> {
+        return this.http.get<any>(this.url + `/recent_activity?page=${page}&per_page=${perPage}`);
     }
     public getAlerts(): Observable<any> {
         return this.http.get<any>(this.url + '/alerts');

@@ -9,7 +9,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 
 import swal from 'sweetalert2';
 import { Subject, Observable } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 declare var $: any, iziToast: any;
 
 @Component({
@@ -47,6 +47,8 @@ export class SalesComponent implements OnInit {
   public balance = 0;
 
   private amountChange: Subject<string> = new Subject();
+  public searchSubject: Subject<string> = new Subject();
+  public searchTerm = '';
 
   constructor(
     private sS: SaleService,
@@ -70,6 +72,21 @@ export class SalesComponent implements OnInit {
         this.payment.amount = this.balance;
       }
     });
+
+    this.searchSubject.pipe(debounceTime(400), distinctUntilChanged()).subscribe(term => {
+      if (term.trim()) {
+        this.filters.search = term.trim();
+      } else {
+        delete this.filters.search;
+      }
+      this.getSales();
+    });
+  }
+
+  clearSearch() {
+    this.searchTerm = '';
+    delete this.filters.search;
+    this.getSales();
   }
 
   getRoles(p: string) {
@@ -201,6 +218,7 @@ export class SalesComponent implements OnInit {
       });
 
 
+      this.cdr.detectChanges();
       setTimeout(() => {
         setTimeout(() => {
           this.printToCart('printTicket');
@@ -223,6 +241,7 @@ export class SalesComponent implements OnInit {
       doc.write(`
         <html>
           <head>
+            <base href="${window.location.origin}/">
             <title>Imprimiendo Ticket...</title>
             <link rel="stylesheet" type="text/css" href="assets/css/print.css">
           </head>
