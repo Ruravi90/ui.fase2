@@ -13,6 +13,8 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ScheduleService } from '../../services/schedule.service';
 import { ClientService } from '../../services/client.service';
+import { PackageService } from '../../services/package.service';
+import { Package } from '../../models';
 
 @Component({
   selector: 'app-schedule',
@@ -63,11 +65,14 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     title: '',
     description: '',
     client_id: null as number | null,
+    package_id: null as number | null,
     start: '',
     end: '',
     color: '#a2d2ff',
     allDay: false
   };
+
+  isTaken: boolean = false;
 
   readonly colorPalette = [
     '#a2d2ff', '#ffc8dd', '#bde0fe',
@@ -76,10 +81,12 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   ];
 
   clients: { id: number; fullname: string }[] = [];
+  clientPackages: Package[] = [];
 
   constructor(
     private scheduleService: ScheduleService,
     private clientService: ClientService,
+    private packageService: PackageService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -119,39 +126,63 @@ export class ScheduleComponent implements OnInit, OnDestroy {
 
   loadClients() {
     this.clientService.get().subscribe((res: any) => {
-      this.clients = Array.isArray(res) ? res : [];
+      const raw = Array.isArray(res) ? res : (res?.data || []);
+      this.clients = raw.map((c: any) => ({
+        ...c,
+        id: Number(c.id),
+        fullname: [c.name, c.lastname, c.motherlastname].filter(Boolean).join(' ')
+      }));
     });
   }
 
   loadEvents() {
     this.scheduleService.getAll().subscribe((res: any) => {
       const data = Array.isArray(res) ? res : [];
-      this.allEvents = data.map((ev: any) => ({
-        id: ev.id.toString(),
-        title: ev.title || 'Sin título',
-        start: ev.start,
-        end: ev.end,
-        allDay: ev.allDay == 1,
-        backgroundColor: ev.color || '#a2d2ff',
-        borderColor: ev.color || '#a2d2ff',
-        textColor: '#3A4A40',
-        extendedProps: {
-          description: ev.description,
-          client_id: ev.client_id,
-          client_name: ev.client?.fullname || ev.client?.name || ''
-        }
-      }));
+      this.allEvents = data.map((ev: any) => {
+        const isTaken = !!ev.tracking;
+        const packageId = ev.package_id;
+        const evTitle = packageId ? '📦 ' + ev.title : ev.title;
+          
+        return {
+          id: ev.id.toString(),
+          title: evTitle,
+          start: ev.start,
+          end: ev.end,
+          allDay: ev.allDay === 1,
+          backgroundColor: ev.color || '#a2d2ff',
+          borderColor: ev.color || '#a2d2ff',
+          textColor: '#3A4A40',
+          extendedProps: {
+            description: ev.description,
+            client_id: ev.client_id,
+            package_id: ev.package_id,
+            is_taken: isTaken,
+            client_name: ev.client ? [ev.client.name, ev.client.lastname, ev.client.motherlastname].filter(Boolean).join(' ') : ''
+          }
+        };
+      });
       this.filterEvents(this.searchTerm);
     });
   }
 
   openModal() {
     this.showModal = true;
+    if (this.formData.client_id) {
+      this.onClientChange(this.formData.client_id);
+    } else {
+      this.clientPackages = [];
+    }
     this.cdr.detectChanges();
   }
 
   closeModal() {
     this.showModal = false;
+    this.formData = {
+      id: null, title: '', description: '', client_id: null, package_id: null,
+      start: '', end: '', color: '#a2d2ff', allDay: false
+    };
+    this.clientPackages = [];
+    this.isTaken = false;
     this.cdr.detectChanges();
   }
 
@@ -164,6 +195,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
       title: '',
       description: '',
       client_id: null,
+      package_id: null,
       start: selectInfo.startStr.substring(0, 16),
       end: selectInfo.endStr.substring(0, 16),
       color: '#a2d2ff',
@@ -175,16 +207,21 @@ export class ScheduleComponent implements OnInit, OnDestroy {
 
   handleEventClick(clickInfo: EventClickArg) {
     const ev = clickInfo.event;
+    let cleanTitle = ev.title;
+    if (cleanTitle.startsWith('📦 ')) cleanTitle = cleanTitle.substring(3);
+
     this.formData = {
       id: Number(ev.id),
-      title: ev.title,
+      title: cleanTitle,
       description: ev.extendedProps['description'] || '',
-      client_id: ev.extendedProps['client_id'],
+      client_id: ev.extendedProps['client_id'] ? Number(ev.extendedProps['client_id']) : null,
+      package_id: ev.extendedProps['package_id'] ? Number(ev.extendedProps['package_id']) : null,
       start: ev.startStr.substring(0, 16),
       end: (ev.endStr || ev.startStr).substring(0, 16),
       color: ev.backgroundColor,
       allDay: ev.allDay
     };
+    this.isTaken = ev.extendedProps['is_taken'] || false;
 
     this.openModal();
   }
@@ -194,14 +231,25 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   }
 
   handleEventResize(resizeInfo: EventResizeDoneArg) {
-    this.updateEventDates(resizeInfo.event);
+    const ev = resizeInfo.event;
+    this.scheduleService.update(Number(ev.id), {
+      title: ev.title.startsWith('📦 ') ? ev.title.substring(3) : ev.title,
+      description: ev.extendedProps['description'],
+      client_id: ev.extendedProps['client_id'],
+      package_id: ev.extendedProps['package_id'],
+      start: ev.startStr,
+      end: ev.endStr || ev.startStr,
+      color: ev.backgroundColor,
+      allDay: ev.allDay ? 1 : 0
+    }).subscribe();
   }
 
   updateEventDates(ev: EventApi) {
     const payload = {
-      title: ev.title,
+      title: ev.title.startsWith('📦 ') ? ev.title.substring(3) : ev.title,
       description: ev.extendedProps['description'],
       client_id: ev.extendedProps['client_id'],
+      package_id: ev.extendedProps['package_id'],
       start: ev.startStr,
       end: ev.endStr || ev.startStr,
       color: ev.backgroundColor,
@@ -269,6 +317,55 @@ export class ScheduleComponent implements OnInit, OnDestroy {
             this.closeModal();
             this.loadEvents();
             Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Cita eliminada', showConfirmButton: false, timer: 1800 });
+          }
+        });
+      }
+    });
+  }
+
+  onClientChange(clientId: number) {
+    if (!clientId) {
+      this.clientPackages = [];
+      this.formData.package_id = null;
+      return;
+    }
+    this.packageService.getActiveForClient(clientId).subscribe((packages: any) => {
+      this.clientPackages = packages || [];
+    });
+  }
+
+  onPackageChange(pkgId: number) {
+    if (pkgId) {
+      const pkg = this.clientPackages.find(p => p.id === pkgId);
+      if (pkg && pkg.type && !this.formData.title) {
+        this.formData.title = 'Sesión ' + pkg.type.name;
+      }
+    }
+  }
+
+  confirmCheckIn() {
+    if (!this.formData.id) return;
+    const currentUserStr = localStorage.getItem('currentUser');
+    const user = currentUserStr ? JSON.parse(currentUserStr) : { id: 1 };
+    
+    Swal.fire({
+      title: '¿Confirmar asistencia?',
+      text: 'Se descontará una sesión del paquete y se restará del inventario.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, confirmar',
+      cancelButtonText: 'Cancelar'
+    }).then((res) => {
+      if (res.isConfirmed) {
+        this.scheduleService.checkIn(this.formData.id!, user.id).subscribe({
+          next: () => {
+            Swal.fire('¡Confirmado!', 'La asistencia se ha registrado.', 'success');
+            this.closeModal();
+            this.loadEvents();
+          },
+          error: (err) => {
+            console.error(err);
+            Swal.fire('Error', 'Hubo un problema al confirmar asistencia', 'error');
           }
         });
       }

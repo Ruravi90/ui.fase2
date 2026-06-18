@@ -29,4 +29,7 @@ export class PackageService {
     delete(id: number): Observable<any> {
       return this.http.delete<any>(this.url + '/' + id);
     }
+    getActiveForClient(clientId: number): Observable<Package[]> {
+      return this.http.get<Package[]>(environment.urlApi + 'clients/' + clientId + '/active-packages');
+    }
 }

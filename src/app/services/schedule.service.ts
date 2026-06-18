@@ -30,4 +30,8 @@ export class ScheduleService {
   delete(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  checkIn(id: number, userId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/check-in`, { user_id: userId });
+  }
 }

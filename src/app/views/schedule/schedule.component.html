@@ -61,11 +61,27 @@
           bindLabel="fullname"
           bindValue="id"
           [(ngModel)]="formData.client_id"
+          (change)="onClientChange(formData.client_id || 0)"
           placeholder="Buscar cliente..."
           [clearable]="true"
           class="sc-ng-select"
         ></ng-select>
         <span class="sc-hint">Se enviará aviso de WhatsApp al guardar.</span>
+      </div>
+
+      <div class="sc-form-group" *ngIf="clientPackages && clientPackages.length > 0">
+        <label class="sc-label">Aplicar a Paquete (Opcional)</label>
+        <ng-select
+          [items]="clientPackages"
+          bindLabel="type.name"
+          bindValue="id"
+          [(ngModel)]="formData.package_id"
+          (change)="onPackageChange(formData.package_id || 0)"
+          placeholder="Selecciona un paquete activo..."
+          [clearable]="true"
+          class="sc-ng-select"
+        ></ng-select>
+        <span class="sc-hint">El título se autocompletará si seleccionas un paquete.</span>
       </div>
 
       <div class="sc-form-group">
@@ -106,9 +122,17 @@
 
     <!-- Modal Footer -->
     <div class="sc-modal-footer">
-      <button *ngIf="formData.id" type="button" class="sc-btn sc-btn-danger" (click)="deleteEvent()">
-        Eliminar
-      </button>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <button *ngIf="formData.id" type="button" class="sc-btn sc-btn-danger" (click)="deleteEvent()">
+          Eliminar
+        </button>
+        <button *ngIf="formData.id && formData.package_id && !isTaken" type="button" class="sc-btn" style="background: #e9ecef; color: #495057; border: none; font-weight: 500;" (click)="confirmCheckIn()">
+          Confirmar Asistencia
+        </button>
+        <span *ngIf="formData.id && formData.package_id && isTaken" style="color: #27ae60; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
+          <i class="fas fa-check-circle"></i> Asistencia confirmada
+        </span>
+      </div>
       <div class="sc-footer-right">
         <button type="button" class="sc-btn sc-btn-ghost" (click)="closeModal()">Cancelar</button>
         <button type="button" class="sc-btn sc-btn-primary" [disabled]="!formData.title" (click)="saveEvent()">
