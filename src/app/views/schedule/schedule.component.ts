@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FullCalendarModule } from '@fullcalendar/angular';
@@ -14,7 +15,12 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ScheduleService } from '../../services/schedule.service';
 import { ClientService } from '../../services/client.service';
 import { PackageService } from '../../services/package.service';
-import { Package } from '../../models';
+import { SaleService } from '../../services/sale.service';
+import { AgentService } from '../../services/agent.service';
+import { TypeService } from '../../services/type.service';
+import { DepartmentService } from '../../services/department.service';
+import { UserService } from '../../services/user.service';
+import { Package, PackageTracking, Sale, User, _Type } from '../../models';
 
 @Component({
   selector: 'app-schedule',
@@ -26,6 +32,8 @@ import { Package } from '../../models';
 export class ScheduleComponent implements OnInit, OnDestroy {
 
   showModal = false;
+  showQuickSaleModal = false;
+  quickSaleBusy = false;
 
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -56,7 +64,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   };
 
   currentEvents: EventApi[] = [];
-  allEvents: any[] = [];        // todos los eventos para filtrado client-side
+  allEvents: any[] = [];
   searchTerm = '';
   private searchSubject = new Subject<string>();
 
@@ -72,7 +80,20 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     allDay: false
   };
 
-  isTaken: boolean = false;
+  quickSale = {
+    catPackageId: null as number | null,
+    responsibleId: null as number | null,
+    typeSaleId: null as number | null,
+    totalPrice: 0,
+    amountToday: 0
+  };
+
+  isTaken = false;
+  currentUser: User = new User();
+  defaultDepartmentId = 0;
+  catPackages: _Type[] = [];
+  agents: User[] = [];
+  typeSales: _Type[] = [];
 
   readonly colorPalette = [
     '#a2d2ff', '#ffc8dd', '#bde0fe',
@@ -87,19 +108,45 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     private scheduleService: ScheduleService,
     private clientService: ClientService,
     private packageService: PackageService,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private saleService: SaleService,
+    private agentService: AgentService,
+    private typeService: TypeService,
+    private departmentService: DepartmentService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private userService: UserService
+  ) {
+    this.currentUser = this.userService.currentUser;
+  }
 
   ngOnInit(): void {
     this.loadEvents();
     this.loadClients();
+    this.loadQuickSaleCatalogs();
     this.searchSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe(term => {
       this.filterEvents(term);
+    });
+    this.route.queryParams.subscribe(params => {
+      const clientId = params['client_id'] ? Number(params['client_id']) : null;
+      const packageId = params['package_id'] ? Number(params['package_id']) : null;
+      if (clientId) {
+        this.openFromQueryParams(clientId, packageId);
+      }
     });
   }
 
   ngOnDestroy(): void {
     this.searchSubject.complete();
+  }
+
+  loadQuickSaleCatalogs(): void {
+    this.typeService.getAll('cat_packages').subscribe(r => this.catPackages = r);
+    this.agentService.get().subscribe(r => this.agents = r);
+    this.typeService.getAll('cat_type_sales').subscribe(r => this.typeSales = r);
+    this.departmentService.get().subscribe(r => {
+      if (r.length) this.defaultDepartmentId = r[0].id!;
+    });
   }
 
   filterEvents(term: string) {
@@ -142,7 +189,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
         const isTaken = !!ev.tracking;
         const packageId = ev.package_id;
         const evTitle = packageId ? '📦 ' + ev.title : ev.title;
-          
+
         return {
           id: ev.id.toString(),
           title: evTitle,
@@ -184,6 +231,146 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     this.clientPackages = [];
     this.isTaken = false;
     this.cdr.detectChanges();
+  }
+
+  openQuickSaleModal(): void {
+    if (!this.formData.client_id) return;
+    this.resetQuickSale();
+    this.showQuickSaleModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeQuickSaleModal(): void {
+    this.showQuickSaleModal = false;
+    this.resetQuickSale();
+    this.cdr.detectChanges();
+  }
+
+  resetQuickSale(): void {
+    this.quickSale = {
+      catPackageId: null,
+      responsibleId: null,
+      typeSaleId: null,
+      totalPrice: 0,
+      amountToday: 0
+    };
+    this.quickSaleBusy = false;
+  }
+
+  onQuickPackageSelect(): void {
+    const pkg = this.catPackages.find(p => p.id === this.quickSale.catPackageId);
+    this.quickSale.totalPrice = Number(pkg?.price || 0);
+    if (this.quickSale.amountToday > this.quickSale.totalPrice) {
+      this.quickSale.amountToday = this.quickSale.totalPrice;
+    }
+  }
+
+  onQuickAmountChange(): void {
+    if (this.quickSale.amountToday > this.quickSale.totalPrice) {
+      this.quickSale.amountToday = this.quickSale.totalPrice;
+    }
+    if (this.quickSale.amountToday <= 0) {
+      this.quickSale.typeSaleId = null;
+    }
+  }
+
+  canSaveQuickSale(): boolean {
+    if (!this.formData.client_id || !this.quickSale.catPackageId || !this.quickSale.responsibleId) {
+      return false;
+    }
+    if (this.quickSale.amountToday > 0 && !this.quickSale.typeSaleId) {
+      return false;
+    }
+    return !this.quickSaleBusy;
+  }
+
+  saveQuickSale(): void {
+    if (!this.canSaveQuickSale()) return;
+
+    this.quickSaleBusy = true;
+    const line = new Sale();
+    line.department_id = this.defaultDepartmentId;
+    line.client_id = this.formData.client_id!;
+    line.responsible_id = this.quickSale.responsibleId!;
+    line.user_id = this.currentUser.id;
+    line.type_sale_id = this.quickSale.amountToday > 0 ? this.quickSale.typeSaleId! : 0;
+    line.count = 1;
+    line.price = this.quickSale.totalPrice;
+    line.amount = this.quickSale.amountToday || 0;
+    line.package_id = this.quickSale.catPackageId!;
+
+    this.saleService.post([line]).subscribe({
+      next: (primary) => {
+        const packageLine = primary.sales?.find((s: Sale) => s.package_id);
+        const instanceId = packageLine?.packages?.[0]?.id;
+        this.applyNewPackageSelection(instanceId, this.quickSale.catPackageId!);
+        this.closeQuickSaleModal();
+        Swal.fire({
+          toast: true, position: 'top-end', icon: 'success',
+          title: 'Paquete registrado', showConfirmButton: false, timer: 1800
+        });
+      },
+      error: (err) => {
+        this.quickSaleBusy = false;
+        Swal.fire('Error', err?.error?.error || 'No se pudo registrar la venta', 'error');
+      }
+    });
+  }
+
+  private applyNewPackageSelection(instanceId: number | undefined, catPackageId: number): void {
+    this.packageService.getActiveForClient(this.formData.client_id!).subscribe((packages: Package[]) => {
+      this.clientPackages = packages || [];
+      let selectedId = instanceId;
+      if (!selectedId) {
+        const match = [...this.clientPackages]
+          .filter(p => p.cat_package_id === catPackageId)
+          .sort((a, b) => (b.id || 0) - (a.id || 0))[0];
+        selectedId = match?.id;
+      }
+      if (selectedId) {
+        this.formData.package_id = selectedId;
+        this.onPackageChange(selectedId);
+      }
+      this.quickSaleBusy = false;
+      this.cdr.detectChanges();
+    });
+  }
+
+  openFromQueryParams(clientId: number, packageId: number | null): void {
+    const start = new Date();
+    start.setMinutes(0, 0, 0);
+    const end = new Date(start.getTime() + 60 * 60 * 1000);
+
+    this.formData = {
+      id: null,
+      title: '',
+      description: '',
+      client_id: clientId,
+      package_id: packageId,
+      start: this.toDatetimeLocal(start),
+      end: this.toDatetimeLocal(end),
+      color: '#a2d2ff',
+      allDay: false
+    };
+
+    this.packageService.getActiveForClient(clientId).subscribe((packages: Package[]) => {
+      this.clientPackages = packages || [];
+      if (packageId) {
+        this.formData.package_id = packageId;
+        this.onPackageChange(packageId);
+      }
+      this.openModal();
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {},
+        replaceUrl: true
+      });
+    });
+  }
+
+  private toDatetimeLocal(date: Date): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
   }
 
   handleDateSelect(selectInfo: DateSelectArg) {
@@ -329,7 +516,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
       this.formData.package_id = null;
       return;
     }
-    this.packageService.getActiveForClient(clientId).subscribe((packages: any) => {
+    this.packageService.getActiveForClient(clientId).subscribe((packages: Package[]) => {
       this.clientPackages = packages || [];
     });
   }
@@ -343,11 +530,38 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     }
   }
 
+  getSessionsRemaining(pkg: Package): number {
+    const total = pkg.type?.session_count || 0;
+    const used = pkg.tracking?.length || 0;
+    return Math.max(total - used, 0);
+  }
+
+  getLastTakenSessionDate(pkg: Package): Date | null {
+    const taken = (pkg.tracking || []).filter(t => this.isSessionTaken(t));
+    if (!taken.length) return null;
+
+    const timestamps = taken
+      .map(t => new Date(t.scheduled_date as string).getTime())
+      .filter(ts => !Number.isNaN(ts));
+
+    if (!timestamps.length) return null;
+    return new Date(Math.max(...timestamps));
+  }
+
+  private isSessionTaken(track: PackageTracking): boolean {
+    const taken = track.is_taken as boolean | number | string;
+    return taken === true || taken === 1 || taken === '1';
+  }
+
   confirmCheckIn() {
     if (!this.formData.id) return;
-    const currentUserStr = localStorage.getItem('currentUser');
-    const user = currentUserStr ? JSON.parse(currentUserStr) : { id: 1 };
-    
+    const userId = this.currentUser?.id;
+
+    if (!userId) {
+      Swal.fire('Sesión requerida', 'No se pudo identificar al usuario activo.', 'warning');
+      return;
+    }
+
     Swal.fire({
       title: '¿Confirmar asistencia?',
       text: 'Se descontará una sesión del paquete y se restará del inventario.',
@@ -357,7 +571,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
       cancelButtonText: 'Cancelar'
     }).then((res) => {
       if (res.isConfirmed) {
-        this.scheduleService.checkIn(this.formData.id!, user.id).subscribe({
+        this.scheduleService.checkIn(this.formData.id!, userId).subscribe({
           next: () => {
             Swal.fire('¡Confirmado!', 'La asistencia se ha registrado.', 'success');
             this.closeModal();

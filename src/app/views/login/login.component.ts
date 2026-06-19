@@ -2,10 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../../services';
 import { User } from '../../models';
+import Swal from 'sweetalert2';
 
 import { FormsModule } from '@angular/forms';
-
-declare var iziToast: any;
 
 @Component({
     selector: 'app-login',
@@ -17,9 +16,8 @@ export class LoginComponent implements OnInit {
   public user: User = new User();
   isBusy: Boolean = false;
   isAuthorized: Boolean | null = null;
-  constructor(private uS: UserService, private router: Router) {
-    localStorage.removeItem('currentUser');
-  }
+
+  constructor(private uS: UserService, private router: Router) {}
 
   ngOnInit() {
     this.isBusy = false;
@@ -27,16 +25,19 @@ export class LoginComponent implements OnInit {
 
   login() {
     this.isBusy = true;
-    this.uS.login(this.user).subscribe(r => {
+    this.uS.login(this.user).subscribe(() => {
       this.isAuthorized = true;
-      localStorage.setItem('currentUser', JSON.stringify(r.success));
       this.router.navigate(['/page']);
-    }, error => {
+    }, () => {
       this.isBusy = false;
       this.isAuthorized = false;
-      iziToast.show({
-        message: 'Usuario no autorizado',
-        color: 'red', // blue, red, green, yellow
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Usuario no autorizado',
+        showConfirmButton: false,
+        timer: 3000,
       });
     });
   }

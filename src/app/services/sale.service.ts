@@ -2,14 +2,16 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Sale, User, Paginate} from '../models';
+import { Sale, Paginate} from '../models';
+import { UserService } from './user.service';
 
 @Injectable({ providedIn: 'root' })
 export class SaleService {
     private url: string = environment.urlApi + 'sales';
-    private currentUser: User = new User();
-    constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}' || '{}');
+    constructor(private http: HttpClient, private userService: UserService) {
+    }
+    private get currentUser() {
+        return this.userService.currentUser;
     }
     get(): Observable<Sale[]> {
         return this.http.get<Sale[]>(this.url);

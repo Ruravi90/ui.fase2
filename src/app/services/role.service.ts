@@ -2,14 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Role, User } from '../models';
+import { Role } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class RoleService {
     private url: string = environment.urlApi + 'roles';
-    private currentUser: User = new User();
     constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}' || '{}');
     }
     get(): Observable<Role[]> {
         return this.http.get<Role[]>(this.url);

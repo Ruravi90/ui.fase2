@@ -3,14 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { _Type, User, Paginate } from '../models';
+import { _Type, Paginate } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class TypeService {
   private url: string = environment.urlApi;
-  private currentUser: User = new User();
   constructor(private http: HttpClient) {
-      this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}' || '{}');
   }
   paginate(nameModel: string,filter: any): Observable<Paginate> {
     return this.http.post<Paginate>(this.url + nameModel + '/paginate',filter);

@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { ClientService,
   DepartmentService,
   AgentService,
@@ -6,7 +7,8 @@ import { ClientService,
   QzTrayService,
   SaleService,
   PillsInventoryService,
-  ProductsInventaryService
+  ProductsInventaryService,
+  UserService
 } from '../../services';
 import { Client,
   Department,
@@ -19,8 +21,8 @@ import { Client,
 import { NgSelectComponent  } from '@ng-select/ng-select';
 
 import swal from 'sweetalert2';
-import { Subject, forkJoin } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
+import { Subject, forkJoin, Observable, of } from 'rxjs';
+import { debounceTime, switchMap, distinctUntilChanged, catchError, map } from 'rxjs/operators';
 
 declare var $: any, iziToast: any, document: any;
 
@@ -45,6 +47,8 @@ export class SaleComponent implements OnInit {
   public printSale?: Sale;
   public total = 0;
   public printSales: Sale[] = [];
+  public clients$!: Observable<Client[]>;
+  public clientInput$ = new Subject<string>();
   public clients: Client[] = [];
   public departments: Department[] = [];
   public agents: User[] = [];
@@ -83,14 +87,28 @@ export class SaleComponent implements OnInit {
     private piS: PillsInventoryService,
     private prS: ProductsInventaryService,
     private cdr: ChangeDetectorRef,
+    private router: Router,
+    private userService: UserService,
     ) {
-      this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
+      this.currentUser = this.userService.currentUser;
     }
 
   ngOnInit(): void {
     this.isLoadingPage = true;
     setTimeout(() => this.cdr.detectChanges(), 0);
     this.setCombos();
+
+    this.clients$ = this.clientInput$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(term => this.cS.paginate(15, term).pipe(
+        catchError(() => of({ data: [] }))
+      )),
+      map((res: any) => res.data.map((e: any) => {
+        e.fullname = e.name + ' ' + e.lastname + ' ' + (e.motherlastname ? e.motherlastname : '');
+        return e;
+      }))
+    );
 
     this.subject.pipe(debounceTime(800))
     .subscribe(() => this.onCalculateTotal());
@@ -115,20 +133,13 @@ export class SaleComponent implements OnInit {
 
   setCombos() {
     forkJoin([
-      this.cS.get(), 
       this.dS.get(), 
       this.aS.get(),
       this.tS.getAll('cat_type_sales')
     ]).subscribe(r => {
-      this.clients = [];
-      r[0].forEach((e)=>{
-        e.fullname = e.name + ' ' + e.lastname + ' ' + (e.motherlastname?e.motherlastname:'');
-        this.clients.push(e);
-      });
-      console.log(this.clients);
-      this.departments = r[1];
-      this.agents = r[2];
-      this.typeSales = r[3];
+      this.departments = r[0];
+      this.agents = r[1];
+      this.typeSales = r[2];
       this.isLoadingPage = false;
       this.cdr.detectChanges();
     });
@@ -390,8 +401,34 @@ export class SaleComponent implements OnInit {
       this.isCopyPrint = true;
       this.getSalesForDay();
       this.copyTicket(r);
-      
+      this.offerScheduleFirstSession(r);
       this.isBusy = false;
+    });
+  }
+
+  private offerScheduleFirstSession(primary: Sale): void {
+    const packageLine = primary.sales?.find(s => s.package_id);
+    const packageInstanceId = packageLine?.packages?.[0]?.id;
+    const clientId = primary.client_id || packageLine?.client_id;
+
+    if (!packageLine || !clientId || !packageInstanceId) {
+      return;
+    }
+
+    swal.fire({
+      title: 'Venta exitosa',
+      text: '¿Deseas agendar la primera sesión de este paquete?',
+      icon: 'success',
+      showCancelButton: true,
+      confirmButtonText: 'Agendar 1ra Sesión',
+      cancelButtonText: 'Después',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.router.navigate(['/page/schedule'], {
+          queryParams: { client_id: clientId, package_id: packageInstanceId }
+        });
+      }
     });
   }
 

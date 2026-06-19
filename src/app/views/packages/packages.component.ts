@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { PackageService, AgentService, PaymentService, PackageTrackingService, TypeService, SaleService,PaginateService } from '../../services';
+import { PackageService, AgentService, PaymentService, PackageTrackingService, TypeService, SaleService, PaginateService, UserService } from '../../services';
 import { User, Package, PackageTracking, Payment, Sale, _Type, Paginate } from '../../models';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -57,9 +57,10 @@ export class PackagesComponent implements OnInit {
     private ptS: PackageTrackingService,
     private pagS: PaginateService,
     private sS: SaleService,
-    private cdr: ChangeDetectorRef) {
+    private cdr: ChangeDetectorRef,
+    private userService: UserService) {
       this.pagS.model = 'packages';
-      this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      this.currentUser = this.userService.currentUser;
       this.getPackages();
   }
 

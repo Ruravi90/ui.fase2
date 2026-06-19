@@ -1,4 +1,4 @@
-import { Base, _Type, Client, User, Department, SaleAdditional,Payment } from '.';
+import { Base, _Type, Client, User, Department, SaleAdditional, Payment, Package } from '.';
 export class Sale extends Base {
     department_id?: number;
     department?: Department;
@@ -39,6 +39,7 @@ export class Sale extends Base {
     cat_service?: _Type;
     package_id?: number;
     cat_package?: _Type;
+    packages?: Package[];
     pill_id?: number;
     cat_pill?: _Type;
     sales: Sale[] = [];

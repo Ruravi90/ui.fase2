@@ -67,8 +67,9 @@
           </ng-select>
         </div>
         <div class="col-lg-4 mb-1">
-          <ng-select class="serene-select" placeholder="Cliente" [items]="clients" [(ngModel)]="sale.client_id"
-            bindLabel="fullname" bindValue="id" [selectOnTab]="true" name="clientId" #clientId="ngModel" required>
+          <ng-select class="serene-select" placeholder="Cliente" [items]="(clients$ | async) || []" [(ngModel)]="sale.client_id"
+            bindLabel="fullname" bindValue="id" [selectOnTab]="true" name="clientId" #clientId="ngModel" required
+            [typeahead]="clientInput$" typeToSearchText="Escribe para buscar..." notFoundText="No se encontraron resultados" loadingText="Buscando...">
             <ng-template ng-label-tmp let-item="item">
               {{ item.fullname}}
             </ng-template>

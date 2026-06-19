@@ -2,14 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Client, User, Paginate } from '../models';
+import { Client, Paginate } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
     private url: string = environment.urlApi + 'clients';
-    private currentUser: User = new User();
     constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     }
     paginate(perPage: number,shared: string = ''): Observable<Paginate> {
       return this.http.post<Paginate>(this.url + '/paginate', { per_page: perPage, shared: shared });

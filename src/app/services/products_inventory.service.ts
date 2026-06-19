@@ -2,14 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Inventory, User } from '../models';
+import { Inventory } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class ProductsInventaryService {
   private url: string = environment.urlApi + 'products_inventory';
-  private currentUser: User = new User();
   constructor(private http: HttpClient) {
-      this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
   }
   public getAll(): Observable<Inventory[]> {
       return this.http.get<Inventory[]>(this.url);

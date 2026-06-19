@@ -2,14 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Package, User } from '../models';
+import { Package } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class PackageService {
     private url: string = environment.urlApi + 'packages';
-    private currentUser: User = new User();
     constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     }
     get(): Observable<Package[]> {
         return this.http.get<Package[]>(this.url);

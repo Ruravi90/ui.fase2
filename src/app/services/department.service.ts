@@ -2,14 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Department, User } from '../models';
+import { Department } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class DepartmentService {
     private url: string = environment.urlApi + 'departments';
-    private currentUser: User = new User();
     constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     }
     get(): Observable<Department[]> {
         return this.http.get<Department[]>(this.url);

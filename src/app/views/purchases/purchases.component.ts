@@ -6,7 +6,7 @@ import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { Observable } from 'rxjs';
 import Swal from 'sweetalert2';
 
-import { PurchaseService, DepartmentService, CreditorService, TypeService } from '../../services';
+import { PurchaseService, DepartmentService, CreditorService, TypeService, UserService } from '../../services';
 import { Purchase, _Type, User, Paginate } from '../../models';
 
 @Component({
@@ -42,9 +42,10 @@ export class PurchasesComponent implements OnInit {
     private dS: DepartmentService,
     private cS: CreditorService,
     private tS: TypeService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private userService: UserService
   ) {
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    this.currentUser = this.userService.currentUser;
   }
 
   ngOnInit(): void {

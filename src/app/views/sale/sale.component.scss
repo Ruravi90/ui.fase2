@@ -69,6 +69,16 @@
   .ng-select.serene-select .ng-arrow-wrapper {
     width: 20px;
   }
+  .ng-select.serene-select .ng-dropdown-panel {
+    min-width: 100%;
+    width: max-content;
+    max-width: 450px;
+  }
+  .ng-select.serene-select .ng-dropdown-panel .ng-option {
+    white-space: normal;
+    word-break: break-word;
+    overflow: visible;
+  }
 }
 
 /* Status Badges */

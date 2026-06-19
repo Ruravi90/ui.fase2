@@ -2,7 +2,7 @@ import { Component, OnInit, InjectionToken, Inject, ChangeDetectorRef } from '@a
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
-import { PaginateService, SaleService, PaymentService, AgentService, TypeService } from '../../services';
+import { SaleService, PaymentService, AgentService, TypeService, PaginateService, UserService } from '../../services';
 import { Department, User, Sale, _Type, Paginate, Payment } from '../../models';
 import { environment } from '../../../environments/environment';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -56,11 +56,11 @@ export class SalesComponent implements OnInit {
     private paS: PaymentService,
     private tS: TypeService,
     private pS: PaginateService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private userService: UserService
   ) {
     this.pS.model = 'sales';
-
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser')!);
+    this.currentUser = this.userService.currentUser;
   }
 
   ngOnInit(): void {

@@ -1,5 +1,6 @@
 import { Component, Input, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { User} from '../../models';
+import { UserService } from '../../services';
 
 import { Router } from '@angular/router';
 
@@ -19,9 +20,8 @@ export class DefaultLayoutComponent {
   public navItems: any[] = [];
   public sidebarMinimized = false;
 
-  constructor(private router: Router) {
-    const userStr = localStorage.getItem('currentUser');
-    this.currentUser = userStr && userStr !== 'undefined' ? JSON.parse(userStr) : {};
+  constructor(private router: Router, private userService: UserService) {
+    this.currentUser = this.userService.currentUser;
     this.getMenu();
   }
 
@@ -221,7 +221,8 @@ export class DefaultLayoutComponent {
   }
 
   logout() {
-    localStorage.removeItem('currentUser');
-    this.router.navigate(['/login']);
+    this.userService.logout().subscribe(() => {
+      this.router.navigate(['/login']);
+    });
   }
 }

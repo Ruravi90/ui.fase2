@@ -7,9 +7,7 @@ import { User } from '../models';
 @Injectable({ providedIn: 'root' })
 export class AgentService {
     private url: string = environment.urlApi + 'agents';
-    private currentUser: User = new User();
     constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     }
     get(): Observable<User[]> {
         return this.http.get<User[]>(this.url);

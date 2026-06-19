@@ -2,14 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Permission, User } from '../models';
+import { Permission } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class PermissionService {
     private url: string = environment.urlApi + 'permissions';
-    private currentUser: User = new User();
     constructor(private http: HttpClient) {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     }
     get(): Observable<Permission[]> {
         return this.http.get<Permission[]>(this.url);

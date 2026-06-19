@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { BalanceService } from '../../services';
+import { BalanceService, UserService } from '../../services';
 import { User, Balance } from '../../models';
 
 import swal from 'sweetalert2';
@@ -17,8 +17,8 @@ export class BoxComponent implements OnInit {
   public balances: Balance[] = [];
   public currentUser: User;
 
-  constructor(private bS: BalanceService, private cdr: ChangeDetectorRef) {
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  constructor(private bS: BalanceService, private cdr: ChangeDetectorRef, private userService: UserService) {
+    this.currentUser = this.userService.currentUser;
   }
 
   ngOnInit(): void {

@@ -361,6 +361,44 @@ $shadow-md:   0 8px 30px rgba(58, 74, 64, 0.12);
   &:hover { background: $danger; color: #fff; }
 }
 
+.sc-btn-package-sale {
+  margin-top: 0.5rem;
+  width: 100%;
+  background: rgba($primary, 0.1);
+  color: $primary-dk;
+  border: 1px dashed rgba($primary, 0.45);
+  &:hover:not(:disabled) {
+    background: rgba($primary, 0.18);
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.sc-modal-overlay-nested {
+  z-index: 1100;
+}
+
+.sc-package-label-meta {
+  color: $muted;
+  font-size: 0.85em;
+}
+
+.sc-package-option {
+  padding: 0.15rem 0;
+  line-height: 1.35;
+}
+
+.sc-package-option-title {
+  font-weight: 500;
+  color: $text;
+}
+
+.sc-package-option-meta {
+  font-size: 0.78rem;
+  color: $muted;
+  margin-top: 0.15rem;
+}
+
 // ─── ng-select inside modal ───────────────────────
 .sc-ng-select {
   ::ng-deep .ng-select-container {
