@@ -1,0 +1,74 @@
+<!-- Botón Flotante -->
+<button class="chat-fab" (click)="toggleWidget()" [class.hidden]="isOpen" aria-label="Abrir Chat">
+  <i class="fa fa-comments"></i>
+  <span class="chat-badge" *ngIf="messages.length > 0">{{ messages.length }}</span>
+</button>
+
+<!-- Widget Principal -->
+<div class="chat-widget-container animated fadeIn" *ngIf="isOpen">
+  <!-- Cabecera del Widget (Global) -->
+  <div class="chat-widget-header">
+    <h4>Chat Interno</h4>
+    <button class="close-btn" (click)="toggleWidget()" aria-label="Cerrar Chat">&times;</button>
+  </div>
+
+  <div class="chat-widget-body">
+    <!-- Panel Izquierdo: Contactos y Canales -->
+    <div class="chat-sidebar">
+      <div class="sidebar-section">
+        <span class="section-title">Conversaciones</span>
+        <div class="contact-item" *ngFor="let contact of contacts" 
+             [class.active]="activeContact?.id === contact.id" 
+             (click)="selectContact(contact)">
+          <div class="contact-avatar" [class.channel]="contact.type !== 'direct'">
+            {{ contact.type === 'direct' ? (contact.name?.charAt(0) || '?') : '#' }}
+            <span class="status-dot" *ngIf="contact.type === 'direct'"></span>
+          </div>
+          <div class="contact-info">
+            <span class="contact-name">{{ contact.name || 'Chat' }}</span>
+            <span class="contact-preview" *ngIf="contact.last_message">{{ contact.last_message }}</span>
+          </div>
+        </div>
+        <div *ngIf="contacts.length === 0" class="no-contacts">
+          <small>No hay conversaciones aún.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel Derecho: Conversación -->
+    <div class="chat-conversation">
+      <div class="conversation-header" *ngIf="activeContact">
+        <div class="contact-avatar" [class.channel]="activeContact.type !== 'direct'">
+          {{ activeContact.type === 'direct' ? (activeContact.name?.charAt(0) || '?') : '#' }}
+        </div>
+        <div>
+          <h5 style="margin: 0;">{{ activeContact.name || 'Chat' }}</h5>
+        </div>
+      </div>
+
+      <div class="messages-container" #scrollMe>
+        <div *ngIf="!activeContact" class="no-active-contact">
+          <p>Selecciona una conversación para empezar a chatear.</p>
+        </div>
+        <div class="message-wrapper" *ngFor="let msg of messages" [class.mine]="msg.sender_id === currentUserId">
+          <div class="message-bubble">
+            {{ msg.body }}
+          </div>
+          <div class="message-time">{{ msg.created_at | date:'shortTime' }}</div>
+        </div>
+      </div>
+
+      <div class="chat-input-area" *ngIf="activeContact">
+        <textarea 
+          class="serene-input chat-textarea" 
+          placeholder="Escribe un mensaje..." 
+          [(ngModel)]="newMessage" 
+          (keyup.enter)="sendMessage()"
+          rows="1"></textarea>
+        <button class="btn-serene-primary send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+          <i class="fa fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

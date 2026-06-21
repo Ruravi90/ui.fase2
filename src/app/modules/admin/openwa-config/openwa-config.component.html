@@ -1,0 +1,120 @@
+<div class="animated fadeIn">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.5rem;">
+      <i class="fab fa-whatsapp" style="margin-right: 0.5rem; color: #25D366;"></i> Configuración OpenWA
+    </h4>
+    <button type="button" class="btn-serene-primary" (click)="openAddModal()" style="padding: 0.4rem 1rem; font-size: 0.85rem;">
+      Nueva Sesión
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="box-loading-skeleton" style="margin-bottom: 1.5rem;">
+      <div class="skeleton-line" style="width: 100%; height: 50px; margin-bottom: 12px; border-radius: 8px;"></div>
+      <div class="skeleton-line" style="width: 100%; height: 50px; margin-bottom: 12px; border-radius: 8px;"></div>
+    </div>
+  } @else {
+    @if (sessions.length === 0) {
+      <div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">
+        No hay sesiones de WhatsApp configuradas.
+      </div>
+    }
+    @for (session of sessions; track session.id) {
+      <div class="sale-day-card" style="margin-bottom: 0.5rem; padding: 1rem; border-radius: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; flex-direction: column;">
+            <span style="font-weight: 500; font-size: 1.1rem; color: var(--color-text-primary);">
+              {{ session.name }} <small style="color: var(--color-text-muted); font-size: 0.85rem;">({{ session.session_id }})</small>
+            </span>
+            <div style="margin-top: 0.5rem;">
+              <span class="badge" 
+                    [ngClass]="{
+                      'bg-success': session.status === 'READY',
+                      'bg-warning text-dark': session.status === 'SCAN_QR',
+                      'bg-info text-dark': session.status === 'STARTING',
+                      'bg-secondary': session.status === 'STOPPED' || session.status === 'FAILED'
+                    }">
+                {{ session.status }}
+              </span>
+              <span style="margin-left: 1rem; font-size: 0.85rem; color: var(--color-text-muted);">Roles: </span>
+              @for (role of session.roles; track role.id) {
+                <span class="badge bg-primary" style="margin-right: 0.25rem;">{{ role.name }}</span>
+              }
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            @if (session.status === 'STOPPED' || session.status === 'FAILED') {
+              <button class="btn-serene-icon-primary" title="Iniciar Sesión" (click)="startSession(session.id)" style="width: 32px; height: 32px; font-size: 0.9rem;">
+                <i class="fa fa-play"></i>
+              </button>
+            }
+            @if (session.status === 'SCAN_QR') {
+              <button class="btn-serene-icon-primary" title="Ver QR" (click)="getQrCode(session.id)" style="width: 32px; height: 32px; font-size: 0.9rem; background-color: var(--color-warning); color: #fff;">
+                <i class="fa fa-qrcode"></i>
+              </button>
+            }
+            <button class="btn-serene-icon-danger" title="Eliminar" (click)="deleteSession(session.id)" style="width: 32px; height: 32px; font-size: 0.9rem;">
+              <i class="fa fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>
+
+<!-- Modal Agregar Sesión / Ver QR -->
+<div class="sc-modal-overlay" [class.active]="showModal" (click)="closeModal()">
+  <div class="sc-modal-panel" (click)="$event.stopPropagation()">
+    <form [formGroup]="sessionForm" *ngIf="!qrCodeUrl" (ngSubmit)="saveSession()">
+      <div class="sc-modal-header">
+        <h4 class="sc-modal-title">Nueva Sesión OpenWA</h4>
+        <button type="button" class="sc-close-btn" (click)="closeModal()">✕</button>
+      </div>
+      <div class="sc-modal-body">
+        <div class="row">
+          <div class="col-lg-6" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">ID de Sesión</label>
+            <input type="text" class="serene-input" formControlName="session_id" placeholder="Ej. soporte_1 sin espacios" required />
+          </div>
+          <div class="col-lg-6" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Nombre para mostrar</label>
+            <input type="text" class="serene-input" formControlName="name" placeholder="Ej. WhatsApp Soporte" required />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Roles Permitidos</label>
+            <ng-select class="serene-select"
+                       [items]="roles"
+                       bindLabel="name"
+                       bindValue="id"
+                       [multiple]="true"
+                       [closeOnSelect]="false"
+                       [hideSelected]="true"
+                       appendTo="body"
+                       placeholder="Seleccionar roles"
+                       formControlName="role_ids">
+            </ng-select>
+            <small style="color: var(--color-text-muted); font-size: 0.75rem;">Usuarios con estos roles podrán usar esta sesión.</small>
+          </div>
+        </div>
+      </div>
+      <div class="sc-modal-footer">
+        <button type="button" class="sc-btn sc-btn-ghost" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="sc-btn sc-btn-primary" [disabled]="sessionForm.invalid">Guardar</button>
+      </div>
+    </form>
+
+    <div *ngIf="qrCodeUrl">
+      <div class="sc-modal-header">
+        <h4 class="sc-modal-title">Escanear QR</h4>
+        <button type="button" class="sc-close-btn" (click)="closeModal()">✕</button>
+      </div>
+      <div class="sc-modal-body text-center" style="padding: 2rem;">
+        <p style="color: var(--color-text-primary); margin-bottom: 1.5rem;">Abre WhatsApp en tu teléfono y escanea este código para vincular la sesión.</p>
+        <img [src]="qrCodeUrl" alt="QR Code" class="img-fluid" style="max-width: 250px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+      </div>
+    </div>
+  </div>
+</div>

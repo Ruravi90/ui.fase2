@@ -131,6 +131,11 @@ export class DefaultLayoutComponent {
               name: 'Roles/Permisos',
               url: '/admin/roles',
               icon: 'icon-lock-open '
+            },
+            {
+              name: 'OpenWa',
+              url: '/admin/openwa',
+              icon: 'fab fa-whatsapp'
             }
           ]
         },

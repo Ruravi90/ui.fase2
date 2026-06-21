@@ -25,10 +25,24 @@ export class LoginComponent implements OnInit {
 
   login() {
     this.isBusy = true;
-    this.uS.login(this.user).subscribe(() => {
-      this.isAuthorized = true;
-      this.router.navigate(['/page']);
-    }, () => {
+    this.uS.login(this.user).subscribe({
+      next: (response) => {
+        if (response && response.success === false) {
+            // Caso donde el backend regresa 200 pero falló el login
+            this.handleLoginError();
+        } else {
+            this.isAuthorized = true;
+            this.router.navigate(['/page']);
+        }
+      }, 
+      error: (err) => {
+        console.error("LOGIN ERROR:", err);
+        this.handleLoginError();
+      }
+    });
+  }
+
+  private handleLoginError() {
       this.isBusy = false;
       this.isAuthorized = false;
       Swal.fire({
@@ -39,6 +53,5 @@ export class LoginComponent implements OnInit {
         showConfirmButton: false,
         timer: 3000,
       });
-    });
   }
 }

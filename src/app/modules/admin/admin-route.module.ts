@@ -49,6 +49,13 @@ const routes: Routes = [
           title: 'Roles y permisos'
         }
       },
+      {
+        path: 'openwa',
+        loadComponent: () => import('./openwa-config/openwa-config.component').then(m => m.OpenwaConfigComponent),
+        data: {
+          title: 'Configuración OpenWA'
+        }
+      },
     ]
   }
 ];

@@ -17,3 +17,4 @@ export * from './products_inventory.service';
 export * from './balance.service';
 export * from './purchase.service';
 export * from './paginate.service';
+export * from './openwa.service';

@@ -1,21 +1,31 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, NavigationEnd, RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 import { filter, map, mergeMap } from 'rxjs/operators';
+import { ChatWidgetComponent } from './components/chat-widget/chat-widget.component';
+import { UserService } from './services/user.service';
 
 declare var iziToast: any;
 
 @Component({
     selector: 'body',
-    template: '<router-outlet></router-outlet>',
-    imports: [RouterOutlet]
+    template: '<router-outlet></router-outlet>\n<app-chat-widget *ngIf="isLoggedIn"></app-chat-widget>',
+    imports: [RouterOutlet, ChatWidgetComponent, CommonModule]
 })
 export class AppComponent implements OnInit {
+  isLoggedIn = false;
+
   constructor(
     private router: Router, 
     private activatedRoute: ActivatedRoute, 
-    private titleService: Title
-  ) {}
+    private titleService: Title,
+    private userService: UserService
+  ) {
+    this.userService.currentUser$.subscribe(user => {
+      this.isLoggedIn = !!user;
+    });
+  }
 
   ngOnInit() {
     this.router.events
