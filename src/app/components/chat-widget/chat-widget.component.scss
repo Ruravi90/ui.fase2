@@ -258,7 +258,8 @@ $color-text-muted: #8C9C93;
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    background-color: rgba(250, 249, 246, 0.4);
+    background-color: #E5DDD5; // Color de fondo clásico de WhatsApp
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d8d1c9' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 
     .message-wrapper {
       display: flex;
@@ -271,28 +272,29 @@ $color-text-muted: #8C9C93;
         align-items: flex-end;
 
         .message-bubble {
-          background-color: $color-primary;
-          color: white;
-          border-bottom-right-radius: 4px;
+          background-color: #dcf8c6; // Color verde clásico de mensajes propios en WhatsApp
+          color: #303030;
+          border: none;
+          border-bottom-right-radius: 0;
           border-bottom-left-radius: 16px;
         }
       }
 
       .message-bubble {
-        padding: 0.75rem 1rem;
+        padding: 0.6rem 0.9rem;
         border-radius: 16px;
-        background-color: $color-surface;
-        color: $color-text;
-        border: 1px solid $color-border;
+        background-color: #ffffff;
+        color: #303030;
+        border: none;
         font-size: 0.95rem;
         line-height: 1.4;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        border-bottom-left-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        border-bottom-left-radius: 0;
       }
 
       .message-time {
         font-size: 0.7rem;
-        color: $color-text-muted;
+        color: rgba(0,0,0,0.45);
         margin-top: 0.25rem;
         margin-left: 0.5rem;
         margin-right: 0.5rem;
@@ -314,9 +316,13 @@ $color-text-muted: #8C9C93;
       resize: none;
       border: 1px solid $color-border;
       border-radius: 20px;
-      padding: 0.75rem 1rem;
+      padding: 11px 16px;
       font-family: 'Outfit', sans-serif;
       font-size: 0.95rem;
+      line-height: 1.4;
+      height: 44px;
+      box-sizing: border-box;
+      overflow-y: auto;
       outline: none;
       transition: border-color 0.2s ease;
       background-color: $color-bg;

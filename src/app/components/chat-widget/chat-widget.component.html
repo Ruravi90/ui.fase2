@@ -1,7 +1,7 @@
 <!-- Botón Flotante -->
 <button class="chat-fab" (click)="toggleWidget()" [class.hidden]="isOpen" aria-label="Abrir Chat">
   <i class="fa fa-comments"></i>
-  <span class="chat-badge" *ngIf="messages.length > 0">{{ messages.length }}</span>
+  <span class="chat-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
 </button>
 
 <!-- Widget Principal -->
@@ -22,7 +22,7 @@
              (click)="selectContact(contact)">
           <div class="contact-avatar" [class.channel]="contact.type !== 'direct'">
             {{ contact.type === 'direct' ? (contact.name?.charAt(0) || '?') : '#' }}
-            <span class="status-dot" *ngIf="contact.type === 'direct'"></span>
+            <span class="status-dot" *ngIf="contact.type === 'direct'" [class.online]="contact.isOnline"></span>
           </div>
           <div class="contact-info">
             <span class="contact-name">{{ contact.name || 'Chat' }}</span>
@@ -50,7 +50,7 @@
         <div *ngIf="!activeContact" class="no-active-contact">
           <p>Selecciona una conversación para empezar a chatear.</p>
         </div>
-        <div class="message-wrapper" *ngFor="let msg of messages" [class.mine]="msg.sender_id === currentUserId">
+        <div class="message-wrapper" *ngFor="let msg of messages" [class.mine]="msg.sender_id == currentUserId">
           <div class="message-bubble">
             {{ msg.body }}
           </div>
@@ -63,7 +63,8 @@
           class="serene-input chat-textarea" 
           placeholder="Escribe un mensaje..." 
           [(ngModel)]="newMessage" 
-          (keyup.enter)="sendMessage()"
+          (input)="autoGrow($event)"
+          (keydown.enter)="onEnter($event)"
           rows="1"></textarea>
         <button class="btn-serene-primary send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
           <i class="fa fa-paper-plane"></i>
