@@ -23,10 +23,12 @@ import { UserService } from '../../services/user.service';
 import { Package, PackageTracking, Sale, User, _Type } from '../../models';
 import { HttpClient } from '@angular/common/http';
 
+import { RouterModule } from '@angular/router';
+
 @Component({
   selector: 'app-schedule',
   standalone: true,
-  imports: [CommonModule, FullCalendarModule, FormsModule, NgSelectModule],
+  imports: [CommonModule, FullCalendarModule, FormsModule, NgSelectModule, RouterModule],
   templateUrl: './schedule.component.html',
   styleUrls: ['./schedule.component.scss']
 })
@@ -115,6 +117,13 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   savingQuickClient = false;
   isExpressMode = false;
 
+  isEventsLoading = true;
+  isQueueLoading = true;
+
+  get isLoading(): boolean {
+    return this.isEventsLoading || this.isQueueLoading;
+  }
+
   constructor(
     private scheduleService: ScheduleService,
     private clientService: ClientService,
@@ -154,11 +163,19 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   }
 
   loadQueue(): void {
+    this.isQueueLoading = true;
     const environment = (window as any).__env || { apiUrl: 'http://localhost:8000/api' };
-    this.http.get<any[]>(`${environment.apiUrl}/queue/active`).subscribe(res => {
-      this.activeQueue = res || [];
-      this.currentTurn = this.activeQueue.find(q => q.status === 'in_progress');
-      this.cdr.detectChanges();
+    this.http.get<any[]>(`${environment.apiUrl}/queue/active`).subscribe({
+      next: (res) => {
+        this.activeQueue = res || [];
+        this.currentTurn = this.activeQueue.find(q => q.status === 'in_progress');
+        this.isQueueLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isQueueLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -232,33 +249,42 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   }
 
   loadEvents() {
-    this.scheduleService.getAll().subscribe((res: any) => {
-      const data = Array.isArray(res) ? res : [];
-      this.allEvents = data.map((ev: any) => {
-        const isTaken = !!ev.tracking;
-        const packageId = ev.package_id;
-        const evTitle = packageId ? '📦 ' + ev.title : ev.title;
+    this.isEventsLoading = true;
+    this.scheduleService.getAll().subscribe({
+      next: (res: any) => {
+        const data = Array.isArray(res) ? res : [];
+        this.allEvents = data.map((ev: any) => {
+          const isTaken = !!ev.tracking;
+          const packageId = ev.package_id;
+          const evTitle = packageId ? '📦 ' + ev.title : ev.title;
 
-        return {
-          id: ev.id.toString(),
-          title: evTitle,
-          start: ev.start,
-          end: ev.end,
-          allDay: ev.allDay === 1,
-          backgroundColor: ev.color || '#a2d2ff',
-          borderColor: ev.color || '#a2d2ff',
-          textColor: '#3A4A40',
-          extendedProps: {
-            description: ev.description,
-            client_id: ev.client_id,
-            package_id: ev.package_id,
-            service_id: ev.service_id,
-            is_taken: isTaken,
-            client_name: ev.client ? [ev.client.name, ev.client.lastname, ev.client.motherlastname].filter(Boolean).join(' ') : ''
-          }
-        };
-      });
-      this.filterEvents(this.searchTerm);
+          return {
+            id: ev.id.toString(),
+            title: evTitle,
+            start: ev.start,
+            end: ev.end,
+            allDay: ev.allDay === 1,
+            backgroundColor: ev.color || '#a2d2ff',
+            borderColor: ev.color || '#a2d2ff',
+            textColor: '#3A4A40',
+            extendedProps: {
+              description: ev.description,
+              client_id: ev.client_id,
+              package_id: ev.package_id,
+              service_id: ev.service_id,
+              is_taken: isTaken,
+              client_name: ev.client ? [ev.client.name, ev.client.lastname, ev.client.motherlastname].filter(Boolean).join(' ') : ''
+            }
+          };
+        });
+        this.filterEvents(this.searchTerm);
+        this.isEventsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isEventsLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 

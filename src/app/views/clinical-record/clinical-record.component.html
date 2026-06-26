@@ -1,0 +1,274 @@
+<div class="cr-page animated fadeIn">
+    <!-- Skeleton Loading -->
+    <div *ngIf="isLoading" style="width: 100%; max-width: 1400px; margin: 0 auto;">
+        <div class="cr-header" style="margin-bottom: 2rem;">
+            <div>
+                <div class="skeleton-box" style="width: 250px; height: 32px; margin-bottom: 0.5rem; border-radius: 4px;"></div>
+                <div class="skeleton-box" style="width: 400px; height: 16px; border-radius: 4px;"></div>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <div class="skeleton-box" style="width: 140px; height: 42px; border-radius: 6px;"></div>
+                <div class="skeleton-box" style="width: 160px; height: 42px; border-radius: 6px;"></div>
+            </div>
+        </div>
+        
+        <div class="cr-layout">
+            <div class="cr-main">
+                <!-- Patient Bar Skeleton -->
+                <div class="cr-card cr-patient-card" style="display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem;">
+                    <div class="skeleton-box" style="width: 56px; height: 56px; border-radius: 50%;"></div>
+                    <div style="flex: 1;">
+                        <div class="skeleton-box" style="width: 200px; height: 24px; margin-bottom: 0.75rem; border-radius: 4px;"></div>
+                        <div class="skeleton-box" style="width: 150px; height: 16px; border-radius: 4px;"></div>
+                    </div>
+                </div>
+
+                <div class="cr-workspace">
+                    <!-- Left Timeline Skeleton -->
+                    <div class="cr-panel-left" style="padding: 1.5rem;">
+                        <div class="skeleton-box" style="width: 100px; height: 24px; margin-bottom: 1.5rem; border-radius: 4px;"></div>
+                        <div class="skeleton-box" style="width: 100%; height: 80px; margin-bottom: 1rem; border-radius: 8px;"></div>
+                        <div class="skeleton-box" style="width: 100%; height: 80px; border-radius: 8px;"></div>
+                    </div>
+
+                    <!-- Center Editor Skeleton -->
+                    <div class="cr-card cr-panel-right" style="padding: 1.5rem;">
+                        <div style="display: flex; gap: 2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; margin-bottom: 2rem;">
+                            <div class="skeleton-box" style="width: 100px; height: 20px; border-radius: 4px;"></div>
+                            <div class="skeleton-box" style="width: 100px; height: 20px; border-radius: 4px;"></div>
+                            <div class="skeleton-box" style="width: 100px; height: 20px; border-radius: 4px;"></div>
+                        </div>
+                        <div class="skeleton-box" style="width: 100%; height: 60px; margin-bottom: 1.5rem; border-radius: 8px;"></div>
+                        <div class="skeleton-box" style="width: 150px; height: 16px; margin-bottom: 0.5rem; border-radius: 4px;"></div>
+                        <div class="skeleton-box" style="width: 100%; height: 100px; margin-bottom: 1.5rem; border-radius: 8px;"></div>
+                        <div class="skeleton-box" style="width: 150px; height: 16px; margin-bottom: 0.5rem; border-radius: 4px;"></div>
+                        <div class="skeleton-box" style="width: 100%; height: 100px; border-radius: 8px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar Skeleton -->
+            <div class="cr-sidebar">
+                <div class="queue-panel">
+                    <div class="queue-header skeleton-box" style="height: 55px; border-radius: 12px 12px 0 0;"></div>
+                    <div class="queue-current" style="display: flex; flex-direction: column; align-items: center; padding: 2rem;">
+                        <div class="skeleton-box" style="width: 60px; height: 40px; margin-bottom: 1rem; border-radius: 4px;"></div>
+                        <div class="skeleton-box" style="width: 140px; height: 20px; margin-bottom: 0.5rem; border-radius: 4px;"></div>
+                        <div class="skeleton-box" style="width: 100px; height: 14px; border-radius: 4px;"></div>
+                    </div>
+                    <div class="queue-list-section" style="padding: 1rem;">
+                        <div class="skeleton-box" style="width: 80px; height: 14px; margin-bottom: 1rem; border-radius: 4px;"></div>
+                        <div class="skeleton-box" style="width: 100%; height: 40px; margin-bottom: 0.5rem; border-radius: 4px;"></div>
+                        <div class="skeleton-box" style="width: 100%; height: 40px; border-radius: 4px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actual Content -->
+    <ng-container *ngIf="!isLoading">
+        <!-- Header -->
+        <div class="cr-header">
+            <div>
+                <h4 class="cr-title">Expediente Clínico</h4>
+                <p class="cr-subtitle">Módulo de atención médica integral · NOM-004 y NOM-024</p>
+            </div>
+            <div class="cr-actions">
+                <button class="btn-serene-secondary" routerLink="/page/schedule">
+                    <i class="fas fa-arrow-left"></i> Volver a Agenda
+                </button>
+                <button class="btn-serene-primary" (click)="saveDraft()" [disabled]="isReadOnly">
+                    <i class="fas fa-save"></i> Guardar Borrador
+                </button>
+            </div>
+        </div>
+        
+        <!-- Content Layout -->
+        <div class="cr-layout">
+            
+            <!-- Main Area -->
+            <div class="cr-main">
+                <!-- Patient Bar -->
+                <div class="cr-card cr-patient-card" *ngIf="medicalRecord?.client">
+                    <img [src]="'https://ui-avatars.com/api/?name=' + medicalRecord.client.name + '&background=E0E5E2&color=3A4A40'" alt="Paciente" class="cr-avatar">
+                    <div>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <h3 class="cr-patient-name">{{ medicalRecord.client.name }} {{ medicalRecord.client.lastname }}</h3>
+                            <span class="cr-badge">EXP-{{ clientId }}</span>
+                            <span *ngIf="medicalRecord?.allergies" class="cr-badge cr-badge-danger"><i class="fas fa-exclamation-triangle"></i> Alergias: {{ medicalRecord.allergies }}</span>
+                        </div>
+                        <div class="cr-meta">
+                            <span *ngIf="medicalRecord?.blood_type"><i class="fas fa-tint"></i> Tipo: {{ medicalRecord.blood_type }}</span>
+                            <span><i class="fas fa-phone"></i> {{ medicalRecord.client.phone_mobile || 'Sin registro' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workspace (History + Editor) -->
+                <div class="cr-workspace">
+                    
+                    <!-- History Timeline -->
+                    <div class="cr-panel-left">
+                        <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--color-border); font-weight: 600; color: var(--color-text-primary);">
+                            <i class="fas fa-history" style="margin-right: 0.5rem; color: var(--color-primary);"></i> Historial
+                        </div>
+                        <div class="cr-timeline">
+                            <!-- Current -->
+                            <div class="tl-item active" (click)="resumeCurrentNote()" style="cursor: pointer;">
+                                <span class="tl-date">HOY</span>
+                                <div class="tl-card" [class.active]="!isReadOnly">
+                                    <h5 class="tl-card-title">Consulta Actual</h5>
+                                    <p class="tl-card-desc">En curso...</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Past -->
+                            <div class="tl-item" *ngFor="let h of history" (click)="selectHistoryNote(h)" style="cursor: pointer;">
+                                <span class="tl-date">{{ h.signed_at | date:'dd/MMM/yyyy' }}</span>
+                                <div class="tl-card" [class.active]="isReadOnly && selectedPastNote?.id === h.id">
+                                    <h5 class="tl-card-title">
+                                        Nota Médica
+                                        <i *ngIf="h.status === 'signed'" class="fas fa-lock" style="font-size: 0.75rem; color: var(--color-success); margin-left: 0.25rem;"></i>
+                                    </h5>
+                                    <p class="tl-card-desc" *ngIf="h.analysis" style="margin-bottom: 0.5rem; font-weight: 500;">Dx: {{ h.analysis }}</p>
+                                    <p class="tl-card-desc" style="font-size: 0.8rem;">{{ h.subjective }}</p>
+                                    <p class="tl-card-desc" style="font-size: 0.75rem; margin-top: 0.5rem;">Dr. {{ h.doctor?.name }}</p>
+                                </div>
+                            </div>
+
+                            <div *ngIf="history.length === 0" style="text-align: center; color: var(--color-text-muted); padding: 2rem 0; font-size: 0.9rem;">
+                                Sin historial previo
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Editor Panel -->
+                    <div class="cr-card cr-panel-right">
+                        <div class="cr-tabs">
+                            <div class="cr-tab" [class.active]="activeTab === 'soap'" (click)="activeTab = 'soap'">Evolución (SOAP)</div>
+                            <div class="cr-tab" [class.active]="activeTab === 'vital'" (click)="activeTab = 'vital'">Signos Vitales</div>
+                            <div class="cr-tab" [class.active]="activeTab === 'dx'" (click)="activeTab = 'dx'">Diagnósticos</div>
+                            <div class="cr-tab" [class.active]="activeTab === 'rx'" (click)="activeTab = 'rx'">Receta</div>
+                        </div>
+
+                        <div class="cr-content">
+                            <div class="cr-notice" *ngIf="!isReadOnly">
+                                <i class="fas fa-shield-alt"></i>
+                                <div><strong>Privacidad LFPDPPP:</strong> La información capturada en este módulo será encriptada de extremo a extremo.</div>
+                            </div>
+
+                            <div class="cr-notice" *ngIf="isReadOnly" style="background: rgba(132, 165, 157, 0.1); border-color: rgba(132, 165, 157, 0.2);">
+                                <i class="fas fa-info-circle" style="color: var(--color-primary);"></i>
+                                <div><strong>Modo de Lectura:</strong> Estás visualizando un registro cerrado e inalterable. <a href="javascript:void(0)" (click)="resumeCurrentNote()" style="color: var(--color-primary); font-weight: 600;">Regresar al actual</a></div>
+                            </div>
+
+                            <!-- SOAP Tab -->
+                            <div *ngIf="activeTab === 'soap'">
+                                <div class="cr-form-group">
+                                    <label class="cr-label">Motivo de Consulta (S)</label>
+                                    <textarea class="serene-input" rows="3" [ngModel]="isReadOnly ? selectedPastNote.subjective : note.subjective" (ngModelChange)="note.subjective = $event" [disabled]="isReadOnly" placeholder="El paciente acude por..."></textarea>
+                                </div>
+                                <div class="cr-form-group">
+                                    <label class="cr-label">Exploración Física (O)</label>
+                                    <textarea class="serene-input" rows="2" [ngModel]="isReadOnly ? selectedPastNote.objective : note.objective" (ngModelChange)="note.objective = $event" [disabled]="isReadOnly" placeholder="Hallazgos a la exploración..."></textarea>
+                                </div>
+                                <div class="cr-form-group">
+                                    <label class="cr-label">Análisis (A)</label>
+                                    <textarea class="serene-input" rows="2" [ngModel]="isReadOnly ? selectedPastNote.analysis : note.analysis" (ngModelChange)="note.analysis = $event" [disabled]="isReadOnly" placeholder="Diagnóstico o análisis clínico..."></textarea>
+                                </div>
+                                <div class="cr-form-group" style="margin-bottom: 0;">
+                                    <label class="cr-label">Plan y Tratamiento (P)</label>
+                                    <textarea class="serene-input" rows="3" [ngModel]="isReadOnly ? selectedPastNote.plan : note.plan" (ngModelChange)="note.plan = $event" [disabled]="isReadOnly" placeholder="Indicaciones, receta..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Vitals Tab -->
+                            <div *ngIf="activeTab === 'vital'">
+                                <div class="cr-grid-2">
+                                    <div class="cr-form-group">
+                                        <label class="cr-label">Peso (kg)</label>
+                                        <input type="number" class="serene-input" [ngModel]="isReadOnly ? selectedPastNote.weight : note.weight" (ngModelChange)="note.weight = $event" [disabled]="isReadOnly">
+                                    </div>
+                                    <div class="cr-form-group">
+                                        <label class="cr-label">Tensión Arterial (mmHg)</label>
+                                        <input type="text" class="serene-input" [ngModel]="isReadOnly ? selectedPastNote.blood_pressure : note.blood_pressure" (ngModelChange)="note.blood_pressure = $event" [disabled]="isReadOnly" placeholder="Ej. 120/80">
+                                    </div>
+                                    <div class="cr-form-group">
+                                        <label class="cr-label">Temperatura (°C)</label>
+                                        <input type="number" class="serene-input" [ngModel]="isReadOnly ? selectedPastNote.temperature : note.temperature" (ngModelChange)="note.temperature = $event" [disabled]="isReadOnly">
+                                    </div>
+                                    <div class="cr-form-group">
+                                        <label class="cr-label">Frecuencia Cardíaca (lpm)</label>
+                                        <input type="number" class="serene-input" [ngModel]="isReadOnly ? selectedPastNote.heart_rate : note.heart_rate" (ngModelChange)="note.heart_rate = $event" [disabled]="isReadOnly">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Diagnósticos Tab -->
+                            <div *ngIf="activeTab === 'dx'">
+                                <div class="cr-form-group" style="margin-bottom: 0;">
+                                    <label class="cr-label">Diagnósticos CIE-10 / CIE-11</label>
+                                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                                        <input type="text" class="serene-input" placeholder="Buscar código o descripción..." style="flex: 1;" [disabled]="isReadOnly">
+                                        <button class="btn-serene-secondary" style="padding: 0.5rem 1rem;" [disabled]="isReadOnly"><i class="fas fa-search"></i> Buscar</button>
+                                    </div>
+                                    <div style="padding: 2rem; text-align: center; color: var(--color-text-muted); border: 1px dashed var(--color-border); border-radius: 8px;">
+                                        Aún no has agregado diagnósticos a esta consulta.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Receta Tab -->
+                            <div *ngIf="activeTab === 'rx'">
+                                <div class="cr-form-group">
+                                    <label class="cr-label">Prescripción Médica</label>
+                                    <textarea class="serene-input" rows="6" placeholder="1. Paracetamol 500mg, tomar 1 tableta cada 8 horas por 3 días..." [ngModel]="isReadOnly ? selectedPastNote.plan : note.plan" (ngModelChange)="note.plan = $event" [disabled]="isReadOnly"></textarea>
+                                </div>
+                                <button class="btn-serene-secondary" style="display: flex; align-items: center; gap: 0.5rem;" [disabled]="!isReadOnly && !note.plan && !currentTurn" (click)="printRecipe()">
+                                    <i class="fas fa-print"></i> Imprimir Receta
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="cr-footer">
+                            <button class="btn-serene-icon-danger" style="display: flex; gap: 0.5rem; align-items: center; border-radius: 6px; padding: 0.5rem 1rem;" routerLink="/page/schedule">
+                                <i class="fas fa-trash"></i> Descartar
+                            </button>
+                            <button class="btn-serene-primary" style="display: flex; align-items: center; gap: 0.5rem;" (click)="signAndFinish()" [disabled]="isReadOnly">
+                                <i class="fas fa-lock"></i> Firmar y Terminar Turno
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar: Queue Info -->
+            <div class="cr-sidebar">
+                <div class="queue-panel">
+                    <div class="queue-header">
+                        Turno Siguiente
+                    </div>
+                    
+                    <div class="queue-current" *ngIf="nextTurn">
+                        <div class="queue-current-number">{{ nextTurn.token || nextTurn.turn_number }}</div>
+                        <div class="queue-current-client">{{ nextTurn.schedule?.client?.name }} {{ nextTurn.schedule?.client?.lastname }}</div>
+                        <div class="queue-current-service">{{ nextTurn.schedule?.service?.name || nextTurn.schedule?.title }}</div>
+                    </div>
+                    <div class="queue-current" *ngIf="!nextTurn" style="color: var(--color-text-muted); font-size: 0.9rem;">
+                        Nadie en espera
+                    </div>
+
+                    <div class="queue-list-section">
+                        <h4>Fila ({{ remainingQueue.length }})</h4>
+                        <div class="queue-item" *ngFor="let q of remainingQueue">
+                            <div style="font-weight: 600; color: var(--color-primary); width: 30px;">{{ q.token || q.turn_number }}</div>
+                            <div style="flex: 1; font-size: 0.85rem; color: var(--color-text-primary);">{{ q.schedule?.client?.name }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </ng-container>
+</div>

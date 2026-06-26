@@ -8,6 +8,7 @@ import { PackagesComponent } from '../../views/packages/packages.component';
 import { SalesComponent } from '../../views/sales/sales.component';
 import { BoxComponent } from '../../views/box/box.component';
 import { ScheduleComponent } from '../../views/schedule/schedule.component';
+import { ClinicalRecordComponent } from '../../views/clinical-record/clinical-record.component';
 
 const routes: Routes = [
   {
@@ -65,6 +66,13 @@ const routes: Routes = [
         component: ScheduleComponent,
         data: {
           title: 'Agenda'
+        }
+      },
+      {
+        path: 'clinical-record/:clientId/:scheduleId',
+        component: ClinicalRecordComponent,
+        data: {
+          title: 'Expediente Clínico'
         }
       },
     ]

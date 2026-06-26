@@ -1,85 +1,138 @@
 <div class="schedule-page">
-  <!-- Header -->
-  <div class="schedule-header">
-        <div class="schedule-header-text">
-          <h2 class="schedule-title">Agenda</h2>
-          <p class="schedule-subtitle">Haz clic en cualquier espacio para crear una cita · Arrastra para reagendar</p>
+
+  <!-- SKELETON LAYOUT -->
+  <div *ngIf="isLoading" style="width: 100%;">
+    <!-- Header skeleton -->
+    <div class="schedule-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end;">
+      <div style="flex: 1;">
+        <div class="skeleton-box" style="height: 32px; width: 150px; border-radius: 6px; margin-bottom: 0.5rem;"></div>
+        <div class="skeleton-box" style="height: 16px; width: 350px; border-radius: 4px;"></div>
+      </div>
+      <div style="display: flex; gap: 1rem;">
+        <div class="skeleton-box" style="height: 42px; width: 220px; border-radius: 21px;"></div>
+        <div class="skeleton-box" style="height: 42px; width: 130px; border-radius: 21px;"></div>
+        <div class="skeleton-box" style="height: 42px; width: 140px; border-radius: 21px;"></div>
+      </div>
+    </div>
+    
+    <div class="schedule-layout">
+      <!-- Calendar skeleton -->
+      <div class="schedule-main">
+        <div class="skeleton-box" style="height: 600px; width: 100%; border-radius: 12px; border: 1px solid #e9ecef;"></div>
+      </div>
+      
+      <!-- Sidebar skeleton -->
+      <div class="schedule-sidebar">
+        <div class="queue-panel" style="border: 1px solid #e9ecef;">
+          <div class="queue-header skeleton-box" style="height: 55px; border-radius: 12px 12px 0 0; padding: 0;"></div>
+          <div style="padding: 2rem; display: flex; flex-direction: column; align-items: center;">
+            <div class="skeleton-box" style="height: 60px; width: 100px; border-radius: 8px; margin-bottom: 1rem;"></div>
+            <div class="skeleton-box" style="height: 20px; width: 180px; border-radius: 4px; margin-bottom: 0.5rem;"></div>
+            <div class="skeleton-box" style="height: 14px; width: 120px; border-radius: 4px; margin-bottom: 1.5rem;"></div>
+            <div style="display: flex; gap: 0.5rem; width: 100%;">
+              <div class="skeleton-box" style="height: 42px; flex: 1; border-radius: 6px;"></div>
+              <div class="skeleton-box" style="height: 42px; flex: 1; border-radius: 6px;"></div>
+            </div>
+          </div>
+          <div style="padding: 1.5rem; border-top: 1px solid #f1f3f5;">
+             <div class="skeleton-box" style="height: 16px; width: 100px; border-radius: 4px; margin-bottom: 1rem;"></div>
+             <div class="skeleton-box" style="height: 24px; width: 100%; border-radius: 4px; margin-bottom: 0.5rem;"></div>
+             <div class="skeleton-box" style="height: 24px; width: 100%; border-radius: 4px; margin-bottom: 0.5rem;"></div>
+          </div>
         </div>
-        <div class="schedule-header-actions">
-          <!-- Buscador por cliente -->
-          <div class="sched-search-wrap">
-            <i class="fas fa-search sched-search-icon"></i>
-            <input
-              id="sched-client-search"
-              type="text"
-              class="sched-search-input"
-              placeholder="Filtrar por cliente..."
-              [value]="searchTerm"
-              (input)="onSearch($any($event.target).value)">
-            @if (searchTerm) {
-              <button class="sched-search-clear" type="button" (click)="clearSearch()" title="Limpiar">
-                <i class="fas fa-times"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- REAL LAYOUT -->
+  <ng-container *ngIf="!isLoading">
+    <!-- Header -->
+    <div class="schedule-header">
+          <div class="schedule-header-text">
+            <h2 class="schedule-title">Agenda</h2>
+            <p class="schedule-subtitle">Haz clic en cualquier espacio para crear una cita · Arrastra para reagendar</p>
+          </div>
+          <div class="schedule-header-actions">
+            <!-- Buscador por cliente -->
+            <div class="sched-search-wrap">
+              <i class="fas fa-search sched-search-icon"></i>
+              <input
+                id="sched-client-search"
+                type="text"
+                class="sched-search-input"
+                placeholder="Filtrar por cliente..."
+                [value]="searchTerm"
+                (input)="onSearch($any($event.target).value)">
+              @if (searchTerm) {
+                <button class="sched-search-clear" type="button" (click)="clearSearch()" title="Limpiar">
+                  <i class="fas fa-times"></i>
+                </button>
+              }
+            </div>
+            <button class="sc-btn sc-btn-primary" (click)="openModalNew()" style="white-space: nowrap;">
+              <i class="fas fa-plus"></i> Nueva Cita
+            </button>
+            <button class="sc-btn" style="background: #e9ecef; color: #495057; border: none; font-weight: 500; white-space: nowrap;" (click)="openExpressModal()">
+              <i class="fas fa-bolt"></i> Turno Express
+            </button>
+          </div>
+    </div>
+
+    <div class="schedule-layout">
+      <!-- Left Column: Calendar -->
+      <div class="schedule-main">
+        <!-- Calendar -->
+        <div class="calendar-card">
+          <full-calendar *ngIf="calendarOptions" [options]="calendarOptions"></full-calendar>
+        </div>
+      </div>
+
+      <!-- Right Column: Queue Panel -->
+      <div class="schedule-sidebar">
+        <div class="queue-panel">
+          <div class="queue-header">
+            <h3>Turno Actual</h3>
+          </div>
+          <div class="queue-current">
+            <div class="current-number">{{ currentTurn ? currentTurn.turn_number : '--' }}</div>
+            <div class="current-client" *ngIf="currentTurn">
+              {{ currentTurn.schedule?.client?.name }} {{ currentTurn.schedule?.client?.lastname }}
+            </div>
+            <div class="current-service" *ngIf="currentTurn">
+              {{ currentTurn.schedule?.title }}
+            </div>
+            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+              <button *ngIf="currentTurn" class="sc-btn" style="flex: 1; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-weight: 500;" [routerLink]="['/page/clinical-record', currentTurn.schedule?.client_id, currentTurn.schedule_id]">
+                <i class="fas fa-notes-medical"></i> Expediente
               </button>
-            }
+              <button class="sc-btn sc-btn-primary btn-advance" style="flex: 1; margin-top: 0;" (click)="advanceTurn()" [disabled]="!currentTurn && activeQueue.length === 0">
+                Avanzar <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
           </div>
-          <button class="sc-btn sc-btn-primary" (click)="openModalNew()" style="white-space: nowrap;">
-            <i class="fas fa-plus"></i> Nueva Cita
-          </button>
-          <button class="sc-btn" style="background: #e9ecef; color: #495057; border: none; font-weight: 500; white-space: nowrap;" (click)="openExpressModal()">
-            <i class="fas fa-bolt"></i> Turno Express
-          </button>
-        </div>
-  </div>
 
-  <div class="schedule-layout">
-    <!-- Left Column: Calendar -->
-    <div class="schedule-main">
-      <!-- Calendar -->
-      <div class="calendar-card">
-        <full-calendar *ngIf="calendarOptions" [options]="calendarOptions"></full-calendar>
-      </div>
-    </div>
-
-    <!-- Right Column: Queue Panel -->
-    <div class="schedule-sidebar">
-      <div class="queue-panel">
-        <div class="queue-header">
-          <h3>Turno Actual</h3>
-        </div>
-        <div class="queue-current">
-          <div class="current-number">{{ currentTurn ? currentTurn.turn_number : '--' }}</div>
-          <div class="current-client" *ngIf="currentTurn">
-            {{ currentTurn.schedule?.client?.name }} {{ currentTurn.schedule?.client?.lastname }}
+          <div class="queue-list-section">
+            <h4>En Espera ({{ getWaitingQueue().length }})</h4>
+            <ul class="queue-list">
+              <li *ngFor="let q of getWaitingQueue()" class="queue-item">
+                <span class="q-number">{{ q.turn_number }}</span>
+                <div class="q-info">
+                  <span class="q-name">
+                    {{ q.schedule?.client?.name }}
+                    <span *ngIf="q.schedule?.color === '#ffadad'" style="background: #ffadad; color: #842029; font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.25rem;">Express</span>
+                  </span>
+                  <span class="q-time">{{ q.schedule?.start | date:'shortTime' }}</span>
+                </div>
+              </li>
+              <li *ngIf="getWaitingQueue().length === 0" class="queue-empty">
+                Nadie en espera
+              </li>
+            </ul>
           </div>
-          <div class="current-service" *ngIf="currentTurn">
-            {{ currentTurn.schedule?.title }}
-          </div>
-          <button class="sc-btn sc-btn-primary btn-advance" (click)="advanceTurn()" [disabled]="!currentTurn && activeQueue.length === 0">
-            Avanzar Turno <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
-
-        <div class="queue-list-section">
-          <h4>En Espera ({{ getWaitingQueue().length }})</h4>
-          <ul class="queue-list">
-            <li *ngFor="let q of getWaitingQueue()" class="queue-item">
-              <span class="q-number">{{ q.turn_number }}</span>
-              <div class="q-info">
-                <span class="q-name">
-                  {{ q.schedule?.client?.name }}
-                  <span *ngIf="q.schedule?.color === '#ffadad'" style="background: #ffadad; color: #842029; font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.25rem;">Express</span>
-                </span>
-                <span class="q-time">{{ q.schedule?.start | date:'shortTime' }}</span>
-              </div>
-            </li>
-            <li *ngIf="getWaitingQueue().length === 0" class="queue-empty">
-              Nadie en espera
-            </li>
-          </ul>
         </div>
       </div>
     </div>
-  </div>
+  </ng-container>
 </div>
 
 <!-- ===== MODAL OVERLAY ===== -->
