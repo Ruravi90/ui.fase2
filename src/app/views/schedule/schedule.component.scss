@@ -22,11 +22,177 @@ $shadow-md:   0 8px 30px rgba(58, 74, 64, 0.12);
   font-family: 'Outfit', sans-serif;
 }
 
+.schedule-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.schedule-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-sidebar {
+  position: sticky;
+  top: 1.5rem;
+}
+
+// ─── Queue Panel ──────────────────────────────────
+.queue-panel {
+  background: $surface;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  border: 1px solid $border;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.queue-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid $border;
+  background: rgba($primary, 0.05);
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $text;
+  }
+}
+
+.queue-current {
+  padding: 2rem 1.25rem;
+  text-align: center;
+  border-bottom: 1px solid $border;
+  
+  .current-number {
+    font-size: 4rem;
+    font-weight: 700;
+    color: $primary-dk;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .current-client {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $text;
+  }
+  
+  .current-service {
+    font-size: 0.9rem;
+    color: $muted;
+    margin-bottom: 1.5rem;
+  }
+  
+  .btn-advance {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+}
+
+.queue-list-section {
+  padding: 1.25rem;
+  
+  h4 {
+    margin: 0 0 1rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: $muted;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+}
+
+.queue-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: $radius-md;
+  background: rgba($bg, 0.5);
+  border: 1px solid rgba($border, 0.5);
+  
+  .q-number {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $primary;
+    background: $surface;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+  }
+  
+  .q-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .q-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .q-time {
+    font-size: 0.75rem;
+    color: $muted;
+  }
+}
+
+.queue-empty {
+  text-align: center;
+  color: $muted;
+  font-size: 0.9rem;
+  padding: 1rem;
+  font-style: italic;
+}
+
 .schedule-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
   margin-bottom: 1.5rem;
+}
+
+.schedule-header-text {
+  flex: 1;
+  min-width: 280px;
+}
+
+.schedule-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .schedule-title {

@@ -21,6 +21,7 @@ import { TypeService } from '../../services/type.service';
 import { DepartmentService } from '../../services/department.service';
 import { UserService } from '../../services/user.service';
 import { Package, PackageTracking, Sale, User, _Type } from '../../models';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-schedule',
@@ -74,6 +75,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     description: '',
     client_id: null as number | null,
     package_id: null as number | null,
+    service_id: null as number | null,
     start: '',
     end: '',
     color: '#a2d2ff',
@@ -92,6 +94,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   currentUser: User = new User();
   defaultDepartmentId = 0;
   catPackages: _Type[] = [];
+  catServices: _Type[] = [];
   agents: User[] = [];
   typeSales: _Type[] = [];
 
@@ -104,6 +107,14 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   clients: { id: number; fullname: string }[] = [];
   clientPackages: Package[] = [];
 
+  activeQueue: any[] = [];
+  currentTurn: any = null;
+
+  showQuickClient = false;
+  quickClientData = { name: '', lastname: '', phone_mobile: '' };
+  savingQuickClient = false;
+  isExpressMode = false;
+
   constructor(
     private scheduleService: ScheduleService,
     private clientService: ClientService,
@@ -115,7 +126,8 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private userService: UserService
+    private userService: UserService,
+    private http: HttpClient
   ) {
     this.currentUser = this.userService.currentUser;
   }
@@ -124,6 +136,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     this.loadEvents();
     this.loadClients();
     this.loadQuickSaleCatalogs();
+    this.loadQueue();
     this.searchSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe(term => {
       this.filterEvents(term);
     });
@@ -140,12 +153,48 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     this.searchSubject.complete();
   }
 
+  loadQueue(): void {
+    const environment = (window as any).__env || { apiUrl: 'http://localhost:8000/api' };
+    this.http.get<any[]>(`${environment.apiUrl}/queue/active`).subscribe(res => {
+      this.activeQueue = res || [];
+      this.currentTurn = this.activeQueue.find(q => q.status === 'in_progress');
+      this.cdr.detectChanges();
+    });
+  }
+
+  getWaitingQueue(): any[] {
+    return this.activeQueue.filter(q => q.status === 'waiting');
+  }
+
+  advanceTurn(): void {
+    const environment = (window as any).__env || { apiUrl: 'http://localhost:8000/api' };
+    this.http.post<any>(`${environment.apiUrl}/queue/advance`, {}).subscribe(res => {
+      if (res.success) {
+        this.loadQueue();
+        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Turno avanzado', showConfirmButton: false, timer: 1500 });
+      }
+    });
+  }
+
   loadQuickSaleCatalogs(): void {
     this.typeService.getAll('cat_packages').subscribe(r => this.catPackages = r);
+    this.typeService.getAll('cat_services').subscribe(r => this.catServices = r);
     this.agentService.get().subscribe(r => this.agents = r);
     this.typeService.getAll('cat_type_sales').subscribe(r => this.typeSales = r);
     this.departmentService.get().subscribe(r => {
-      if (r.length) this.defaultDepartmentId = r[0].id!;
+      if (r.length) {
+        this.defaultDepartmentId = r[0].id!;
+        const updates: Partial<CalendarOptions> = {};
+        if (r[0].business_hours_start) {
+          updates.slotMinTime = r[0].business_hours_start + ':00';
+        }
+        if (r[0].business_hours_end) {
+          updates.slotMaxTime = r[0].business_hours_end + ':00';
+        }
+        if (Object.keys(updates).length > 0) {
+          this.calendarOptions = { ...this.calendarOptions, ...updates };
+        }
+      }
     });
   }
 
@@ -203,6 +252,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
             description: ev.description,
             client_id: ev.client_id,
             package_id: ev.package_id,
+            service_id: ev.service_id,
             is_taken: isTaken,
             client_name: ev.client ? [ev.client.name, ev.client.lastname, ev.client.motherlastname].filter(Boolean).join(' ') : ''
           }
@@ -222,14 +272,85 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
+  openModalNew() {
+    const start = new Date();
+    start.setMinutes(0, 0, 0);
+    const end = new Date(start.getTime() + 60 * 60 * 1000);
+    
+    this.formData = {
+      id: null,
+      title: '',
+      description: '',
+      client_id: null,
+      package_id: null,
+      service_id: null,
+      start: this.toDatetimeLocal(start),
+      end: this.toDatetimeLocal(end),
+      color: '#a2d2ff',
+      allDay: false
+    };
+    this.isTaken = false;
+    this.isExpressMode = false;
+    this.openModal();
+  }
+
+  findNextAvailableSlot(baseStart: Date, durationMinutes: number): {start: Date, end: Date} {
+    const ms15 = 1000 * 60 * 15;
+    let current = new Date(Math.ceil(baseStart.getTime() / ms15) * ms15);
+    const durationMs = durationMinutes * 60000;
+
+    while (true) {
+      const e1 = new Date(current.getTime() + durationMs);
+      const s1Time = current.getTime();
+      const e1Time = e1.getTime();
+      
+      let overlap = false;
+      for (const ev of this.allEvents) {
+        if (this.formData.id && ev.id === this.formData.id.toString()) continue;
+        const s2 = new Date(ev.start).getTime();
+        const e2 = new Date(ev.end).getTime();
+        if (s1Time < e2 && e1Time > s2) {
+          overlap = true;
+          break;
+        }
+      }
+      if (!overlap) {
+        return { start: current, end: e1 };
+      }
+      current = new Date(current.getTime() + ms15);
+    }
+  }
+
+  openExpressModal() {
+    const slot = this.findNextAvailableSlot(new Date(), 60); // Default 60 min if no service
+    
+    this.formData = {
+      id: null,
+      title: 'Turno Express',
+      description: 'Turno generado automáticamente (Walk-in)',
+      client_id: null,
+      package_id: null,
+      service_id: null,
+      start: this.toDatetimeLocal(slot.start),
+      end: this.toDatetimeLocal(slot.end),
+      color: '#ffadad', // Red color for express
+      allDay: false
+    };
+    this.isTaken = false;
+    this.isExpressMode = true;
+    this.openModal();
+  }
+
   closeModal() {
     this.showModal = false;
     this.formData = {
-      id: null, title: '', description: '', client_id: null, package_id: null,
+      id: null, title: '', description: '', client_id: null, package_id: null, service_id: null,
       start: '', end: '', color: '#a2d2ff', allDay: false
     };
     this.clientPackages = [];
     this.isTaken = false;
+    this.showQuickClient = false;
+    this.quickClientData = { name: '', lastname: '', phone_mobile: '' };
     this.cdr.detectChanges();
   }
 
@@ -347,6 +468,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
       description: '',
       client_id: clientId,
       package_id: packageId,
+      service_id: null,
       start: this.toDatetimeLocal(start),
       end: this.toDatetimeLocal(end),
       color: '#a2d2ff',
@@ -383,6 +505,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
       description: '',
       client_id: null,
       package_id: null,
+      service_id: null,
       start: selectInfo.startStr.substring(0, 16),
       end: selectInfo.endStr.substring(0, 16),
       color: '#a2d2ff',
@@ -403,12 +526,14 @@ export class ScheduleComponent implements OnInit, OnDestroy {
       description: ev.extendedProps['description'] || '',
       client_id: ev.extendedProps['client_id'] ? Number(ev.extendedProps['client_id']) : null,
       package_id: ev.extendedProps['package_id'] ? Number(ev.extendedProps['package_id']) : null,
+      service_id: ev.extendedProps['service_id'] ? Number(ev.extendedProps['service_id']) : null,
       start: ev.startStr.substring(0, 16),
       end: (ev.endStr || ev.startStr).substring(0, 16),
       color: ev.backgroundColor,
       allDay: ev.allDay
     };
     this.isTaken = ev.extendedProps['is_taken'] || false;
+    this.isExpressMode = ev.backgroundColor === '#ffadad' || cleanTitle.includes('Express');
 
     this.openModal();
   }
@@ -424,6 +549,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
       description: ev.extendedProps['description'],
       client_id: ev.extendedProps['client_id'],
       package_id: ev.extendedProps['package_id'],
+      service_id: ev.extendedProps['service_id'],
       start: ev.startStr,
       end: ev.endStr || ev.startStr,
       color: ev.backgroundColor,
@@ -437,6 +563,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
       description: ev.extendedProps['description'],
       client_id: ev.extendedProps['client_id'],
       package_id: ev.extendedProps['package_id'],
+      service_id: ev.extendedProps['service_id'],
       start: ev.startStr,
       end: ev.endStr || ev.startStr,
       color: ev.backgroundColor,
@@ -461,17 +588,43 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     this.currentEvents = events;
   }
 
+  hasOverlap(): boolean {
+    const s1 = new Date(this.formData.start).getTime();
+    const e1 = new Date(this.formData.end).getTime();
+
+    for (const ev of this.allEvents) {
+      if (this.formData.id && ev.id === this.formData.id.toString()) continue;
+      
+      const s2 = new Date(ev.start).getTime();
+      const e2 = new Date(ev.end).getTime();
+
+      if (s1 < e2 && e1 > s2) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   saveEvent() {
     if (!this.formData.title?.trim()) return;
 
-    const payload = { ...this.formData, allDay: this.formData.allDay ? 1 : 0 };
+    if (this.hasOverlap()) {
+      Swal.fire('Atención', 'El horario se empalma con otra cita.', 'warning');
+      return;
+    }
+
+    const payload = { ...this.formData, allDay: this.formData.allDay ? 1 : 0, is_express: this.isExpressMode };
 
     if (this.formData.id) {
       this.scheduleService.update(this.formData.id, payload).subscribe({
         next: () => {
           this.closeModal();
           this.loadEvents();
+          this.loadQueue();
           Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Cita actualizada', showConfirmButton: false, timer: 1800 });
+        },
+        error: (err) => {
+          Swal.fire('Error', err?.error?.error || 'No se pudo actualizar la cita', 'error');
         }
       });
     } else {
@@ -479,7 +632,11 @@ export class ScheduleComponent implements OnInit, OnDestroy {
         next: () => {
           this.closeModal();
           this.loadEvents();
+          this.loadQueue();
           Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Cita agendada', showConfirmButton: false, timer: 1800 });
+        },
+        error: (err) => {
+          Swal.fire('Error', err?.error?.error || 'No se pudo agendar la cita', 'error');
         }
       });
     }
@@ -524,10 +681,80 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   onPackageChange(pkgId: number) {
     if (pkgId) {
       const pkg = this.clientPackages.find(p => p.id === pkgId);
-      if (pkg && pkg.type && !this.formData.title) {
-        this.formData.title = 'Sesión ' + pkg.type.name;
+      if (pkg && pkg.type) {
+        if (!this.formData.title || this.formData.title === 'Turno Express') {
+          this.formData.title = 'Sesión ' + pkg.type.name;
+        }
+        if (pkg.type.duration_minutes && this.formData.start) {
+          if (this.isExpressMode) {
+             const slot = this.findNextAvailableSlot(new Date(), pkg.type.duration_minutes);
+             this.formData.start = this.toDatetimeLocal(slot.start);
+             this.formData.end = this.toDatetimeLocal(slot.end);
+          } else {
+             const start = new Date(this.formData.start);
+             const end = new Date(start.getTime() + pkg.type.duration_minutes * 60000);
+             this.formData.end = this.toDatetimeLocal(end);
+          }
+        }
       }
     }
+  }
+
+  onServiceChange(srvId: number) {
+    if (srvId) {
+      const srv = this.catServices.find(s => s.id === srvId);
+      if (srv) {
+        if (!this.formData.title || this.formData.title === 'Turno Express') {
+          this.formData.title = srv.name || '';
+        }
+        if (srv.duration_minutes && this.formData.start) {
+          if (this.isExpressMode) {
+             const slot = this.findNextAvailableSlot(new Date(), srv.duration_minutes);
+             this.formData.start = this.toDatetimeLocal(slot.start);
+             this.formData.end = this.toDatetimeLocal(slot.end);
+          } else {
+             const start = new Date(this.formData.start);
+             const end = new Date(start.getTime() + srv.duration_minutes * 60000);
+             this.formData.end = this.toDatetimeLocal(end);
+          }
+        }
+      }
+    }
+  }
+
+  saveQuickClient() {
+    if (!this.quickClientData.name || !this.quickClientData.lastname || !this.quickClientData.phone_mobile) {
+      Swal.fire('Atención', 'Por favor, llena nombre, apellido y teléfono.', 'warning');
+      return;
+    }
+    this.savingQuickClient = true;
+    const payload = {
+      ...this.quickClientData,
+      phone_home: this.quickClientData.phone_mobile,
+      reference_id: -1,
+      other_ref: 'Turno Express / Agenda'
+    };
+
+    const environment = (window as any).__env || { apiUrl: 'http://localhost:8000/api' };
+    this.http.post<any>(`${environment.apiUrl}/clients`, payload).subscribe({
+      next: (res) => {
+        this.savingQuickClient = false;
+        this.showQuickClient = false;
+        const newClient = res.data || res;
+        this.clients = [...this.clients, {
+          ...newClient,
+          id: Number(newClient.id),
+          fullname: [newClient.name, newClient.lastname].filter(Boolean).join(' ')
+        }];
+        this.formData.client_id = Number(newClient.id);
+        this.onClientChange(this.formData.client_id);
+        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Cliente registrado', showConfirmButton: false, timer: 1500 });
+      },
+      error: (err) => {
+        this.savingQuickClient = false;
+        Swal.fire('Error', err?.error?.message || err?.error || 'No se pudo registrar el cliente', 'error');
+      }
+    });
   }
 
   getSessionsRemaining(pkg: Package): number {

@@ -37,8 +37,31 @@ export class LoginComponent implements OnInit {
       }, 
       error: (err) => {
         console.error("LOGIN ERROR:", err);
-        this.handleLoginError();
+        // Si hay error de CORS/Fetch por cookies inválidas, el status suele ser 0
+        if (err && err.status === 0) {
+            this.clearCookiesAndReload();
+        } else {
+            this.handleLoginError();
+        }
       }
+    });
+  }
+
+  private clearCookiesAndReload() {
+    this.isBusy = false;
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+    
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'warning',
+      title: 'Limpiando sesión inválida...',
+      showConfirmButton: false,
+      timer: 1500,
+    }).then(() => {
+      window.location.reload();
     });
   }
 

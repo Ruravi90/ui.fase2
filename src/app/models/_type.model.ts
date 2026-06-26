@@ -6,4 +6,5 @@ export class _Type extends Base {
   session_count?: number;
   // tslint:disable-next-line:no-inferrable-types
   count?: number = 0;
+  duration_minutes?: number;
 }

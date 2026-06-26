@@ -100,6 +100,12 @@
             <input type="number" min="0" class="serene-input" placeholder="Ej. 500" name="price" [(ngModel)]="item.price" #price="ngModel" required>
           </div>
         </div>
+        <div class="row">
+          <div class="col-lg-12" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Duración del servicio (minutos)</label>
+            <input type="number" min="15" step="15" class="serene-input" placeholder="Ej. 30" name="duration_minutes" [(ngModel)]="item.duration_minutes" #duration_minutes="ngModel" required>
+          </div>
+        </div>
       </div>
       
       <div class="sc-modal-footer">

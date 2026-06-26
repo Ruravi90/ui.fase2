@@ -69,6 +69,16 @@
             <input type="text" class="serene-input" name="name" [(ngModel)]="item.name" #name="ngModel" placeholder="Ej. Ventas" required />
           </div>
         </div>
+        <div class="row">
+          <div class="col-lg-6" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Hora de Apertura</label>
+            <input type="time" class="serene-input" name="business_hours_start" [(ngModel)]="item.business_hours_start" />
+          </div>
+          <div class="col-lg-6" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Hora de Cierre</label>
+            <input type="time" class="serene-input" name="business_hours_end" [(ngModel)]="item.business_hours_end" />
+          </div>
+        </div>
       </div>
       
       <div class="sc-modal-footer">

@@ -107,6 +107,10 @@
             <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Número de Sesiones</label>
             <input type="number" min="1" class="serene-input" placeholder="Ej. 5" name="sessionCount" [(ngModel)]="item.session_count" #sessionCount="ngModel" required>
           </div>
+          <div class="col-lg-6" style="margin-bottom: 1rem;">
+            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Duración del servicio (minutos)</label>
+            <input type="number" min="15" step="15" class="serene-input" placeholder="Ej. 60" name="duration_minutes" [(ngModel)]="item.duration_minutes" #duration_minutes="ngModel" required>
+          </div>
         </div>
 
         <hr style="border-color: var(--color-border); margin: 1.5rem 0;" />
