@@ -167,19 +167,19 @@
                             <div *ngIf="activeTab === 'soap'">
                                 <div class="cr-form-group">
                                     <label class="cr-label">Motivo de Consulta (S)</label>
-                                    <textarea class="serene-input" rows="3" [ngModel]="isReadOnly ? selectedPastNote.subjective : note.subjective" (ngModelChange)="note.subjective = $event" [disabled]="isReadOnly" placeholder="El paciente acude por..."></textarea>
+                                    <textarea class="serene-input" rows="3" [ngModel]="isReadOnly ? selectedPastNote?.subjective : note.subjective" (ngModelChange)="note.subjective = $event" [disabled]="isReadOnly" placeholder="El paciente acude por..."></textarea>
                                 </div>
                                 <div class="cr-form-group">
                                     <label class="cr-label">Exploración Física (O)</label>
-                                    <textarea class="serene-input" rows="2" [ngModel]="isReadOnly ? selectedPastNote.objective : note.objective" (ngModelChange)="note.objective = $event" [disabled]="isReadOnly" placeholder="Hallazgos a la exploración..."></textarea>
+                                    <textarea class="serene-input" rows="2" [ngModel]="isReadOnly ? selectedPastNote?.objective : note.objective" (ngModelChange)="note.objective = $event" [disabled]="isReadOnly" placeholder="Hallazgos a la exploración..."></textarea>
                                 </div>
                                 <div class="cr-form-group">
                                     <label class="cr-label">Análisis (A)</label>
-                                    <textarea class="serene-input" rows="2" [ngModel]="isReadOnly ? selectedPastNote.analysis : note.analysis" (ngModelChange)="note.analysis = $event" [disabled]="isReadOnly" placeholder="Diagnóstico o análisis clínico..."></textarea>
+                                    <textarea class="serene-input" rows="2" [ngModel]="isReadOnly ? selectedPastNote?.analysis : note.analysis" (ngModelChange)="note.analysis = $event" [disabled]="isReadOnly" placeholder="Diagnóstico o análisis clínico..."></textarea>
                                 </div>
                                 <div class="cr-form-group" style="margin-bottom: 0;">
                                     <label class="cr-label">Plan y Tratamiento (P)</label>
-                                    <textarea class="serene-input" rows="3" [ngModel]="isReadOnly ? selectedPastNote.plan : note.plan" (ngModelChange)="note.plan = $event" [disabled]="isReadOnly" placeholder="Indicaciones, receta..."></textarea>
+                                    <textarea class="serene-input" rows="3" [ngModel]="isReadOnly ? selectedPastNote?.plan : note.plan" (ngModelChange)="note.plan = $event" [disabled]="isReadOnly" placeholder="Indicaciones, receta..."></textarea>
                                 </div>
                             </div>
 
@@ -188,19 +188,19 @@
                                 <div class="cr-grid-2">
                                     <div class="cr-form-group">
                                         <label class="cr-label">Peso (kg)</label>
-                                        <input type="number" class="serene-input" [ngModel]="isReadOnly ? selectedPastNote.weight : note.weight" (ngModelChange)="note.weight = $event" [disabled]="isReadOnly">
+                                        <input type="number" class="serene-input" [ngModel]="isReadOnly ? selectedPastNote?.weight : note.weight" (ngModelChange)="note.weight = $event" [disabled]="isReadOnly">
                                     </div>
                                     <div class="cr-form-group">
                                         <label class="cr-label">Tensión Arterial (mmHg)</label>
-                                        <input type="text" class="serene-input" [ngModel]="isReadOnly ? selectedPastNote.blood_pressure : note.blood_pressure" (ngModelChange)="note.blood_pressure = $event" [disabled]="isReadOnly" placeholder="Ej. 120/80">
+                                        <input type="text" class="serene-input" [ngModel]="isReadOnly ? selectedPastNote?.blood_pressure : note.blood_pressure" (ngModelChange)="note.blood_pressure = $event" [disabled]="isReadOnly" placeholder="Ej. 120/80">
                                     </div>
                                     <div class="cr-form-group">
                                         <label class="cr-label">Temperatura (°C)</label>
-                                        <input type="number" class="serene-input" [ngModel]="isReadOnly ? selectedPastNote.temperature : note.temperature" (ngModelChange)="note.temperature = $event" [disabled]="isReadOnly">
+                                        <input type="number" class="serene-input" [ngModel]="isReadOnly ? selectedPastNote?.temperature : note.temperature" (ngModelChange)="note.temperature = $event" [disabled]="isReadOnly">
                                     </div>
                                     <div class="cr-form-group">
                                         <label class="cr-label">Frecuencia Cardíaca (lpm)</label>
-                                        <input type="number" class="serene-input" [ngModel]="isReadOnly ? selectedPastNote.heart_rate : note.heart_rate" (ngModelChange)="note.heart_rate = $event" [disabled]="isReadOnly">
+                                        <input type="number" class="serene-input" [ngModel]="isReadOnly ? selectedPastNote?.heart_rate : note.heart_rate" (ngModelChange)="note.heart_rate = $event" [disabled]="isReadOnly">
                                     </div>
                                 </div>
                             </div>
@@ -210,11 +210,33 @@
                                 <div class="cr-form-group" style="margin-bottom: 0;">
                                     <label class="cr-label">Diagnósticos CIE-10 / CIE-11</label>
                                     <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                                        <input type="text" class="serene-input" placeholder="Buscar código o descripción..." style="flex: 1;" [disabled]="isReadOnly">
-                                        <button class="btn-serene-secondary" style="padding: 0.5rem 1rem;" [disabled]="isReadOnly"><i class="fas fa-search"></i> Buscar</button>
+                                        <input type="text" class="serene-input" placeholder="Ej. J00 - Resfriado común (Escribe y presiona Enter)..." style="flex: 1;" 
+                                               [(ngModel)]="newDiagnosisText" 
+                                               (keyup.enter)="addDiagnosis()"
+                                               [disabled]="isReadOnly">
+                                        <button class="btn-serene-secondary" style="padding: 0.5rem 1rem;" 
+                                                (click)="addDiagnosis()" 
+                                                [disabled]="isReadOnly || !newDiagnosisText.trim()">
+                                            <i class="fas fa-plus"></i> Agregar
+                                        </button>
                                     </div>
-                                    <div style="padding: 2rem; text-align: center; color: var(--color-text-muted); border: 1px dashed var(--color-border); border-radius: 8px;">
+                                    
+                                    <div *ngIf="!(isReadOnly ? selectedPastNote?.diagnoses?.length : note.diagnoses?.length)" style="padding: 2rem; text-align: center; color: var(--color-text-muted); border: 1px dashed var(--color-border); border-radius: 8px;">
                                         Aún no has agregado diagnósticos a esta consulta.
+                                    </div>
+
+                                    <div *ngIf="(isReadOnly ? selectedPastNote?.diagnoses?.length : note.diagnoses?.length)" style="display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 1.5rem; border: 1px solid var(--color-border); border-radius: 8px; background: rgba(248, 249, 250, 0.5);">
+                                        <ng-container *ngIf="isReadOnly">
+                                            <span *ngFor="let dx of selectedPastNote?.diagnoses" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 0.35rem 0.85rem; border-radius: 16px; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem;">
+                                                <i class="fas fa-stethoscope"></i> {{ dx }}
+                                            </span>
+                                        </ng-container>
+                                        <ng-container *ngIf="!isReadOnly">
+                                            <span *ngFor="let dx of note.diagnoses; let i = index" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 0.35rem 0.85rem; border-radius: 16px; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem;">
+                                                <i class="fas fa-stethoscope"></i> {{ dx }}
+                                                <i class="fas fa-times" style="cursor: pointer; opacity: 0.7; padding-left: 0.25rem;" (click)="removeDiagnosis(i)"></i>
+                                            </span>
+                                        </ng-container>
                                     </div>
                                 </div>
                             </div>
@@ -223,7 +245,7 @@
                             <div *ngIf="activeTab === 'rx'">
                                 <div class="cr-form-group">
                                     <label class="cr-label">Prescripción Médica</label>
-                                    <textarea class="serene-input" rows="6" placeholder="1. Paracetamol 500mg, tomar 1 tableta cada 8 horas por 3 días..." [ngModel]="isReadOnly ? selectedPastNote.plan : note.plan" (ngModelChange)="note.plan = $event" [disabled]="isReadOnly"></textarea>
+                                    <textarea class="serene-input" rows="6" placeholder="1. Paracetamol 500mg, tomar 1 tableta cada 8 horas por 3 días..." [ngModel]="isReadOnly ? selectedPastNote?.plan : note.plan" (ngModelChange)="note.plan = $event" [disabled]="isReadOnly"></textarea>
                                 </div>
                                 <button class="btn-serene-secondary" style="display: flex; align-items: center; gap: 0.5rem;" [disabled]="!isReadOnly && !note.plan && !currentTurn" (click)="printRecipe()">
                                     <i class="fas fa-print"></i> Imprimir Receta

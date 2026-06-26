@@ -41,6 +41,15 @@ export class UserComponent implements OnInit {
     this.pS.model = 'users';
   }
 
+  get isDoctor(): boolean {
+    if (!this.user || !this.user.roles) return false;
+    return this.user.roles.some((r: any) => 
+      r.name.toLowerCase().includes('médico') || 
+      r.name.toLowerCase().includes('medico') || 
+      r.name.toLowerCase().includes('doctor')
+    );
+  }
+
   ngOnInit() {
     this.roles$ = this.rS.get();
     this.getUsers();

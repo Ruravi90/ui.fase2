@@ -142,6 +142,28 @@
             </ng-select>
           </div>
         </div>
+
+        @if (isDoctor) {
+          <div style="border-top: 1px dashed var(--color-border); padding-top: 1rem; margin-top: 0.5rem;">
+            <h5 style="font-size: 0.95rem; font-weight: 500; margin-bottom: 1rem; color: var(--color-text-primary);">Datos Médicos / Credenciales</h5>
+            <div class="row">
+              <div class="col-lg-6" style="margin-bottom: 1rem;">
+                <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Especialidad / Título</label>
+                <input type="text" class="serene-input" name="specialty" [(ngModel)]="user.specialty" placeholder="Ej. Médico Cirujano y Partero" />
+              </div>
+              <div class="col-lg-6" style="margin-bottom: 1rem;">
+                <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Cédula Profesional</label>
+                <input type="text" class="serene-input" name="professional_license" [(ngModel)]="user.professional_license" placeholder="Ej. 12345678" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12" style="margin-bottom: 1rem;">
+                <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Universidad de Egreso</label>
+                <input type="text" class="serene-input" name="university" [(ngModel)]="user.university" placeholder="Ej. Universidad Nacional Autónoma de México" />
+              </div>
+            </div>
+          </div>
+        }
         
         @if (isEdit) {
           <div class="row" style="margin-bottom: 1rem;">

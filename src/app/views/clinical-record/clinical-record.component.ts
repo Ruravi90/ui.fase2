@@ -6,6 +6,24 @@ import { ClinicalRecordService } from '../../core/services/clinical-record.servi
 import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
 
+export interface ClinicalNote {
+  id: number | null;
+  subjective: string;
+  objective: string;
+  analysis: string;
+  plan: string;
+  diagnoses: string[];
+  weight: number | null;
+  blood_pressure: string;
+  temperature: number | null;
+  heart_rate: number | null;
+  respiratory_rate?: number | null;
+  oxygen_saturation?: number | null;
+  status?: string;
+  signed_at?: string;
+  doctor?: any;
+}
+
 @Component({
   selector: 'app-clinical-record',
   standalone: true,
@@ -19,7 +37,7 @@ export class ClinicalRecordComponent implements OnInit {
   scheduleId!: number;
 
   medicalRecord: any = null;
-  history: any[] = [];
+  history: ClinicalNote[] = [];
   activeQueue: any[] = [];
   currentTurn: any = null;
   waitingQueue: any[] = [];
@@ -30,19 +48,22 @@ export class ClinicalRecordComponent implements OnInit {
 
   isReadOnly = false;
   isLoading = true;
-  selectedPastNote: any = null;
+  selectedPastNote: ClinicalNote | null = null;
 
-  note = {
+  note: ClinicalNote = {
     id: null,
     subjective: '',
     objective: '',
     analysis: '',
     plan: '',
+    diagnoses: [],
     weight: null,
     blood_pressure: '',
     temperature: null,
     heart_rate: null
   };
+
+  newDiagnosisText = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -111,6 +132,20 @@ export class ClinicalRecordComponent implements OnInit {
     });
   }
 
+  addDiagnosis() {
+    if (this.newDiagnosisText.trim() && !this.isReadOnly) {
+      if (!this.note.diagnoses) this.note.diagnoses = [];
+      this.note.diagnoses.push(this.newDiagnosisText.trim());
+      this.newDiagnosisText = '';
+    }
+  }
+
+  removeDiagnosis(index: number) {
+    if (!this.isReadOnly && this.note.diagnoses) {
+      this.note.diagnoses.splice(index, 1);
+    }
+  }
+
   saveDraft() {
     const payload = {
       ...this.note,
@@ -160,41 +195,208 @@ export class ClinicalRecordComponent implements OnInit {
 
   printRecipe() {
     const noteData = this.isReadOnly ? this.selectedPastNote : this.note;
-    const client = this.currentTurn?.schedule?.client;
+    const client = this.currentTurn?.schedule?.client || this.medicalRecord?.client;
     const clientName = client ? `${client.name} ${client.lastname}` : 'Paciente';
+    const doctorName = noteData?.doctor ? `${noteData.doctor.name} ${noteData.doctor.lastname}` : 'Médico Tratante';
+    const doctorSpecialty = noteData?.doctor?.specialty || 'Médico Cirujano y Partero';
+    const doctorLicense = noteData?.doctor?.professional_license || 'PENDIENTE';
+    const doctorUniversity = noteData?.doctor?.university ? `Egresado de: ${noteData.doctor.university}` : '';
+
+    const age = client?.birthdate ? Math.floor((new Date().getTime() - new Date(client.birthdate).getTime()) / 31557600000) + ' años' : '--';
     
+    // Convert newlines in plan to HTML breaks
+    const planHtml = noteData?.plan ? noteData.plan.replace(/\n/g, '<br>') : 'Sin indicaciones registradas.';
+    
+    // Format diagnoses
+    const diagnosesHtml = (noteData?.diagnoses && noteData.diagnoses.length > 0) 
+      ? noteData.diagnoses.map(dx => `<li>${dx}</li>`).join('') 
+      : '<li>Sin diagnóstico registrado</li>';
+
     const printContent = `
+      <!DOCTYPE html>
       <html>
         <head>
+          <meta charset="utf-8">
           <title>Receta Médica - ${clientName}</title>
           <style>
-            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 2rem; color: #3A4A40; line-height: 1.5; }
-            .header { border-bottom: 2px solid #84A59D; padding-bottom: 1rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; }
-            h2 { margin: 0; color: #3A4A40; font-size: 1.5rem; }
-            .meta p { margin: 0.25rem 0; font-size: 0.95rem; color: #555; }
-            .content { white-space: pre-wrap; font-size: 1rem; margin-top: 2rem; border: 1px solid #eee; padding: 1.5rem; border-radius: 8px; min-height: 300px; }
-            .signature { margin-top: 4rem; text-align: center; width: 250px; float: right; }
-            .signature-line { border-top: 1px solid #333; padding-top: 0.5rem; font-size: 0.9rem; }
-            @media print { body { padding: 0; } .header { margin-top: 1rem; } }
+            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap');
+            body { 
+              font-family: 'Outfit', sans-serif; 
+              padding: 40px; 
+              color: #2b3a42; 
+              line-height: 1.5; 
+              background: #fff;
+            }
+            .recipe-container {
+              max-width: 800px;
+              margin: 0 auto;
+              border: 1px solid #e2e8f0;
+              padding: 40px;
+              border-radius: 12px;
+              position: relative;
+            }
+            .header { 
+              border-bottom: 3px solid #84a59d; 
+              padding-bottom: 20px; 
+              margin-bottom: 30px; 
+              display: flex; 
+              justify-content: space-between; 
+              align-items: flex-end; 
+            }
+            .clinic-brand h1 { margin: 0; color: #3a4a40; font-size: 28px; font-weight: 600; }
+            .clinic-brand p { margin: 5px 0 0; font-size: 14px; color: #64748b; }
+            .doc-info { text-align: right; font-size: 14px; color: #475569; }
+            .doc-info strong { color: #3a4a40; font-size: 16px; }
+            
+            .patient-box {
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 8px;
+              padding: 15px 20px;
+              display: flex;
+              flex-wrap: wrap;
+              gap: 20px;
+              margin-bottom: 30px;
+              font-size: 14px;
+            }
+            .patient-box div { flex: 1; min-width: 150px; }
+            .patient-box label { display: block; font-size: 12px; color: #64748b; font-weight: 500; text-transform: uppercase; margin-bottom: 4px; }
+            .patient-box span { font-weight: 500; color: #0f172a; }
+
+            .vitals-bar {
+              display: flex;
+              gap: 15px;
+              font-size: 13px;
+              margin-bottom: 30px;
+              border-bottom: 1px dashed #cbd5e1;
+              padding-bottom: 15px;
+            }
+            .vitals-bar div { display: flex; align-items: center; gap: 5px; }
+            .vitals-bar label { color: #64748b; font-weight: 500; }
+            
+            .section-title {
+              font-size: 16px;
+              color: #3a4a40;
+              font-weight: 600;
+              margin-bottom: 15px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            }
+            
+            .rx-symbol {
+              font-size: 40px;
+              color: #84a59d;
+              font-weight: 300;
+              font-family: serif;
+              margin-bottom: 10px;
+            }
+
+            .diagnoses {
+              margin-bottom: 30px;
+              font-size: 14px;
+              color: #334155;
+            }
+            .diagnoses ul { margin: 5px 0 0; padding-left: 20px; }
+
+            .prescription {
+              font-size: 15px;
+              min-height: 250px;
+              color: #1e293b;
+            }
+
+            .footer {
+              margin-top: 60px;
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-end;
+            }
+            
+            .signature {
+              text-align: center;
+              width: 280px;
+            }
+            .signature-line {
+              border-top: 1px solid #1e293b;
+              padding-top: 8px;
+              font-size: 14px;
+              font-weight: 500;
+              color: #334155;
+            }
+            
+            .qr-code {
+              width: 80px;
+              height: 80px;
+              border: 1px solid #cbd5e1;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 10px;
+              color: #94a3b8;
+              text-align: center;
+            }
+
+            @media print { 
+              body { padding: 0; background: none; } 
+              .recipe-container { border: none; padding: 0; }
+            }
           </style>
         </head>
         <body>
-          <div class="header">
-            <div>
-              <h2>Serene Spa & Clinic</h2>
-              <span style="font-size: 0.85rem; color: #8C9C93;">Receta Médica y Prescripción</span>
+          <div class="recipe-container">
+            <div class="header">
+              <div class="clinic-brand">
+                <h1>Serene Spa & Clinic</h1>
+                <p>Especialidades Médicas y Bienestar</p>
+              </div>
+              <div class="doc-info">
+                <strong>Dr. ${doctorName}</strong><br>
+                ${doctorSpecialty}<br>
+                Cédula Profesional: ${doctorLicense}<br>
+                ${doctorUniversity ? doctorUniversity + '<br>' : ''}
+                Fecha: ${new Date().toLocaleDateString()}
+              </div>
             </div>
-            <div style="text-align: right; font-size: 0.9rem;">
-              <strong>Fecha:</strong> ${new Date().toLocaleDateString()}
+
+            <div class="patient-box">
+              <div>
+                <label>Paciente</label>
+                <span>${clientName}</span>
+              </div>
+              <div>
+                <label>Edad</label>
+                <span>${age}</span>
+              </div>
+              <div>
+                <label>Alergias</label>
+                <span style="color: ${this.medicalRecord?.allergies ? '#dc2626' : 'inherit'}">${this.medicalRecord?.allergies || 'Negadas'}</span>
+              </div>
             </div>
-          </div>
-          <div class="meta">
-            <p><strong>Paciente:</strong> ${clientName}</p>
-            <p><strong>Signos vitales capturados:</strong> Peso: ${noteData.weight || '--'} kg | T/A: ${noteData.blood_pressure || '--'} | Temp: ${noteData.temperature || '--'} °C</p>
-          </div>
-          <div class="content">${noteData.plan || 'Sin indicaciones registradas.'}</div>
-          <div class="signature">
-            <div class="signature-line">Firma del Médico Tratante</div>
+
+            <div class="vitals-bar">
+              <div><label>Peso:</label> ${noteData?.weight || '--'} kg</div>
+              <div><label>T/A:</label> ${noteData?.blood_pressure || '--'}</div>
+              <div><label>Temp:</label> ${noteData?.temperature || '--'} °C</div>
+              <div><label>FC:</label> ${noteData?.heart_rate || '--'} lpm</div>
+            </div>
+
+            <div class="diagnoses">
+              <div class="section-title">Diagnósticos (CIE-10):</div>
+              <ul>${diagnosesHtml}</ul>
+            </div>
+
+            <div class="rx-symbol">Rx.</div>
+            <div class="prescription">
+              ${planHtml}
+            </div>
+
+            <div class="footer">
+              <div class="qr-code">Espacio<br>para QR</div>
+              <div class="signature">
+                <div class="signature-line">Firma del Médico Tratante</div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Válido por 30 días a partir de su expedición</div>
+              </div>
+            </div>
           </div>
         </body>
       </html>
