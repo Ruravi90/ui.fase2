@@ -1,0 +1,38 @@
+<div class="subscription-container">
+  <div class="header">
+    <h1>Mi Suscripción</h1>
+    <p>Elige el plan que mejor se adapte a tu clínica y obtén acceso a todas las herramientas.</p>
+  </div>
+
+  <div class="plans-grid">
+    <div *ngFor="let plan of plans" class="plan-card" [class.recommended]="plan.recommended" [class.current]="plan.id === currentPlanId">
+      
+      <div class="recommended-badge" *ngIf="plan.recommended">Más Popular</div>
+      <div class="current-badge" *ngIf="plan.id === currentPlanId">Tu Plan Actual</div>
+      
+      <h2>{{ plan.name }}</h2>
+      <div class="price">
+        <span class="currency">$</span>
+        <span class="amount">{{ plan.price }}</span>
+        <span class="period">/ mes</span>
+      </div>
+
+      <ul class="features">
+        <li *ngFor="let feature of plan.features">
+          <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+          {{ feature }}
+        </li>
+      </ul>
+
+      <button 
+        class="pay-btn" 
+        [class.mp-btn]="plan.price > 0"
+        [disabled]="plan.id === currentPlanId"
+        (click)="payWithMercadoPago(plan)">
+        {{ plan.id === currentPlanId ? 'Plan Actual' : (plan.price > 0 ? 'Pagar con Mercado Pago' : 'Elegir Plan') }}
+      </button>
+    </div>
+  </div>
+</div>

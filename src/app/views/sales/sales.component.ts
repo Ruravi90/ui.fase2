@@ -229,15 +229,21 @@ export class SalesComponent implements OnInit {
   }
 
   printToCart(printSectionId: string) {
+    this.cdr.detectChanges();
     const printContents = document.getElementById(printSectionId)?.innerHTML;
     if (!printContents) return;
 
     const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0px';
+    iframe.style.height = '0px';
+    iframe.style.border = 'none';
+    iframe.style.visibility = 'hidden';
     document.body.appendChild(iframe);
 
     const doc = iframe.contentWindow?.document;
     if (doc) {
+      console.log('PRINT CONTENTS:', printContents);
       doc.open();
       doc.write(`
         <html>
@@ -245,6 +251,9 @@ export class SalesComponent implements OnInit {
             <base href="${window.location.origin}/">
             <title>Imprimiendo Ticket...</title>
             <link rel="stylesheet" type="text/css" href="assets/css/print.css">
+            <style>
+              app-ticket-print { display: block; width: 100%; }
+            </style>
           </head>
           <body onload="setTimeout(function() { window.print(); window.parent.document.body.removeChild(window.frameElement); }, 500);">
             ${printContents}

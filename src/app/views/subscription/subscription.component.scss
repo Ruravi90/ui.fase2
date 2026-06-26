@@ -1,0 +1,162 @@
+.subscription-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  color: #333;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 50px;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 1.1rem;
+    color: #666;
+  }
+}
+
+.plans-grid {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.plan-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 30px;
+  width: 320px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eaeaea;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  &.recommended {
+    border: 2px solid #009ee3; /* Mercado Pago Blue */
+    transform: scale(1.05);
+
+    &:hover {
+      transform: scale(1.05) translateY(-5px);
+    }
+  }
+
+  &.current {
+    border-color: #4CAF50;
+  }
+
+  .recommended-badge, .current-badge {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .recommended-badge {
+    background: #009ee3;
+  }
+
+  .current-badge {
+    background: #4CAF50;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2c3e50;
+  }
+
+  .price {
+    text-align: center;
+    margin-bottom: 30px;
+
+    .currency {
+      font-size: 1.5rem;
+      font-weight: 600;
+      vertical-align: top;
+    }
+
+    .amount {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #1a1a2e;
+    }
+
+    .period {
+      color: #7f8c8d;
+      font-weight: 500;
+    }
+  }
+
+  .features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 40px 0;
+    flex-grow: 1;
+
+    li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      font-size: 0.95rem;
+      color: #555;
+
+      .check-icon {
+        width: 20px;
+        height: 20px;
+        color: #27ae60;
+        margin-right: 10px;
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  .pay-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+    background: #e0e0e0;
+    color: #333;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &.mp-btn:not(:disabled) {
+      background: #009ee3;
+      color: #fff;
+
+      &:hover {
+        background: #0087c1;
+      }
+    }
+  }
+}
