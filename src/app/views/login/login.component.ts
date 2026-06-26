@@ -32,9 +32,17 @@ export class LoginComponent implements OnInit {
             this.handleLoginError();
         } else {
             this.isAuthorized = true;
-            this.router.navigate(['/page']);
+            
+            // Verificar si es dueño del SaaS (super_admin)
+            const isSuperAdmin = this.uS.currentUser?.roles?.some(r => r.slug === 'super_admin');
+            
+            if (isSuperAdmin) {
+              this.router.navigate(['/saas/dashboard']);
+            } else {
+              this.router.navigate(['/page']);
+            }
         }
-      }, 
+      },
       error: (err) => {
         console.error("LOGIN ERROR:", err);
         // Si hay error de CORS/Fetch por cookies inválidas, el status suele ser 0
@@ -49,19 +57,25 @@ export class LoginComponent implements OnInit {
 
   private clearCookiesAndReload() {
     this.isBusy = false;
-    document.cookie.split(";").forEach((c) => {
-      document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    });
     
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'warning',
-      title: 'Limpiando sesión inválida...',
-      showConfirmButton: false,
-      timer: 1500,
-    }).then(() => {
-      window.location.reload();
+    // El frontend no puede borrar la cookie de sesión porque es HttpOnly.
+    // Llamamos al logout del backend para que él envíe la instrucción de caducar ambas cookies.
+    this.uS.logout().subscribe({
+      next: () => {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'warning',
+          title: 'Limpiando sesión inválida...',
+          showConfirmButton: false,
+          timer: 1500,
+        }).then(() => {
+          window.location.reload();
+        });
+      },
+      error: () => {
+        window.location.reload();
+      }
     });
   }
 

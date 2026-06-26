@@ -10,11 +10,12 @@ declare var iziToast: any;
 
 @Component({
     selector: 'body',
-    template: '<router-outlet></router-outlet>\n<app-chat-widget *ngIf="isLoggedIn"></app-chat-widget>',
+    template: '<router-outlet></router-outlet>\n<app-chat-widget *ngIf="isLoggedIn && !isSuperAdmin"></app-chat-widget>',
     imports: [RouterOutlet, ChatWidgetComponent, CommonModule]
 })
 export class AppComponent implements OnInit {
   isLoggedIn = false;
+  isSuperAdmin = false;
 
   constructor(
     private router: Router, 
@@ -24,6 +25,7 @@ export class AppComponent implements OnInit {
   ) {
     this.userService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
+      this.isSuperAdmin = user?.roles?.some((r: any) => r.name === 'super_admin') ?? false;
     });
   }
 

@@ -1,13 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface Plan {
-  id: number;
-  name: string;
-  price: number;
-  features: string[];
-  recommended?: boolean;
-}
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-subscription',
@@ -18,34 +13,57 @@ interface Plan {
 })
 export class SubscriptionComponent implements OnInit {
 
-  public plans: Plan[] = [
-    {
-      id: 1,
-      name: 'Prueba 1 Mes',
-      price: 0,
-      features: ['Módulo de Ventas', 'Inventario Básico', 'Soporte Comunitario']
-    },
-    {
-      id: 2,
-      name: 'Plan Pro',
-      price: 500,
-      features: ['Módulo de Ventas', 'Inventario Avanzado', 'Soporte 24/7', 'Módulo de Gastos', 'Reportes Avanzados'],
-      recommended: true
-    }
-  ];
-
+  public plans: any[] = [];
   public currentPlanId = 1;
+  public loading = false;
+  private apiUrl = environment.urlApi;
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
+    this.loadPlans();
   }
 
-  public payWithMercadoPago(plan: Plan) {
-    // Aquí se generaría la preferencia de Mercado Pago llamando a la API
-    // this.http.post('/api/v1/payments/preference', { plan_id: plan.id })
-    //   .subscribe(res => window.location.href = res.checkout_url);
+  loadPlans() {
+    this.loading = true;
+    this.http.get<any>(this.apiUrl + 'saas/available-plans').subscribe({
+      next: (res) => {
+        this.plans = res.plans || [];
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        Swal.fire('Error', 'No se pudieron cargar los planes disponibles', 'error');
+      }
+    });
+  }
 
-    alert(`Redirigiendo a Mercado Pago para pagar ${plan.name} por $${plan.price}...`);
+  public payWithMercadoPago(plan: any) {
+    this.loading = true;
+    Swal.fire({
+      title: 'Generando pago...',
+      text: 'Conectando con Mercado Pago',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    this.http.post<any>(this.apiUrl + 'saas/payment/preference', { plan_id: plan.id }).subscribe({
+      next: (res) => {
+        this.loading = false;
+        Swal.close();
+        if (res.init_point) {
+          window.location.href = res.init_point;
+        } else {
+          Swal.fire('Error', 'No se generó el enlace de pago', 'error');
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error(err);
+        Swal.fire('Error', 'Hubo un error al conectar con Mercado Pago', 'error');
+      }
+    });
   }
 }

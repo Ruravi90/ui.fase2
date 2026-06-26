@@ -15,6 +15,13 @@ const routes: Routes = [
     },
     children: [
       {
+        path: 'subscription',
+        loadComponent: () => import('../../views/subscription/subscription.component').then(m => m.SubscriptionComponent),
+        data: {
+          title: 'Mi Suscripción'
+        }
+      },
+      {
         path: 'users',
         component: UserComponent,
         data: {

@@ -1,0 +1,105 @@
+<div class="saas-premium-theme">
+  <div class="saas-content animated fadeIn">
+    <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <strong>Planes de Pago y Suscripciones</strong>
+      <button class="btn btn-sm btn-success" (click)="openModal()">
+        <i class="fas fa-plus"></i> Crear Nuevo Plan
+      </button>
+    </div>
+    <div class="card-body">
+      <div *ngIf="loading" class="text-center py-4">
+        <div class="spinner-border text-primary" role="status"></div>
+      </div>
+      
+      <div class="row" *ngIf="!loading">
+        <div class="col-sm-12 text-center" *ngIf="plans.length === 0">
+          <p class="text-muted">No has creado ningún plan todavía.</p>
+        </div>
+        
+        <div class="col-sm-6 col-md-4" *ngFor="let plan of plans">
+          <div class="card border-primary">
+            <div class="card-header bg-primary text-white text-center">
+              <h4 class="mb-0">{{ plan.name }}</h4>
+            </div>
+            <div class="card-body text-center">
+              <h2 class="text-primary">${{ plan.price }} <small class="text-muted">{{ plan.currency }}</small></h2>
+              <p class="text-muted">{{ plan.billing_cycle === 'monthly' ? 'por mes' : 'por año' }}</p>
+              
+              <hr>
+              <ul class="list-unstyled text-left">
+                <li *ngFor="let feat of plan.features" class="mb-2">
+                  <i class="fas fa-check text-success mr-2"></i> {{ feat.name }}
+                </li>
+                <li *ngIf="plan.features.length === 0" class="text-muted text-center">
+                  Sin módulos adicionales
+                </li>
+              </ul>
+            </div>
+            <div class="card-footer bg-white text-center">
+              <button class="btn btn-outline-primary btn-sm mx-1"><i class="fas fa-edit"></i> Editar</button>
+              <button class="btn btn-outline-danger btn-sm mx-1"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Crear Plan -->
+<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Configurar Plan</h5>
+        <button type="button" class="close" (click)="closeModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form #planForm="ngForm">
+          <div class="form-group">
+            <label>Nombre del Plan *</label>
+            <input type="text" class="form-control" name="p_name" [(ngModel)]="newPlan.name" required placeholder="Ej: Plan Profesional">
+          </div>
+          <div class="row">
+            <div class="col-6 form-group">
+              <label>Precio *</label>
+              <input type="number" class="form-control" name="p_price" [(ngModel)]="newPlan.price" required min="0">
+            </div>
+            <div class="col-6 form-group">
+              <label>Moneda</label>
+              <select class="form-control" name="p_curr" [(ngModel)]="newPlan.currency">
+                <option value="MXN">MXN</option>
+                <option value="USD">USD</option>
+              </select>
+            </div>
+          </div>
+          
+          <hr>
+          <h6>Módulos Habilitados en este plan:</h6>
+          <div class="form-check" *ngFor="let feat of features">
+            <input class="form-check-input" type="checkbox" [value]="feat.id" (change)="toggleFeature(feat.id, $event)" [id]="'feat_'+feat.id">
+            <label class="form-check-label" [for]="'feat_'+feat.id">
+              {{ feat.name }} <small class="text-muted d-block">{{ feat.description }}</small>
+            </label>
+          </div>
+          <div *ngIf="features.length === 0" class="text-muted small">
+            No hay características registradas en la base de datos.
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="savePlan()" [disabled]="!planForm.valid || loading">
+          <i class="fas fa-save" *ngIf="!loading"></i>
+          <i class="fas fa-spinner fa-spin" *ngIf="loading"></i> 
+          Guardar Plan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="showModal"></div>

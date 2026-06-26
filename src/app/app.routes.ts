@@ -63,6 +63,11 @@ export const routes: Routes = [
         path: 'inventory',
         loadChildren: () => import('./modules/inventory/inventory.module').then(m => m.InventoryModule),
         data: { title: 'Inventario' }
+      },
+      {
+        path: 'saas',
+        loadChildren: () => import('./modules/saas/saas.module').then(m => m.SaasModule),
+        data: { title: 'Administración SaaS' }
       }
     ]
   },

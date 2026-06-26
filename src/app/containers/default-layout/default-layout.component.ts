@@ -34,18 +34,49 @@ export class DefaultLayoutComponent {
   }
 
   getMenu() {
-    if (this.getRoles(['super_admin','admin'])) {
+    // -------------------------------------------------------------
+    // MENÚ DEL DUEÑO DEL SAAS (Super Admin)
+    // -------------------------------------------------------------
+    if (this.getRoles('super_admin')) {
       this.navItems.push(
         {
-          name: 'Panel Principal',
-          url: '/page/dashboard',
+          name: 'Panel SaaS',
+          url: '/saas/dashboard',
           icon: 'icon-speedometer',
         },
+        {
+          name: 'Clínicas Registradas',
+          url: '/saas/tenants',
+          icon: 'fas fa-building',
+        },
+        {
+          name: 'Suscripciones',
+          url: '/saas/subscriptions',
+          icon: 'fas fa-file-invoice-dollar',
+        },
+        {
+          name: 'Planes de Pago',
+          url: '/saas/plans',
+          icon: 'fas fa-tags',
+        }
       );
+      // El super_admin no debe ver el menú de las clínicas
+      return; 
     }
-    if (this.getRoles(['admin','user'])) {
-      this.navItems.push(
 
+    // -------------------------------------------------------------
+    // MENÚ DE LAS CLÍNICAS (Admin / User)
+    // -------------------------------------------------------------
+    if (this.getRoles('admin')) {
+      this.navItems.push({
+        name: 'Panel Principal',
+        url: '/page/dashboard',
+        icon: 'icon-speedometer',
+      });
+    }
+
+    if (this.getRoles(['admin', 'user'])) {
+      this.navItems.push(
         {
           name: 'Clientes',
           url: '/page/clients',
@@ -77,7 +108,8 @@ export class DefaultLayoutComponent {
         }
       );
     }
-    if (this.getRoles(['super_admin','admin'])) {
+
+    if (this.getRoles('admin')) {
       this.navItems.push(
         {
           name: 'Balance',
@@ -107,6 +139,11 @@ export class DefaultLayoutComponent {
           icon: 'icon-settings',
           url: '/admin',
           children: [
+            {
+              name: 'Mi Suscripción',
+              url: '/admin/subscription',
+              icon: 'fas fa-star'
+            },
             {
               name: 'Departamentos',
               url: '/admin/departments',
@@ -185,14 +222,12 @@ export class DefaultLayoutComponent {
               name: 'Servicios',
               url: '/catalog/cat_services',
               icon: 'icofont icofont-sub-listing'
-            }
-            ,
+            },
             {
               name: 'Conceptos',
               url: '/catalog/cat_concepts',
               icon: 'icofont icofont-sub-listing'
-            }
-            ,
+            },
             {
               name: 'Tipo de gastos',
               url: '/catalog/cat_expenses',
