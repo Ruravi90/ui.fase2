@@ -1,175 +1,66 @@
 <div class="animated fadeIn">
-  <div class="row">
-    
-    <!-- Roles Column -->
-    <div class="col-lg-6">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.5rem;">
-          Roles
-        </h4>
-        <button type="button" class="btn-serene-primary" (click)="addRol()" style="padding: 0.4rem 1rem; font-size: 0.85rem;">
-          Nuevo Rol
-        </button>
-      </div>
-
-      @if (loadingRoles) {
-        <div class="box-loading-skeleton" style="margin-bottom: 1.5rem;">
-          <div class="skeleton-line" style="width: 100%; height: 50px; margin-bottom: 12px; border-radius: 8px;"></div>
-          <div class="skeleton-line" style="width: 100%; height: 50px; margin-bottom: 12px; border-radius: 8px;"></div>
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">Perfiles</h4>
+          <div class="header-actions">
+            <button type="button" class="btn-serene-primary" style="border-radius: 30px; padding: 0.5rem 1.25rem; font-size: 0.85rem; text-transform: uppercase;" (click)="addRol()">
+              + Nuevo Perfil
+            </button>
+          </div>
         </div>
-      } @else {
-        @if (roles.length === 0) {
-          <div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">
-            No hay roles registrados.
-          </div>
-        }
-        @for (r of roles; track r.id) {
-          <div class="sale-day-card" style="margin-bottom: 0.5rem; padding: 0.75rem 1rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <span style="font-weight: 500; font-size: 1rem;">{{ r.name }}</span>
-              </div>
-              <div style="display: flex; gap: 0.5rem;">
-                <button class="btn-serene-icon-primary" title="Editar" (click)="editRol(r)" style="width: 28px; height: 28px; font-size: 0.8rem;">
-                  <i class="fa fa-edit"></i>
-                </button>
-                <button class="btn-serene-icon-danger" title="Eliminar" (click)="deleteRol(r)" style="width: 28px; height: 28px; font-size: 0.8rem;">
-                  <i class="fa fa-trash"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        }
-      }
-    </div>
 
-    <!-- Permissions Column -->
-    <div class="col-lg-6">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.5rem;">
-          Permisos
-        </h4>
-        <button type="button" class="btn-serene-primary" (click)="addPermission()" style="padding: 0.4rem 1rem; font-size: 0.85rem;">
-          Nuevo Permiso
-        </button>
-      </div>
-
-      @if (loadingPermissions) {
-        <div class="box-loading-skeleton" style="margin-bottom: 1.5rem;">
-          <div class="skeleton-line" style="width: 100%; height: 50px; margin-bottom: 12px; border-radius: 8px;"></div>
-          <div class="skeleton-line" style="width: 100%; height: 50px; margin-bottom: 12px; border-radius: 8px;"></div>
-        </div>
-      } @else {
-        @if (permissions.length === 0) {
-          <div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">
-            No hay permisos registrados.
+        @if (loadingRoles) {
+          <div class="box-loading-skeleton" style="margin-bottom: 1.5rem;">
+            <div class="skeleton-line" style="width: 30%; height: 24px; margin-bottom: 12px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 80px; margin-bottom: 12px; border-radius: 8px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 80px; margin-bottom: 12px; border-radius: 8px;"></div>
           </div>
-        }
-        @for (p of permissions; track p.id) {
-          <div class="sale-day-card" style="margin-bottom: 0.5rem; padding: 0.75rem 1rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <span style="font-weight: 500; font-size: 1rem;">{{ p.name }}</span>
+        } @else {
+          @for (r of roles; track r.id) {
+            <div class="sale-day-card" style="margin-bottom: 1.5rem;">
+              <div class="sale-day-header">
+                <div>
+                  <span class="client-name" style="text-transform: uppercase;">{{ r.name }}</span>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--color-text-muted);">
+                  Identificador: {{ r.slug || 'N/A' }}
+                </div>
               </div>
-              <div style="display: flex; gap: 0.5rem;">
-                <button class="btn-serene-icon-primary" title="Editar" (click)="editPermission(p)" style="width: 28px; height: 28px; font-size: 0.8rem;">
-                  <i class="fa fa-edit"></i>
-                </button>
-                <button class="btn-serene-icon-danger" title="Eliminar" (click)="deletePermission(p)" style="width: 28px; height: 28px; font-size: 0.8rem;">
-                  <i class="fa fa-trash"></i>
-                </button>
+              <div class="sale-item-detail">
+                <div class="detail-grid" style="display: flex; justify-content: space-between; align-items: center;">
+                  <div class="col-flex" style="flex: 2;">
+                    <span style="display:block; color:var(--color-text-muted); font-size: 0.8rem;">Descripción</span>
+                    <strong style="font-weight: 400; color: var(--color-text-primary);">{{ r.description || 'Sin descripción' }}</strong>
+                  </div>
+                  
+                  <div class="col-flex text-center" style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                    <button type="button" class="btn-serene-icon-primary" title="Editar" (click)="editRol(r)">
+                      <i class="fa fa-edit"></i>
+                    </button>
+                    <button type="button" class="btn-serene-icon-danger" title="Eliminar" (click)="deleteRol(r)">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          }
+          
+          @if (roles.length === 0) {
+            <div class="text-center" style="padding: 4rem 2rem; background: var(--color-surface); border-radius: 12px; box-shadow: 0 4px 12px rgba(58, 74, 64, 0.05); border: 1px solid rgba(0,0,0,0.03);">
+              <i class="fas fa-id-card" style="font-size: 3rem; color: var(--color-text-muted); opacity: 0.5; margin-bottom: 1rem;"></i>
+              <h5 style="color: var(--color-text-primary); font-weight: 500; font-family: 'Outfit', sans-serif;">Sin perfiles</h5>
+              <p style="color: var(--color-text-muted); margin: 0;">No se encontraron perfiles registrados.</p>
+            </div>
+          }
         }
-      }
+      </div>
     </div>
-
   </div>
 </div>
 
-<!-- Modal Roles -->
-<div class="sc-modal-overlay" [class.active]="showModalRol" (click)="closeModalRol()">
-  <div class="sc-modal-panel" (click)="$event.stopPropagation()">
-    <form #rolForm="ngForm" (ngSubmit)="saveRol()">
-      <div class="sc-modal-header">
-        <h4 class="sc-modal-title">{{ isEdit ? 'Editar Rol' : 'Nuevo Rol' }}</h4>
-        <button type="button" class="sc-close-btn" (click)="closeModalRol()">✕</button>
-      </div>
-      <div class="sc-modal-body">
-        <div class="row">
-          <div class="col-lg-6" style="margin-bottom: 1rem;">
-            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Nombre</label>
-            <input type="text" class="serene-input" name="name" [(ngModel)]="rol.name" #name="ngModel" placeholder="Ej. Administrador" required />
-          </div>
-          <div class="col-lg-6" style="margin-bottom: 1rem;">
-            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Identificador (Slug)</label>
-            <input type="text" class="serene-input" name="slug" [(ngModel)]="rol.slug" #slug="ngModel" placeholder="Ej. admin" required />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-12" style="margin-bottom: 1rem;">
-            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Descripción</label>
-            <textarea class="serene-input" name="description" [(ngModel)]="rol.description" #description="ngModel" placeholder="Opcional"></textarea>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-12" style="margin-bottom: 1rem;">
-            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Permisos asociados</label>
-            <ng-select
-              class="serene-select"
-              [items]="(comboPermissions$ | async) || []"
-              [multiple]="true"
-              [closeOnSelect]="false"
-              [hideSelected]="true"
-              bindLabel="name"
-              placeholder="Selecciona permisos"
-              name="roles"
-              [(ngModel)]="rol.permissions"
-              #rolesModel="ngModel"
-              required>
-            </ng-select>
-          </div>
-        </div>
-      </div>
-      <div class="sc-modal-footer">
-        <button type="button" class="sc-btn sc-btn-ghost" (click)="closeModalRol()">Cancelar</button>
-        <button type="submit" class="sc-btn sc-btn-primary" [disabled]="rolForm.invalid">Guardar</button>
-      </div>
-    </form>
-  </div>
-</div>
 
-<!-- Modal Permissions -->
-<div class="sc-modal-overlay" [class.active]="showModalPermission" (click)="closeModalPermission()">
-  <div class="sc-modal-panel" (click)="$event.stopPropagation()">
-    <form #permissionForm="ngForm" (ngSubmit)="savePermission()">
-      <div class="sc-modal-header">
-        <h4 class="sc-modal-title">{{ isEdit ? 'Editar Permiso' : 'Nuevo Permiso' }}</h4>
-        <button type="button" class="sc-close-btn" (click)="closeModalPermission()">✕</button>
-      </div>
-      <div class="sc-modal-body">
-        <div class="row">
-          <div class="col-lg-6" style="margin-bottom: 1rem;">
-            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Nombre</label>
-            <input type="text" class="serene-input" name="name" [(ngModel)]="permission.name" #name="ngModel" placeholder="Ej. Crear Usuarios" required />
-          </div>
-          <div class="col-lg-6" style="margin-bottom: 1rem;">
-            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Identificador (Slug)</label>
-            <input type="text" class="serene-input" name="slug" [(ngModel)]="permission.slug" #slug="ngModel" placeholder="Ej. create_users" required />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-12" style="margin-bottom: 1rem;">
-            <label class="form-label" style="color: var(--color-text-muted); font-size: 0.85rem;">Descripción</label>
-            <textarea class="serene-input" name="description" [(ngModel)]="permission.description" #description="ngModel" placeholder="Opcional"></textarea>
-          </div>
-        </div>
-      </div>
-      <div class="sc-modal-footer">
-        <button type="button" class="sc-btn sc-btn-ghost" (click)="closeModalPermission()">Cancelar</button>
-        <button type="submit" class="sc-btn sc-btn-primary" [disabled]="permissionForm.invalid">Guardar</button>
-      </div>
-    </form>
-  </div>
-</div>
+
+

@@ -50,6 +50,20 @@ const routes: Routes = [
         }
       },
       {
+        path: 'roles/create',
+        loadComponent: () => import('../../views/roles/role-form.component').then(m => m.RoleFormComponent),
+        data: {
+          title: 'Nuevo Perfil'
+        }
+      },
+      {
+        path: 'roles/:id/edit',
+        loadComponent: () => import('../../views/roles/role-form.component').then(m => m.RoleFormComponent),
+        data: {
+          title: 'Editar Perfil'
+        }
+      },
+      {
         path: 'openwa',
         loadComponent: () => import('./openwa-config/openwa-config.component').then(m => m.OpenwaConfigComponent),
         data: {
