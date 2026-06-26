@@ -1,0 +1,187 @@
+<div class="ticket-wrapper">
+  
+  <div class="ticket-header">
+    <img src="assets/img/logo-fase2.svg" style="max-width: 70%; max-height: 80px; object-fit: contain; margin-bottom: 5px;" />
+  </div>
+
+  @if (printPayment != null) {
+    <div class="ticket-header">
+      <h2 class="text-bold">TICKET DE PAGO</h2>
+    </div>
+
+    <div class="ticket-info">
+      <div><strong>Cliente:</strong> <span class="text-uppercase">{{ printPayment.sale?.client?.name + ' ' + printPayment.sale?.client?.lastname }}</span></div>
+      <div><strong>Atendió:</strong> <span class="text-uppercase">{{ printPayment.responsible?.name + ' ' + printPayment.responsible?.lastname }}</span></div>
+    </div>
+
+    <table class="ticket-table">
+      <thead>
+        <tr>
+          <th class="col-qty">CANT</th>
+          <th class="col-desc">DESCRIPCIÓN</th>
+          <th class="col-price">IMPORTE</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-qty">{{ printPayment.sale?.count }}</td>
+          <td class="col-desc">
+            @if ((printPayment.sale?.product_id || 0) > 0) { <div class="text-uppercase">{{printPayment.sale?.cat_product?.name}}</div> }
+            @if ((printPayment.sale?.service_id || 0) > 0) { <div class="text-uppercase">{{printPayment.sale?.cat_service?.name}}</div> }
+            @if ((printPayment.sale?.package_id || 0) > 0) { <div class="text-uppercase">{{printPayment.sale?.cat_package?.name}}</div> }
+            @if ((printPayment.sale?.pill_id || 0) > 0) { <div class="text-uppercase">{{printPayment.sale?.cat_pill?.name}}</div> }
+            
+            @if ((printPayment.type_sale_id || 0) > 0) {
+              <div class="item-details">- Pago: {{ printPayment.type?.name}}</div>
+            }
+          </td>
+          <td class="col-price">{{printPayment.sale?.price | currency:'MXN ':'symbol':'2.2-4'}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="totals-container">
+      <div class="totals-row">
+        <span>Abono:</span> 
+        <span>{{printPayment.amount | currency:'MXN ':'symbol':'2.2-4'}}</span>
+      </div>
+      <div class="totals-row">
+        <span>Pago Total:</span> 
+        <span>{{printPayment.sale?.amount | currency:'MXN ':'symbol':'2.2-4'}}</span>
+      </div>
+      <div class="totals-row grand-total">
+        <span>Saldo:</span> 
+        <span>{{printPayment.sale?.balance | currency:'MXN ':'symbol':'2.2-4'}}</span>
+      </div>
+    </div>
+
+    <div class="ticket-divider"></div>
+    <div class="text-center" style="margin-top: 10px;">
+      <small class="text-bold">**** ESTIMADO CLIENTE ****</small><br>
+      <small>ES IMPORTANTE VALIDAR QUE LOS DATOS IMPRESOS CORRESPONDEN A LA OPERACIÓN SOLICITADA</small>
+    </div>
+  }
+
+  @if (printSale != null) {
+    <div class="ticket-header">
+      <h2 class="text-bold">TICKET DE VENTA</h2>
+    </div>
+
+    <div class="ticket-info">
+      <div><strong>Cliente:</strong> <span class="text-uppercase">{{ printSale.client?.name + ' ' + printSale.client?.lastname }}</span></div>
+      <div><strong>Atendió:</strong> <span class="text-uppercase">{{ printSale.responsible?.name + ' ' + printSale.responsible?.lastname }}</span></div>
+    </div>
+
+    <table class="ticket-table">
+      <thead>
+        <tr>
+          <th class="col-qty">CANT</th>
+          <th class="col-desc">DESCRIPCIÓN</th>
+          <th class="col-price">IMPORTE</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (s of printSale.sales; track s) {
+        <tr>
+          <td class="col-qty">{{s.count}}</td>
+          <td class="col-desc">
+            @if ((s.product_id || 0) > 0) { <div class="text-uppercase">{{s.cat_product?.name}}</div> }
+            @if ((s.service_id || 0) > 0) { <div class="text-uppercase">{{s.cat_service?.name}}</div> }
+            @if ((s.package_id || 0) > 0) { <div class="text-uppercase">{{s.cat_package?.name}}</div> }
+            @if ((s.pill_id || 0) > 0) { <div class="text-uppercase">{{s.cat_pill?.name}}</div> }
+            
+            <div class="item-details">- Precio: {{s.price | currency:'MXN ':'symbol':'2.2-4'}}</div>
+            @if ((s.discount || 0) > 0) {
+              <div class="item-details">- Dto: {{s.discount}}%</div>
+            }
+            @if ((s.type_sale_id || 0) > 0) {
+              <div class="item-details">- Pago: {{s.type?.name}}</div>
+            }
+          </td>
+          <td class="col-price">{{s.total | currency:'MXN ':'symbol':'2.2-4'}}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="totals-container">
+      <div class="totals-row grand-total">
+        <span>TOTAL:</span> 
+        <span>{{printSale.sumTotal | currency:'MXN ':'symbol':'2.2-4'}}</span>
+      </div>
+    </div>
+
+    <div class="ticket-divider"></div>
+    <div class="text-center" style="margin-top: 10px;">
+      <small class="text-bold">**** ESTIMADO CLIENTE ****</small><br>
+      <small>ES IMPORTANTE VALIDAR QUE LOS DATOS IMPRESOS CORRESPONDEN A LA OPERACIÓN SOLICITADA</small>
+    </div>
+  }
+
+  @if (cuteSales !== null && cuteSales.length > 0) {
+    <div class="ticket-header">
+      <h2 class="text-bold">CORTE DE CAJA</h2>
+    </div>
+
+    @for (d of cuteSales; track d) {
+      <div class="ticket-divider"></div>
+      <div class="text-center text-bold text-uppercase" style="margin: 5px 0;">{{d.name}}</div>
+      
+      @for (p of d.sales; track p) {
+        <div class="ticket-info">
+          <div><strong>Cte:</strong> <span class="text-uppercase">{{ p.client?.name + ' ' + p.client?.lastname }}</span></div>
+        </div>
+
+        <table class="ticket-table">
+          <thead>
+            <tr>
+              <th class="col-qty">CANT</th>
+              <th class="col-desc">DESCRIPCIÓN</th>
+              <th class="col-price">IMPORTE</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of p.sales; track s) {
+            <tr>
+              <td class="col-qty">{{s.count}}</td>
+              <td class="col-desc">
+                @if ((s.product_id || 0) > 0) { <div class="text-uppercase">{{s.cat_product?.name}}</div> }
+                @if ((s.service_id || 0) > 0) { <div class="text-uppercase">{{s.cat_service?.name}}</div> }
+                @if ((s.package_id || 0) > 0) { <div class="text-uppercase">{{s.cat_package?.name}}</div> }
+                @if ((s.pill_id || 0) > 0) { <div class="text-uppercase">{{s.cat_pill?.name}}</div> }
+                
+                @if ((s.discount || 0) > 0) {
+                  <div class="item-details">- Dto: {{s.discount | currency:'MXN ':'symbol':'2.2-4'}}</div>
+                }
+                @if ((s.type_sale_id || 0) > 0) {
+                  <div class="item-details">- Forma pago: {{s.type?.name}}</div>
+                }
+                @for (pa of s.payments; track pa) {
+                  <div class="item-details">-> Pago: {{pa.amount | currency:'MXN ':'symbol':'2.2-4'}}</div>
+                }
+              </td>
+              <td class="col-price">{{s.amount | currency:'MXN ':'symbol':'2.2-4'}}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      }
+      <div class="totals-container">
+        <div class="totals-row">
+          <span>Efectivo:</span> 
+          <span>{{d.sumCashTotal | currency:'MXN ':'symbol':'2.2-4'}}</span>
+        </div>
+        <div class="totals-row grand-total">
+          <span>Tarjeta:</span> 
+          <span>{{d.sumCardTotal | currency:'MXN ':'symbol':'2.2-4'}}</span>
+        </div>
+      </div>
+    }
+    <div class="ticket-divider"></div>
+  }
+  
+  <br />
+  <div class="text-center text-bold">
+    <small>{{ dateNow | date: 'dd/MMM/yyyy' }}  {{ dateNow | date: 'HH:mm' }}</small>
+  </div>
+</div>

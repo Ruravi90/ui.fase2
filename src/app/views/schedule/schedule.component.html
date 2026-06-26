@@ -29,7 +29,7 @@
             <div class="skeleton-box" style="height: 60px; width: 100px; border-radius: 8px; margin-bottom: 1rem;"></div>
             <div class="skeleton-box" style="height: 20px; width: 180px; border-radius: 4px; margin-bottom: 0.5rem;"></div>
             <div class="skeleton-box" style="height: 14px; width: 120px; border-radius: 4px; margin-bottom: 1.5rem;"></div>
-            <div style="display: flex; gap: 0.5rem; width: 100%;">
+            <div style="display: flex; gap: 0.75rem; width: 100%;">
               <div class="skeleton-box" style="height: 42px; flex: 1; border-radius: 6px;"></div>
               <div class="skeleton-box" style="height: 42px; flex: 1; border-radius: 6px;"></div>
             </div>
@@ -101,7 +101,7 @@
             <div class="current-service" *ngIf="currentTurn">
               {{ currentTurn.schedule?.title }}
             </div>
-            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+            <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
               <button *ngIf="currentTurn" class="sc-btn" style="flex: 1; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-weight: 500;" [routerLink]="['/page/clinical-record', currentTurn.schedule?.client_id, currentTurn.schedule_id]">
                 <i class="fas fa-notes-medical"></i> Expediente
               </button>
@@ -174,7 +174,7 @@
         ></ng-select>
         <span class="sc-hint">Se enviará aviso de WhatsApp al guardar.</span>
         
-        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+        <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
           <button
             *ngIf="!formData.client_id && !showQuickClient"
             type="button"
@@ -205,7 +205,7 @@
           <div class="sc-form-group" style="margin-bottom: 0.75rem;">
             <input type="text" class="sc-input" [(ngModel)]="quickClientData.phone_mobile" placeholder="Teléfono Móvil (Para WhatsApp) *">
           </div>
-          <div style="display: flex; gap: 0.5rem;">
+          <div style="display: flex; gap: 0.75rem;">
             <button type="button" class="sc-btn sc-btn-primary" [disabled]="savingQuickClient" (click)="saveQuickClient()">
               {{ savingQuickClient ? 'Guardando...' : 'Guardar y Seleccionar' }}
             </button>
@@ -301,7 +301,7 @@
 
     <!-- Modal Footer -->
     <div class="sc-modal-footer">
-      <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
         <button *ngIf="formData.id" type="button" class="sc-btn sc-btn-danger" (click)="deleteEvent()">
           Eliminar
         </button>

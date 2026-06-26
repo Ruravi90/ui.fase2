@@ -66,7 +66,7 @@
                     <span style="display:block; color:var(--color-text-muted); font-size: 0.8rem;">Sesiones</span>
                     <strong>{{ (p.tracking?.length || 0) }} / {{ p.type ? p.type.session_count : '' }}</strong>
                   </div>
-                  <div class="col-flex text-center" style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                  <div class="col-flex text-center" style="display: flex; gap: 0.75rem; justify-content: flex-end;">
                     <button type="button" [ngClass]="p.sale?.is_paid == '1' ? 'btn-serene-icon-primary' : 'btn-serene-icon-danger'" (click)="addPayment(p)" title="Pagos / Abonos">
                       <i class="fas fa-dollar-sign"></i>
                     </button>
@@ -120,7 +120,7 @@
           
           <div class="row mb-3">
             <div class="form-group col-md-6">
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
                 <input type="checkbox" name="is_taken" [(ngModel)]="tracker.is_taken" style="width: 18px; height: 18px;">
                 <label style="margin: 0; color: var(--color-text-primary);">¿Fue tomada la sesión?</label>
               </div>

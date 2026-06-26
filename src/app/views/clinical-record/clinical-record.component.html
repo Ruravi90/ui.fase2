@@ -209,7 +209,7 @@
                             <div *ngIf="activeTab === 'dx'">
                                 <div class="cr-form-group" style="margin-bottom: 0;">
                                     <label class="cr-label">Diagnósticos CIE-10 / CIE-11</label>
-                                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                                    <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
                                         <input type="text" class="serene-input" placeholder="Ej. J00 - Resfriado común (Escribe y presiona Enter)..." style="flex: 1;" 
                                                [(ngModel)]="newDiagnosisText" 
                                                (keyup.enter)="addDiagnosis()"
@@ -225,14 +225,14 @@
                                         Aún no has agregado diagnósticos a esta consulta.
                                     </div>
 
-                                    <div *ngIf="(isReadOnly ? selectedPastNote?.diagnoses?.length : note.diagnoses?.length)" style="display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 1.5rem; border: 1px solid var(--color-border); border-radius: 8px; background: rgba(248, 249, 250, 0.5);">
+                                    <div *ngIf="(isReadOnly ? selectedPastNote?.diagnoses?.length : note.diagnoses?.length)" style="display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 1.5rem; border: 1px solid var(--color-border); border-radius: 8px; background: rgba(248, 249, 250, 0.5);">
                                         <ng-container *ngIf="isReadOnly">
-                                            <span *ngFor="let dx of selectedPastNote?.diagnoses" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 0.35rem 0.85rem; border-radius: 16px; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem;">
+                                            <span *ngFor="let dx of selectedPastNote?.diagnoses" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 0.35rem 0.85rem; border-radius: 16px; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.75rem;">
                                                 <i class="fas fa-stethoscope"></i> {{ dx }}
                                             </span>
                                         </ng-container>
                                         <ng-container *ngIf="!isReadOnly">
-                                            <span *ngFor="let dx of note.diagnoses; let i = index" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 0.35rem 0.85rem; border-radius: 16px; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem;">
+                                            <span *ngFor="let dx of note.diagnoses; let i = index" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 0.35rem 0.85rem; border-radius: 16px; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.75rem;">
                                                 <i class="fas fa-stethoscope"></i> {{ dx }}
                                                 <i class="fas fa-times" style="cursor: pointer; opacity: 0.7; padding-left: 0.25rem;" (click)="removeDiagnosis(i)"></i>
                                             </span>
@@ -247,17 +247,17 @@
                                     <label class="cr-label">Prescripción Médica</label>
                                     <textarea class="serene-input" rows="6" placeholder="1. Paracetamol 500mg, tomar 1 tableta cada 8 horas por 3 días..." [ngModel]="isReadOnly ? selectedPastNote?.plan : note.plan" (ngModelChange)="note.plan = $event" [disabled]="isReadOnly"></textarea>
                                 </div>
-                                <button class="btn-serene-secondary" style="display: flex; align-items: center; gap: 0.5rem;" [disabled]="!isReadOnly && !note.plan && !currentTurn" (click)="printRecipe()">
+                                <button class="btn-serene-secondary" style="display: flex; align-items: center; gap: 0.75rem;" [disabled]="!isReadOnly && !note.plan && !currentTurn" (click)="printRecipe()">
                                     <i class="fas fa-print"></i> Imprimir Receta
                                 </button>
                             </div>
                         </div>
 
                         <div class="cr-footer">
-                            <button class="btn-serene-icon-danger" style="display: flex; gap: 0.5rem; align-items: center; border-radius: 6px; padding: 0.5rem 1rem;" routerLink="/page/schedule">
+                            <button class="btn-serene-icon-danger" style="display: flex; gap: 0.75rem; align-items: center; border-radius: 6px; padding: 0.5rem 1rem;" routerLink="/page/schedule">
                                 <i class="fas fa-trash"></i> Descartar
                             </button>
-                            <button class="btn-serene-primary" style="display: flex; align-items: center; gap: 0.5rem;" (click)="signAndFinish()" [disabled]="isReadOnly">
+                            <button class="btn-serene-primary" style="display: flex; align-items: center; gap: 0.75rem;" (click)="signAndFinish()" [disabled]="isReadOnly">
                                 <i class="fas fa-lock"></i> Firmar y Terminar Turno
                             </button>
                         </div>

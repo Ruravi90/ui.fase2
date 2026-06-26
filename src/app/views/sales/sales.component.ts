@@ -6,6 +6,7 @@ import { SaleService, PaymentService, AgentService, TypeService, PaginateService
 import { Department, User, Sale, _Type, Paginate, Payment } from '../../models';
 import { environment } from '../../../environments/environment';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { TicketPrintComponent } from '../../components/ticket-print/ticket-print.component';
 
 import swal from 'sweetalert2';
 import { Subject, Observable } from 'rxjs';
@@ -14,7 +15,7 @@ declare var $: any, iziToast: any;
 
 @Component({
     selector: 'app-sales',
-    imports: [CommonModule, FormsModule, PaginationModule, DatePipe, NgSelectModule],
+    imports: [CommonModule, FormsModule, PaginationModule, DatePipe, NgSelectModule, TicketPrintComponent],
     templateUrl: 'sales.component.html',
     styleUrls: ['./sales.component.scss']
 })

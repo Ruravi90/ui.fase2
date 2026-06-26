@@ -232,7 +232,7 @@
             <span class="client-name">{{p.client?.name + ' ' + p.client?.lastname}}</span>
             <span class="sale-time">{{p.updated_at | date:'HH:mm'}}</span>
           </div>
-          <div style="display: flex; gap: 0.5rem;">
+          <div style="display: flex; gap: 0.75rem;">
             <button class="btn-serene-icon-primary" [hidden]="p.is_cancel === 1" (click)="printCopyTicke(p)"
               title="Imprimir ticket">
               <i class="icofont icofont-printer"></i>
@@ -309,110 +309,11 @@
 </div>
 
 <!-- Hidden Print Ticket Section (Left mostly untouched for printing formats) -->
-<section id="printTicket" style="display: none; max-width: 219.212598425px;padding: 0;margin: 0">
-  <img src="assets/img/logo-fase2.svg" height="100pt" width="100%" />
-  <br />
-  <br />
-  @if (printSale != null) {
-  <div class="content-sale">
-    <span>Cliente: {{ printSale.client?.name + ' ' + printSale.client?.lastname }}</span><br />
-    <span>Agente: {{ printSale.responsible?.name + ' ' + printSale.responsible?.lastname }}</span><br />
-    @for (s of printSale.sales; track s) {
-    <div class="content-products">
-      @if ((s.product_id || 0) > 0) {
-      <span>Producto: {{s.cat_product?.name}} </span>
-      }
-      @if ((s.service_id || 0) > 0) {
-      <span>Servicio: {{s.cat_service?.name}}</span>
-      }
-      @if ((s.package_id || 0) > 0) {
-      <span>Paquete: {{s.cat_package?.name}}</span>
-      }
-      @if ((s.pill_id || 0) > 0) {
-      <span>Pastillas: {{s.cat_pill?.name}}</span>
-      }
-      <br />
-      <span>Precio: {{s.price | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
-      @if ((s.discount || 0) > 0) {
-      <span>Descuento: {{s.discount}} % </span>
-      }@if ((s.discount || 0) > 0) {
-      <br />
-      }
-      <span>Cantidad: {{s.count}} </span><br />
-      <span>SubTotal: {{s.subTotal}} </span><br />
-      @if ((s.type_sale_id || 0) > 0) {
-      <span>Forma pago: {{s.type?.name}}</span>
-      }@if ((s.type_sale_id || 0) > 0) {
-      <br />
-      }
-      <span>Pago: {{s.amount | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
-      <span>Saldo: {{s.balance | currency:'MXN ':'symbol':'2.2-4'}} </span><br />
-    </div>
-    }
-    <span>Total: {{printSale.sumTotal | currency:'MXN ':'symbol':'2.2-4'}} </span>
-    <hr />
-    <small style="width: 100%; text-align: center;"><em>**** ESTIMADO CLIENTE ****</em></small><br>
-    <small style="width: 100%; text-align: center;"><em>ES IMPORTANTE VALIDAR QUE LOS DATOS IMPRESOS CORRESPONDEN A LA
-        OPERECIOM SOLICITADA</em></small>
-  </div>
-  }
-  @if (cuteSales !== null && cuteSales.length > 0) {
-  <div>
-    @for (d of cuteSales; track d) {
-    <div class="content-department">
-      <h3 class="content-name">{{d.name}}</h3><br />
-      @for (p of d.sales; track p) {
-      <div class="content-sale">
-        <span>Cliente: {{ p.client?.name + ' ' + p.client?.lastname }}</span><br />
-        <span>Agente: {{ p.responsible?.name + ' ' + p.responsible?.lastname }}</span><br />
-        @for (s of p.sales; track s) {
-        <div class="content-products">
-          @if ((s.product_id || 0) > 0) {
-          <span>Producto: <small>{{s.cat_product?.name}}</small></span>
-          }
-          @if ((s.service_id || 0) > 0) {
-          <span>Servicio: <small>{{s.cat_service?.name}}</small></span>
-          }
-          @if ((s.package_id || 0) > 0) {
-          <span>Paquete: <small>{{s.cat_package?.name}}</small></span>
-          }
-          @if ((s.pill_id || 0) > 0) {
-          <span>Pastillas: <small>{{s.cat_pill?.name}}</small></span>
-          }<br />
-          <span>Precio: <small>{{s.price | currency:'MXN ':'symbol':'2.2-4'}}</small></span><br />
-          @if ((s.discount || 0) > 0) {
-          <span>Descuento: <small>{{s.discount}} %</small></span>
-          }@if ((s.discount || 0) > 0) {
-          <br />
-          }
-          <span>Cantidad: <small>{{s.count}}</small></span><br />
-          @if ((s.type_sale_id || 0) > 0) {
-          <span>Forma pago: <small>{{s.type?.name}}</small></span>
-          }@if ((s.type_sale_id || 0) > 0) {
-          <br />
-          }
-          @for (pa of s.payments; track pa; let i = $index) {
-          <div>
-            <span> Pago: <small>{{pa.amount | currency:'MXN ':'symbol':'2.2-4'}}</small></span>
-          </div>
-          }
-          <span>Pago total: <small>{{s.amount | currency:'MXN ':'symbol':'2.2-4'}}</small></span><br />
-          <span>Saldo: <small>{{s.balance | currency:'MXN ':'symbol':'2.2-4'}}</small></span>
-        </div>
-        }
-      </div>
-      }
-      <span class="content-total">Total Efectivo: <small>{{d.sumCashTotal | currency:'MXN
-          ':'symbol':'2.2-4'}}</small></span><br />
-      <span class="content-total">Total Tarjeta: <small>{{d.sumCardTotal | currency:'MXN
-          ':'symbol':'2.2-4'}}</small></span>
-    </div>
-    }
-  </div>
-  }
-  <div style="width: 100%; text-align: center;">
-    <small class="content-total">{{dateNow | date: 'dd/MMM/yyyy'}} {{dateNow | date: 'HH:mm'}}</small>
-  </div>
+<section id="printTicket" style="display: none;">
+  <app-ticket-print 
+    [printSale]="printSale" 
+    [dateNow]="dateNow">
+  </app-ticket-print>
 </section>
   }
 </div>

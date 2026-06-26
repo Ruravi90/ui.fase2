@@ -45,7 +45,7 @@
                   </span>
                   <span class="sale-time">{{ purchase.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
                   @if (!purchase.is_paid) {
                     <button class="btn-serene-primary" style="padding: 0.4rem 1rem; font-size: 0.85rem;" (click)="pay(purchase)">
                       Pagar

@@ -5,7 +5,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
           <h4 style="margin: 0; color: var(--color-text-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">Perfiles</h4>
           <div class="header-actions">
-            <button type="button" class="btn-serene-primary" style="border-radius: 30px; padding: 0.5rem 1.25rem; font-size: 0.85rem; text-transform: uppercase;" (click)="addRol()">
+            <button type="button" class="btn-serene-pill" (click)="addRol()">
               + Nuevo Perfil
             </button>
           </div>
@@ -35,7 +35,7 @@
                     <strong style="font-weight: 400; color: var(--color-text-primary);">{{ r.description || 'Sin descripción' }}</strong>
                   </div>
                   
-                  <div class="col-flex text-center" style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                  <div class="col-flex text-center" style="display: flex; gap: 0.75rem; justify-content: flex-end;">
                     <button type="button" class="btn-serene-icon-primary" title="Editar" (click)="editRol(r)">
                       <i class="fa fa-edit"></i>
                     </button>

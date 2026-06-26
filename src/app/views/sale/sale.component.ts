@@ -19,6 +19,7 @@ import { Client,
   Inventory
 } from '../../models';
 import { NgSelectComponent  } from '@ng-select/ng-select';
+import { TicketPrintComponent } from '../../components/ticket-print/ticket-print.component';
 
 import swal from 'sweetalert2';
 import { Subject, forkJoin, Observable, of } from 'rxjs';
@@ -32,7 +33,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
     selector: 'app-sale',
-    imports: [CommonModule, FormsModule, NgSelectModule],
+    imports: [CommonModule, FormsModule, NgSelectModule, TicketPrintComponent],
     templateUrl: 'sale.component.html',
     styleUrls: ['./sale.component.scss']
 })
