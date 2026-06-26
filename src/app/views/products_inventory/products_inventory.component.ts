@@ -49,6 +49,13 @@ export class ProductsInventoryComponent implements OnInit {
     });
   }
 
+  getStockStatus(count?: number): string {
+    const c = count || 0;
+    if (c > 20) return '#27ae60'; // Green - Healthy
+    if (c > 5) return '#f39c12';  // Orange - Warning
+    return '#e74c3c';                 // Red - Critical
+  }
+
   add() {
     this.isEdit = false;
     this.item = new ProductsInventory();

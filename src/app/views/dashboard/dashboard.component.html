@@ -206,6 +206,28 @@
       <section class="insight-panel side-panel">
         <div class="section-heading">
           <div>
+            <p class="section-kicker">Inventario</p>
+            <h4>Stock Crítico</h4>
+          </div>
+        </div>
+        <div class="alert-list alert-scroll">
+          @for (item of criticalInventory; track item.name) {
+            <div class="alert-item" [class]="item.count <= 5 ? 'level-error' : 'level-warning'">
+              <i class="fas" [ngClass]="item.type === 'product' ? 'fa-box-open' : 'fa-pills'"></i>
+              <div style="flex-grow: 1; display: flex; justify-content: space-between;">
+                <span>{{item.name}}</span>
+                <strong>{{item.count}} uds</strong>
+              </div>
+            </div>
+          } @empty {
+            <p class="empty-state">No hay productos en riesgo</p>
+          }
+        </div>
+      </section>
+
+      <section class="insight-panel side-panel">
+        <div class="section-heading">
+          <div>
             <p class="section-kicker">Bitacora</p>
             <h4>Actividad reciente</h4>
           </div>

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BalanceService } from '../../services';
+import { BalanceService, ProductsInventaryService, PillsInventoryService } from '../../services';
 
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { forkJoin } from 'rxjs';
@@ -26,6 +26,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   topSellers: any = { packages: [], services: [], products: [] };
   activity: any[] = [];
   alerts: any[] = [];
+  criticalInventory: any[] = [];
   isLoading = true;
 
   // Infinite scroll
@@ -36,7 +37,12 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('activitySentinel') activitySentinel?: ElementRef;
 
-  constructor(private bS: BalanceService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private bS: BalanceService, 
+    private pS: ProductsInventaryService,
+    private piS: PillsInventoryService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -50,7 +56,9 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       paymentMethods: this.bS.getPaymentMethodsChart(),
       topSellers: this.bS.getTopSellers(),
       activity: this.bS.getRecentActivity(),
-      alerts: this.bS.getAlerts()
+      alerts: this.bS.getAlerts(),
+      productsInv: this.pS.getAll(),
+      pillsInv: this.piS.getAll()
     }).subscribe((res: any) => {
       this.summary = res.summary || {};
       this.sales = res.sales || [];
@@ -60,6 +68,15 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       this.activity = res.activity?.data || [];
       this.activityHasMore = res.activity?.has_more ?? false;
       this.alerts = res.alerts || [];
+
+      const criticalProducts = (res.productsInv || [])
+        .filter((i: any) => i.count <= 20)
+        .map((i: any) => ({ name: i.product?.name, count: i.count, type: 'product' }));
+      const criticalPills = (res.pillsInv || [])
+        .filter((i: any) => i.count <= 20)
+        .map((i: any) => ({ name: i.pill?.name, count: i.count, type: 'pill' }));
+      
+      this.criticalInventory = [...criticalProducts, ...criticalPills].sort((a, b) => a.count - b.count);
 
       this.salesChart = this.sales.map((element: any) => ({
         name: element.date,

@@ -24,25 +24,34 @@
           </div>
         } @else {
           @if (inventory.length === 0) {
-            <div style="text-align: center; padding: 3rem; color: var(--color-text-muted);">
-              No hay inventario registrado.
+            <div style="text-align: center; padding: 4rem 2rem; background: #fafafa; border-radius: 12px; border: 1px dashed #ccc; margin-top: 1rem;">
+              <i class="fa fa-box-open" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+              <h5 style="color: var(--color-text-primary); font-family: 'Inter', sans-serif;">Tu inventario de productos está vacío</h5>
+              <p style="color: var(--color-text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">Comienza agregando tu primer producto para llevar el control.</p>
+              <button type="button" class="btn-serene-primary" (click)="add()">Agregar primer producto</button>
             </div>
           }
 
           @for (i of inventory; track i.id) {
-            <div class="sale-day-card" style="margin-bottom: 0.75rem; padding: 1rem 1.5rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="flex: 2;">
-                  <span class="client-name" style="font-size: 1.1rem;">{{ i.product?.name }}</span>
+            <div class="sale-day-card" style="margin-bottom: 1rem; padding: 1.25rem 1.5rem; transition: transform 0.2s; cursor: default;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 2; min-width: 200px;">
+                  <span class="client-name" style="font-size: 1.15rem; font-family: 'Inter', sans-serif;">{{ i.product?.name }}</span>
+                  <div style="color: var(--color-text-muted); font-size: 0.85rem; margin-top: 4px;">{{ i.product?.price | currency:'MXN ':'symbol':'1.2-2' }}</div>
                 </div>
-                <div style="flex: 2; text-align: left;">
-                  <span style="font-size: 0.9rem; color: var(--color-text-muted);">Stock actual:</span><br>
-                  <span style="font-size: 1.2rem; font-weight: 600; color: var(--color-primary-dark);">{{ i.count }} unidades</span>
+                <div style="flex: 2; min-width: 200px; padding: 0 1rem;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="font-size: 0.85rem; color: var(--color-text-muted);">Stock disponible</span>
+                    <span style="font-size: 0.9rem; font-weight: 600; color: {{ getStockStatus(i.count) }};">{{ i.count }} uds</span>
+                  </div>
+                  <div style="width: 100%; height: 6px; background-color: #f1f5f9; border-radius: 3px; overflow: hidden;">
+                    <div style="height: 100%; border-radius: 3px; transition: width 0.5s ease-in-out;" 
+                         [style.width.%]="((i.count || 0) > 100 ? 100 : (i.count || 0))" 
+                         [style.background-color]="getStockStatus(i.count)">
+                    </div>
+                  </div>
                 </div>
-                <div style="flex: 1; text-align: right; padding-right: 2rem;">
-                  <span class="price-value">{{ i.product?.price | currency:'MXN ':'symbol':'1.2-2' }}</span>
-                </div>
-                <div style="display: flex; gap: 0.5rem;">
+                <div style="flex: 1; display: flex; gap: 0.5rem; justify-content: flex-end; min-width: 100px;">
                   <button class="btn-serene-icon-primary" title="Editar" (click)="update(i)">
                     <i class="fa fa-edit"></i>
                   </button>
