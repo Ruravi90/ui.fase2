@@ -25,7 +25,7 @@ export class AppComponent implements OnInit {
   ) {
     this.userService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
-      this.isSuperAdmin = user?.roles?.some((r: any) => r.slug === 'super_admin') ?? false;
+      this.isSuperAdmin = user?.roles?.some((r: any) => r.name === 'super_admin') ?? false;
     });
   }
 

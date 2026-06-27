@@ -92,7 +92,7 @@ export class SalesComponent implements OnInit {
 
   getRoles(p: string) {
     if (!this.currentUser) return false;
-    return this.currentUser.roles?.some(r => r.slug === p) ?? false;
+    return this.currentUser.roles?.some(r => r.name === p) ?? false;
   }
 
   isLoading = true;

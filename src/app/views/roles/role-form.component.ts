@@ -94,7 +94,7 @@ export class RoleFormComponent implements OnInit {
   private groupPermissions(perms: Permission[]) {
     const groups: { [key: string]: Permission[] } = {};
     for (const p of perms) {
-      let base = p.slug || '';
+      let base = p.name || '';
       base = base.replace(/^(module|add|edit|delete|view)_/, '');
       
       if (!groups[base]) groups[base] = [];

@@ -34,7 +34,7 @@ export class LoginComponent implements OnInit {
             this.isAuthorized = true;
             
             // Verificar si es dueño del SaaS (super_admin)
-            const isSuperAdmin = this.uS.currentUser?.roles?.some(r => r.slug === 'super_admin');
+            const isSuperAdmin = this.uS.currentUser?.roles?.some(r => r.name === 'super_admin');
             
             if (isSuperAdmin) {
               this.router.navigate(['/saas/dashboard']);

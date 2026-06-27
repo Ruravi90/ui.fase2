@@ -246,13 +246,13 @@ export class DefaultLayoutComponent {
     let result = false;
     if (Array.isArray(p)) {
       p.forEach((v: any) => {
-        const i = this.currentUser.roles?.findIndex(r => r.slug === v);
+        const i = this.currentUser.roles?.findIndex(r => r.name === v);
         if (i !== -1) {
           result = true;
         }
       });
     } else if (typeof p === 'string') {
-      const i = this.currentUser.roles?.findIndex(r => r.slug === p);
+      const i = this.currentUser.roles?.findIndex(r => r.name === p);
       if (i !== -1) {
         result = true;
       }
