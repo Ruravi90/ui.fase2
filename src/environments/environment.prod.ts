@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  urlApi: 'https://kanan-api.up.railway.app/api/',
-  apiRoot: 'https://kanan-api.up.railway.app',
+  urlApi: 'https://kanan.up.railway.app/api/',
+  apiRoot: 'https://kanan.up.railway.app',
   qzTrayUrl: 'wss://localhost:8182',
   useMocks: false,
   reverb: {
