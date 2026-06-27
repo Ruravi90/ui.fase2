@@ -181,11 +181,11 @@ export class ChatWidgetComponent implements AfterViewChecked, OnInit, OnDestroy 
     (window as any).Pusher = Pusher;
     this.echoInstance = new Echo({
       broadcaster: 'reverb',
-      key: 'jmd6o3fttkpiihczuh93',
-      wsHost: window.location.hostname,
-      wsPort: 8080,
-      wssPort: 8080,
-      forceTLS: false,
+      key: environment.reverb.key,
+      wsHost: environment.reverb.host,
+      wsPort: environment.reverb.port,
+      wssPort: environment.reverb.port,
+      forceTLS: environment.reverb.scheme === 'https',
       disableStats: true,
       enabledTransports: ['ws', 'wss'],
       authEndpoint: `${environment.urlApi}broadcasting/auth`,
