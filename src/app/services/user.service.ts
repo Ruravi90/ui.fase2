@@ -36,6 +36,17 @@ export class UserService {
         );
     }
 
+    registerTenant(data: any): Observable<any> {
+        return this.ensureCsrfCookie().pipe(
+            switchMap(() => this.http.post<any>(environment.urlApi + 'saas/register', data)),
+            tap((response) => {
+                if (response?.success) {
+                    this.setCurrentUser(response.success);
+                }
+            })
+        );
+    }
+
     logout(): Observable<any> {
         return this.http.post<any>(this.url + '/logout', {}).pipe(
             tap(() => this.clearCurrentUser()),

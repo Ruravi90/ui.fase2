@@ -1,0 +1,99 @@
+.register-page {
+  background: radial-gradient(circle at top, #FFFFFF 0%, var(--landing-bg, #F9F8F6) 100%);
+  padding: 4rem 0;
+
+  .brand-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--landing-primary, #374A40);
+    margin: 0;
+    line-height: 1;
+    
+    span {
+      color: var(--landing-accent, #C48B5D);
+    }
+  }
+
+  .brand-tagline-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--landing-text-muted, #808A85);
+    font-weight: 500;
+  }
+
+  .premium-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(44, 53, 49, 0.08);
+    background: #ffffff;
+
+    .form-section-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      color: var(--landing-primary, #374A40);
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+    }
+
+    label {
+      font-weight: 500;
+      color: #4a5568;
+      font-size: 0.9rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-control {
+      border: 1px solid #dde1e7;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      font-size: 0.95rem;
+      
+      &:focus {
+        box-shadow: 0 0 0 0.2rem rgba(196, 139, 93, 0.2);
+        border-color: var(--landing-accent, #C48B5D);
+        outline: none;
+      }
+
+      &::placeholder {
+        color: #b0b8c1;
+      }
+    }
+
+    .btn-primary {
+      background-color: var(--landing-primary, #374A40);
+      border-color: var(--landing-primary, #374A40);
+      color: #ffffff;
+      font-weight: 600;
+      padding: 0.65rem 2rem;
+      border-radius: 8px;
+      transition: all 0.25s ease;
+      
+      &:hover:not(:disabled) {
+        background-color: var(--landing-primary-light, #4A6356);
+        border-color: var(--landing-primary-light, #4A6356);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(55, 74, 64, 0.25);
+      }
+
+      &:disabled {
+        background-color: var(--landing-primary, #374A40);
+        border-color: var(--landing-primary, #374A40);
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+    }
+
+    .link-accent {
+      color: var(--landing-accent, #C48B5D);
+      text-decoration: none;
+
+      &:hover {
+        color: var(--landing-accent-hover, #D69C6F);
+        text-decoration: underline;
+      }
+    }
+  }
+}

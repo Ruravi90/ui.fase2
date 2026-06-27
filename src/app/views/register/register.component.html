@@ -1,51 +1,87 @@
-<div class="app-body">
-  <main class="main d-flex align-items-center">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-6 mx-auto">
-          <div class="card mx-4">
-            <div class="card-body p-4">
-              <h1>Register</h1>
-              <p class="text-muted">Create your account</p>
-              <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="icon-user"></i></span>
-                </div>
-                <input type="text" class="form-control" placeholder="Username">
+<div class="landing-theme register-page d-flex align-items-center min-vh-100">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        
+        <div class="text-center mb-4">
+          <a routerLink="/" class="text-decoration-none">
+            <h2 class="brand-logo">Kanan<span>.</span></h2>
+            <p class="brand-tagline-sub mt-1 mb-0">Cuidar · Proteger</p>
+          </a>
+          <p class="text-muted mt-2">Crea el ecosistema de tu clínica en minutos</p>
+        </div>
+
+        <div class="card premium-card">
+          <div class="card-body p-5">
+            
+            <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+              
+              <h4 class="form-section-title">Datos de tu Clínica</h4>
+              
+              <div class="form-group mb-3">
+                <label>Nombre de la Clínica <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" placeholder="Ej. Clínica San José"
+                       name="tenant_name" [(ngModel)]="form.tenant_name" required>
               </div>
-              <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">&#64;</span>
-                </div>
-                <input type="text" class="form-control" placeholder="Email">
+
+              <hr class="my-4">
+              
+              <h4 class="form-section-title">Datos del Administrador</h4>
+
+              <div class="form-group mb-3">
+                <label>Nombre Completo <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" placeholder="Dr. Juan Pérez"
+                       name="name" [(ngModel)]="form.name" required>
               </div>
-              <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="icon-lock"></i></span>
-                </div>
-                <input type="password" class="form-control" placeholder="Password">
-              </div>
-              <div class="input-group mb-4">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="icon-lock"></i></span>
-                </div>
-                <input type="password" class="form-control" placeholder="Repeat password">
-              </div>
-              <button type="button" class="btn btn-block btn-success">Create Account</button>
-            </div>
-            <div class="card-footer p-4">
+
               <div class="row">
-                <div class="col-6">
-                  <button class="btn btn-block btn-facebook" type="button"><span>facebook</span></button>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Usuario (Login) <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" placeholder="juanperez"
+                           name="username" [(ngModel)]="form.username" required>
+                  </div>
                 </div>
-                <div class="col-6">
-                  <button class="btn btn-block btn-twitter" type="button"><span>twitter</span></button>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Correo Electrónico <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" placeholder="juan@email.com"
+                           name="email" [(ngModel)]="form.email" required>
+                  </div>
                 </div>
               </div>
-            </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Contraseña <span class="text-danger">*</span></label>
+                    <input type="password" class="form-control" placeholder="••••••••"
+                           name="password" [(ngModel)]="form.password" required minlength="6">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-4">
+                    <label>Confirmar Contraseña <span class="text-danger">*</span></label>
+                    <input type="password" class="form-control" placeholder="••••••••"
+                           name="c_password" [(ngModel)]="form.c_password" required minlength="6">
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end mt-3">
+                <button type="submit" class="btn btn-primary px-5" [disabled]="!registerForm.valid || loading">
+                  <i class="fas fa-circle-notch fa-spin mr-2" *ngIf="loading"></i>
+                  {{ loading ? 'Creando...' : 'Registrar Clínica' }}
+                </button>
+              </div>
+
+            </form>
+          </div>
+          <div class="card-footer text-center p-4 bg-transparent border-top">
+            <p class="mb-0 text-muted">¿Ya tienes una clínica registrada? <a routerLink="/login" class="link-accent font-weight-bold">Iniciar Sesión</a></p>
           </div>
         </div>
       </div>
     </div>
-  </main>
+  </div>
 </div>

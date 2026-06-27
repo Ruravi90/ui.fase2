@@ -25,17 +25,32 @@
   z-index: 2;
   max-width: 400px;
   
-  h2 {
-    font-size: 3rem;
+  .kanan-logo {
+    font-size: 3.5rem;
     line-height: 1.1;
-    color: var(--color-text-primary);
-    margin-bottom: 1.5rem;
+    color: #374A40;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    
+    span {
+      color: #C48B5D;
+    }
   }
   
-  p {
+  .kanan-tagline {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    color: #374A40;
+    opacity: 0.7;
+    margin-bottom: 1.5rem;
+  }
+
+  .kanan-desc {
     font-size: 1.1rem;
-    color: var(--color-text-primary);
-    opacity: 0.8;
+    color: #374A40;
+    opacity: 0.75;
+    line-height: 1.5;
   }
 }
 
@@ -83,8 +98,14 @@
   text-align: center;
   
   h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: #374A40;
+
+    .dot {
+      color: #C48B5D;
+    }
   }
   
   .subtitle {

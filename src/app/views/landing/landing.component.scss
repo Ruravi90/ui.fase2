@@ -1,0 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+.landing-theme {
+  --landing-bg: #F9F8F6; // Warm Sand / Cream
+  --landing-surface: #FFFFFF;
+  --landing-primary: #374A40; // Deep Olive Green
+  --landing-primary-light: #4A6356;
+  --landing-accent: #C48B5D; // Muted Terracotta
+  --landing-accent-hover: #D69C6F;
+  --landing-text-main: #2C3531; 
+  --landing-text-muted: #808A85;
+  --landing-border: #E8E5DF; 
+  --landing-radius: 12px;
+  --landing-shadow: 0 15px 35px rgba(44, 53, 49, 0.05);
+
+  font-family: 'Inter', sans-serif;
+  color: var(--landing-text-main);
+  background-color: var(--landing-bg);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    color: var(--landing-primary);
+  }
+
+  /* Navigation */
+  .landing-nav {
+    background-color: var(--landing-bg);
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--landing-border);
+
+    .navbar-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--landing-primary);
+      
+      span {
+        color: var(--landing-accent);
+      }
+    }
+  }
+
+  /* Buttons */
+  .btn {
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 0.6rem 1.5rem;
+    transition: all 0.2s ease;
+    
+    &.btn-primary {
+      background-color: var(--landing-primary);
+      border-color: var(--landing-primary);
+      color: #fff;
+      &:hover {
+        background-color: var(--landing-primary-light);
+        border-color: var(--landing-primary-light);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(55, 74, 64, 0.2);
+      }
+    }
+
+    &.btn-outline-primary {
+      border: 1px solid var(--landing-primary);
+      color: var(--landing-primary);
+      background: transparent;
+      &:hover {
+        background-color: var(--landing-primary);
+        color: #fff;
+      }
+    }
+
+    &.btn-outline-secondary {
+      border: 1px solid var(--landing-accent);
+      color: var(--landing-accent);
+      background: transparent;
+      &:hover {
+        background-color: var(--landing-accent);
+        color: #fff;
+      }
+    }
+
+    &.btn-lg {
+      padding: 0.8rem 2rem;
+      font-size: 1.1rem;
+    }
+  }
+
+  /* Hero Section */
+  .hero-section {
+    padding: 8rem 0;
+    background: radial-gradient(circle at center, #FFFFFF 0%, var(--landing-bg) 100%);
+    
+    .hero-title {
+      font-size: 3.5rem;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: var(--landing-text-muted);
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+  }
+
+  /* Features Section */
+  .features-section {
+    padding: 6rem 0;
+    background-color: var(--landing-surface);
+
+    .section-title {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+      font-size: 1.1rem;
+      color: var(--landing-text-muted);
+    }
+
+    .feature-card {
+      padding: 2.5rem;
+      background: var(--landing-bg);
+      border-radius: var(--landing-radius);
+      height: 100%;
+      border: 1px solid var(--landing-border);
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--landing-shadow);
+      }
+
+      .feature-icon {
+        font-size: 2.5rem;
+        color: var(--landing-accent);
+        margin-bottom: 1.5rem;
+      }
+
+      h4 {
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+      }
+
+      p {
+        color: var(--landing-text-muted);
+        line-height: 1.6;
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  /* Pricing Section */
+  .pricing-section {
+    padding: 6rem 0;
+
+    .pricing-card {
+      background: var(--landing-surface);
+      border: 1px solid var(--landing-border);
+      border-radius: var(--landing-radius);
+      padding: 3rem 2rem;
+      text-align: center;
+      box-shadow: var(--landing-shadow);
+      position: relative;
+      transition: transform 0.3s ease;
+      height: 100%;
+
+      &:hover {
+        transform: translateY(-5px);
+      }
+
+      &.popular {
+        border: 2px solid var(--landing-accent);
+        transform: scale(1.05);
+
+        &:hover {
+          transform: scale(1.05) translateY(-5px);
+        }
+      }
+
+      .popular-badge {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--landing-accent);
+        color: #fff;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .plan-name {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .plan-price {
+        margin-bottom: 2rem;
+        color: var(--landing-primary);
+
+        .currency {
+          font-size: 1.5rem;
+          vertical-align: top;
+        }
+
+        .amount {
+          font-size: 3.5rem;
+          font-weight: 700;
+          font-family: 'Playfair Display', serif;
+        }
+
+        .period {
+          color: var(--landing-text-muted);
+          font-weight: 500;
+        }
+      }
+
+      .plan-features {
+        text-align: left;
+        margin-bottom: 2rem;
+
+        li {
+          padding: 0.75rem 0;
+          border-bottom: 1px solid var(--landing-border);
+          color: var(--landing-text-main);
+          
+          i {
+            color: var(--landing-accent);
+            margin-right: 0.5rem;
+          }
+
+          &:last-child {
+            border-bottom: none;
+          }
+        }
+      }
+    }
+  }
+
+  /* Footer */
+  .landing-footer {
+    background-color: var(--landing-surface);
+    padding: 3rem 0;
+    border-top: 1px solid var(--landing-border);
+
+    strong {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--landing-primary);
+      
+      span {
+        color: var(--landing-accent);
+      }
+    }
+  }
+}

@@ -1,0 +1,112 @@
+<div class="landing-theme">
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg landing-nav">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <strong>Kanan<span>.</span></strong>
+        <small class="brand-tagline">Cuidar · Proteger</small>
+      </a>
+      <div class="d-flex align-items-center ml-auto" style="gap: 1rem;">
+        <a routerLink="/login" class="btn btn-outline-primary">Iniciar Sesión</a>
+        <a routerLink="/register" class="btn btn-primary">Registrar mi Clínica</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section text-center">
+    <div class="container">
+      <h1 class="hero-title">Kanan — <em>Cuidar. Proteger.</em><br><span class="hero-subtitle-kicker">Gestión Clínica de Alta Gama para México.</span></h1>
+      <p class="hero-subtitle">
+        Centraliza expedientes, inventarios y facturación en un ecosistema robusto, profesional y 100% compatible con la normativa mexicana.
+      </p>
+      <div class="hero-actions mt-5">
+        <a routerLink="/register" class="btn btn-primary btn-lg mx-2">Comienza Hoy Mismo</a>
+        <a href="#features" class="btn btn-outline-secondary btn-lg mx-2">Conoce más</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features-section">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="section-title">El Estándar de Oro en Cumplimiento</h2>
+        <p class="section-subtitle">No somos una adaptación extranjera. Nacimos aquí y entendemos las reglas de juego.</p>
+      </div>
+      
+      <div class="row mt-5">
+        <div class="col-md-4 mb-4">
+          <div class="feature-card text-center">
+            <div class="feature-icon">
+              <i class="fas fa-file-medical"></i>
+            </div>
+            <h4>Expediente Clínico COFEPRIS</h4>
+            <p>Estructura de expedientes alineada con la NOM-004-SSA3-2012. Registros inalterables, históricos claros y máxima privacidad.</p>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4">
+          <div class="feature-card text-center">
+            <div class="feature-icon">
+              <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <h4>Facturación SAT 4.0</h4>
+            <p>Genera facturas, complementos de pago y notas de crédito en segundos sin salir de la plataforma. Cumplimiento fiscal total.</p>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4">
+          <div class="feature-card text-center">
+            <div class="feature-icon">
+              <i class="fas fa-boxes"></i>
+            </div>
+            <h4>Trazabilidad de Inventario</h4>
+            <p>Control exacto de insumos, caducidades y lotes. Vital para auditorías sanitarias y el manejo responsable de recursos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing-section">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="section-title">Inversión Transparente</h2>
+        <p class="section-subtitle">Planes diseñados para clínicas que buscan crecer con solidez.</p>
+      </div>
+
+      <div class="row align-items-center justify-content-center">
+        <div class="col-lg-4 col-md-6 mb-4" *ngFor="let plan of plans">
+          <div class="pricing-card" [class.popular]="plan.popular">
+            <div class="popular-badge" *ngIf="plan.popular">El Más Elegido</div>
+            <h3 class="plan-name">{{ plan.name }}</h3>
+            <div class="plan-price">
+              <span class="currency" *ngIf="plan.price !== 'Contactar'">$</span>
+              <span class="amount">{{ plan.price }}</span>
+              <span class="period" *ngIf="plan.price !== 'Contactar'">/ {{ plan.period }}</span>
+            </div>
+            <ul class="plan-features list-unstyled">
+              <li *ngFor="let feat of plan.features">
+                <i class="fas fa-check"></i> {{ feat }}
+              </li>
+            </ul>
+            <a routerLink="/register" class="btn btn-block mt-4" [ngClass]="plan.popular ? 'btn-primary' : 'btn-outline-primary'">
+              Seleccionar
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer text-center">
+    <div class="container">
+      <div class="mb-3">
+        <strong>Kanan<span>.</span></strong>
+      <p class="tagline-footer">Cuidar · Proteger</p>
+      </div>
+      <p class="text-muted mb-0">Orgullosamente desarrollado en México. © 2026 Todos los derechos reservados.</p>
+    </div>
+  </footer>
+</div>
