@@ -16,6 +16,7 @@ export class PlansComponent implements OnInit {
   features: any[] = [];
   loading = false;
   showModal = false;
+  editingPlanId: number | null = null;
 
   newPlan = {
     name: '',
@@ -54,11 +55,13 @@ export class PlansComponent implements OnInit {
 
   openModal() {
     this.newPlan = { name: '', price: 0, currency: 'MXN', billing_cycle: 'monthly', features: [] };
+    this.editingPlanId = null;
     this.showModal = true;
   }
 
   closeModal() {
     this.showModal = false;
+    this.editingPlanId = null;
   }
 
   toggleFeature(featureId: number, event: any) {
@@ -76,7 +79,11 @@ export class PlansComponent implements OnInit {
     }
 
     this.loading = true;
-    this.saasService.createPlan(this.newPlan).subscribe({
+    const request = this.editingPlanId 
+      ? this.saasService.updatePlan(this.editingPlanId, this.newPlan)
+      : this.saasService.createPlan(this.newPlan);
+
+    request.subscribe({
       next: (res) => {
         this.loading = false;
         this.closeModal();
@@ -85,7 +92,45 @@ export class PlansComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        Swal.fire('Error', 'Error al crear el plan', 'error');
+        Swal.fire('Error', 'Error al guardar el plan', 'error');
+      }
+    });
+  }
+
+  editPlan(plan: any) {
+    this.newPlan = {
+      name: plan.name,
+      price: plan.price,
+      currency: plan.currency,
+      billing_cycle: plan.billing_cycle,
+      features: plan.features ? plan.features.map((f: any) => f.id) : []
+    };
+    this.editingPlanId = plan.id;
+    this.showModal = true;
+  }
+
+  deletePlan(id: number) {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "¡No podrás revertir esto! Se eliminará el plan de pago.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loading = true;
+        this.saasService.deletePlan(id).subscribe({
+          next: () => {
+            this.loading = false;
+            Swal.fire('¡Eliminado!', 'El plan ha sido eliminado.', 'success');
+            this.loadPlans();
+          },
+          error: () => {
+            this.loading = false;
+            Swal.fire('Error', 'No se pudo eliminar el plan', 'error');
+          }
+        });
       }
     });
   }

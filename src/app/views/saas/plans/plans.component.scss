@@ -1,0 +1,102 @@
+.saas-plan-card {
+  border: 1px solid var(--color-border, #E0E5E2);
+  border-radius: 6px;
+  padding: 1.5rem;
+  background-color: #fff;
+  transition: box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(58, 74, 64, 0.05);
+  }
+
+  .saas-plan-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed var(--color-border, #E0E5E2);
+
+    h4 {
+      font-weight: 600;
+      color: var(--color-text, #3A4A40);
+      margin-bottom: 0;
+    }
+  }
+
+  .saas-plan-body {
+    flex-grow: 1;
+    text-align: center;
+    
+    .price-display {
+      color: var(--color-text, #3A4A40);
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      
+      small {
+        font-weight: 400;
+        font-size: 0.5em;
+        color: #8c9c93;
+      }
+    }
+    
+    .billing-cycle {
+      color: #8c9c93;
+      margin-bottom: 1.5rem;
+    }
+    
+    .features-list {
+      list-style: none;
+      padding-left: 0;
+      text-align: left;
+      
+      li {
+        margin-bottom: 0.75rem;
+        color: #4A5C50;
+        
+        i {
+          color: var(--color-primary, #84A59D);
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
+
+  .saas-plan-footer {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--color-border, #E0E5E2);
+    margin-top: auto;
+    
+    .btn-edit {
+      border: 1px solid var(--color-text, #3A4A40);
+      color: var(--color-text, #3A4A40);
+      background: white;
+      font-weight: 600;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      
+      &:hover {
+        background: rgba(58, 74, 64, 0.05);
+      }
+    }
+    
+    .btn-delete {
+      border: 1px solid #dc3545;
+      color: #dc3545;
+      background: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      
+      &:hover {
+        background: rgba(220, 53, 69, 0.1);
+      }
+    }
+  }
+}

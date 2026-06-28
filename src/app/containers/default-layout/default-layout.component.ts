@@ -18,7 +18,7 @@ import { RouterModule } from '@angular/router';
 export class DefaultLayoutComponent {
   public currentUser: User;
   public navItems: any[] = [];
-  public sidebarMinimized = false;
+  public sidebarMinimized = window.innerWidth <= 768;
 
   constructor(private router: Router, private userService: UserService) {
     this.currentUser = this.userService.currentUser;
@@ -27,6 +27,12 @@ export class DefaultLayoutComponent {
 
   toggleSidebar() {
     this.sidebarMinimized = !this.sidebarMinimized;
+  }
+
+  closeSidebarMobile() {
+    if (window.innerWidth <= 768) {
+      this.sidebarMinimized = true;
+    }
   }
 
   toggleGroup(item: any) {

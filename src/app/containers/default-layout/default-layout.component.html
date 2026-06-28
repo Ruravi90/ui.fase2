@@ -1,8 +1,14 @@
 <div class="serene-layout" [class.sidebar-hidden]="sidebarMinimized">
+  <!-- Mobile Overlay -->
+  <div class="sidebar-overlay" (click)="toggleSidebar()"></div>
+
   <!-- Sidebar -->
   <aside class="serene-sidebar">
-    <div class="serene-sidebar-brand">
+    <div class="serene-sidebar-brand" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
       <h3>FASE 2 SPA</h3>
+      <button class="btn-sidebar-close" (click)="toggleSidebar()" title="Cerrar menú">
+        <i class="fa fa-times"></i>
+      </button>
     </div>
     
     <nav class="serene-sidebar-nav">
@@ -10,7 +16,7 @@
         @for (item of navItems; track item.name) {
           @if (!item.children) {
             <li>
-              <a [routerLink]="item.url" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}">
+              <a (click)="closeSidebarMobile()" [routerLink]="item.url" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}">
                 <i class="{{item.icon}}"></i> <span>{{item.name}}</span>
               </a>
             </li>
@@ -25,7 +31,7 @@
                 <ul style="list-style: none; padding: 0; margin: 0;">
                   @for (child of item.children; track child.name) {
                     <li>
-                      <a [routerLink]="child.url" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                      <a (click)="closeSidebarMobile()" [routerLink]="child.url" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
                         <i class="{{child.icon}}"></i> <span>{{child.name}}</span>
                       </a>
                     </li>

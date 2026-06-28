@@ -222,3 +222,90 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(140, 156, 147, 0.6);
 }
+
+.sidebar-overlay {
+  display: none;
+}
+.btn-sidebar-close {
+  display: none;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+  .serene-layout {
+    display: block; /* Remove grid to avoid shrinking main content */
+    
+    &.sidebar-hidden {
+      .serene-sidebar {
+        transform: translateX(-100%);
+      }
+    }
+
+    /* When sidebar is open on mobile */
+    &:not(.sidebar-hidden) {
+      .serene-sidebar {
+        transform: translateX(0);
+        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.5);
+      }
+      
+      .sidebar-overlay {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 9998;
+        backdrop-filter: blur(2px);
+      }
+    }
+  }
+
+  .btn-sidebar-close {
+    display: block;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: #FFFFFF;
+    }
+  }
+
+  .serene-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 9999;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .serene-main-content {
+    padding: 1rem; /* Better space utilization on mobile */
+  }
+
+  .serene-topbar {
+    padding: 0 1rem;
+    
+    .user-greeting {
+      font-size: 0.8rem;
+      margin-right: 0.5rem;
+      
+      strong {
+        font-size: 0.9rem;
+      }
+    }
+    
+    .btn-logout {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+    }
+  }
+}
+

@@ -1,54 +1,64 @@
-<div class="saas-premium-theme">
-  <div class="saas-content animated fadeIn">
-    <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <span><i class="icon-grid"></i> Clínicas Registradas</span>
-      <button class="btn btn-success btn-sm" (click)="openModal()">
-        <i class="icon-plus"></i> Crear Nueva Clínica
-      </button>
-    </div>
-    <div class="card-body">
+<div class="animated fadeIn">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
       
+      <!-- Page Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <h4 style="margin: 0; color: #3A4A40; font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">Clínicas Registradas</h4>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <button class="btn" style="background-color: transparent; border: 1px solid #84A59D; color: #84A59D; border-radius: 20px; padding: 0.4rem 1rem;" (click)="openModal()">
+            <i class="icon-plus"></i> Crear Clínica
+          </button>
+        </div>
+      </div>
+
       <div *ngIf="loading" class="text-center py-4">
         <div class="spinner-border text-primary" role="status"></div>
       </div>
 
-      <div class="row" *ngIf="!loading">
-        <div class="col-sm-12 text-center" *ngIf="tenants.length === 0">
-          <p class="text-muted">No has registrado ninguna clínica todavía.</p>
+      <div *ngIf="!loading">
+        <div class="text-center" *ngIf="tenants.length === 0">
+          <p class="text-muted" style="margin-top: 2rem;">No has registrado ninguna clínica todavía.</p>
         </div>
 
-        <table class="table table-responsive-sm table-hover table-outline mb-0" *ngIf="tenants.length > 0">
-          <thead class="thead-light">
-            <tr>
-              <th>ID</th>
-              <th>Nombre de Clínica</th>
-              <th>Dominio</th>
-              <th>Base de Datos (Si aplica)</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let tenant of tenants">
-              <td>{{ tenant.id }}</td>
-              <td><strong>{{ tenant.name }}</strong></td>
-              <td>{{ tenant.domain }}</td>
-              <td>{{ tenant.database || 'Por defecto' }}</td>
-              <td>
-                <button class="btn btn-sm btn-info me-2 text-white" (click)="openAssignModal(tenant.id)" title="Asignar Plan">
-                  <i class="icon-star"></i>
+        <div *ngIf="tenants.length > 0">
+          <div *ngFor="let tenant of tenants" class="saas-list-card" style="border: 1px solid #E0E5E2; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; background-color: #fff; transition: box-shadow 0.3s ease;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px dashed #E0E5E2;">
+              <div>
+                <span style="font-weight: 600; color: #3A4A40; font-size: 1.1rem; text-transform: uppercase;">{{ tenant.name }}</span>
+              </div>
+              <div style="font-size: 0.85rem; color: #8c9c93;">
+                ID: {{ tenant.id }}
+              </div>
+            </div>
+            
+            <div style="padding: 0.5rem 0; display: flex; flex-wrap: wrap; align-items: center;">
+              <div style="flex: 2; min-width: 200px;">
+                <span style="display:block; color:#8c9c93; font-size: 0.8rem;">Dominio</span>
+                <strong>{{ tenant.domain || 'Sin dominio' }}</strong>
+              </div>
+              <div style="flex: 1; text-align: center; min-width: 150px;">
+                <span style="display:block; color:#8c9c93; font-size: 0.8rem;">Base de Datos</span>
+                <strong>{{ tenant.database || 'Por defecto' }}</strong>
+              </div>
+              <div style="flex: 1; display: flex; gap: 0.75rem; justify-content: flex-end; min-width: 150px;">
+                <button type="button" class="btn btn-link" style="color: #84A59D; padding: 0.2rem 0.5rem;" (click)="openAssignModal(tenant.id)" title="Asignar Plan">
+                  <i class="fas fa-star" style="font-size: 1.2rem;"></i>
                 </button>
-                <button class="btn btn-sm btn-primary me-2" (click)="editTenant(tenant)" title="Editar">
-                  <i class="icon-pencil"></i>
+                <button type="button" class="btn btn-link" style="color: #84A59D; padding: 0.2rem 0.5rem;" (click)="editTenant(tenant)" title="Editar">
+                  <i class="fas fa-list-ul" style="font-size: 1.2rem;"></i>
                 </button>
-                <button class="btn btn-sm btn-danger" (click)="deleteTenant(tenant.id)" title="Eliminar">
-                  <i class="icon-trash"></i>
+                <button type="button" class="btn btn-link" style="color: #8c9c93; padding: 0.2rem 0.5rem;" (click)="deleteTenant(tenant.id)" title="Eliminar">
+                  <i class="fas fa-trash" style="font-size: 1.2rem;"></i>
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </div>
+            
+          </div>
+        </div>
       </div>
+      
     </div>
   </div>
 </div>
@@ -57,10 +67,10 @@
 <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; background: rgba(0,0,0,0.5);" *ngIf="showModal">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">{{ isEditing ? 'Editar Clínica' : 'Crear Nueva Clínica' }}</h5>
-        <button type="button" class="close" (click)="closeModal()" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
+      <div class="modal-header" style="border-bottom: 1px dashed #E0E5E2; padding-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+        <h5 class="modal-title" style="color: #3A4A40; font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin: 0;">{{ isEditing ? 'Editar Clínica' : 'Crear Nueva Clínica' }}</h5>
+        <button type="button" style="background: transparent; border: none; font-size: 1.5rem; color: #8c9c93; cursor: pointer; padding: 0; line-height: 1; margin-left: auto;" (click)="closeModal()">
+          &times;
         </button>
       </div>
       <div class="modal-body">
@@ -102,9 +112,9 @@
         </div>
 
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="saveTenant()">Guardar</button>
+      <div class="modal-footer" style="border-top: none;">
+        <button type="button" class="btn" style="background: transparent; border: 1px solid #8c9c93; color: #8c9c93; border-radius: 6px;" (click)="closeModal()">Cancelar</button>
+        <button type="button" class="btn" style="background-color: #84A59D; color: #fff; border: 1px solid #84A59D; border-radius: 6px;" (click)="saveTenant()">Guardar</button>
       </div>
     </div>
   </div>
@@ -114,16 +124,16 @@
 <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; background: rgba(0,0,0,0.5);" *ngIf="showAssignModal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Asignar Plan Manualmente</h5>
-        <button type="button" class="close" (click)="closeAssignModal()" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
+      <div class="modal-header" style="border-bottom: 1px dashed #E0E5E2; padding-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+        <h5 class="modal-title" style="color: #3A4A40; font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin: 0;">Asignar Plan Manualmente</h5>
+        <button type="button" style="background: transparent; border: none; font-size: 1.5rem; color: #8c9c93; cursor: pointer; padding: 0; line-height: 1; margin-left: auto;" (click)="closeAssignModal()">
+          &times;
         </button>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <label for="planId">Seleccionar Plan</label>
-          <select class="form-control" id="planId" [(ngModel)]="assignData.planId">
+          <select class="form-select" id="planId" [(ngModel)]="assignData.planId">
             <option *ngFor="let plan of availablePlans" [value]="plan.id">{{ plan.name }} - ${{ plan.price }}</option>
           </select>
         </div>
@@ -132,12 +142,10 @@
           <input type="number" class="form-control" id="months" [(ngModel)]="assignData.months" min="1">
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeAssignModal()">Cancelar</button>
-        <button type="button" class="btn btn-success" (click)="confirmAssignPlan()">Asignar Plan</button>
+      <div class="modal-footer" style="border-top: none;">
+        <button type="button" class="btn" style="background: transparent; border: 1px solid #8c9c93; color: #8c9c93; border-radius: 6px;" (click)="closeAssignModal()">Cancelar</button>
+        <button type="button" class="btn" style="background-color: #84A59D; color: #fff; border: 1px solid #84A59D; border-radius: 6px;" (click)="confirmAssignPlan()">Asignar Plan</button>
       </div>
     </div>
   </div>
-</div>
-
 </div>
