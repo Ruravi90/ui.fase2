@@ -75,22 +75,34 @@
         <p class="section-subtitle">Planes diseñados para clínicas que buscan crecer con solidez.</p>
       </div>
 
-      <div class="row align-items-center justify-content-center">
-        <div class="col-lg-4 col-md-6 mb-4" *ngFor="let plan of plans">
-          <div class="pricing-card" [class.popular]="plan.popular">
+      <div class="row align-items-stretch justify-content-center">
+        <div class="col-lg-3 col-md-6 mb-4 d-flex" *ngFor="let plan of plans">
+          <div class="pricing-card flex-fill d-flex flex-column" [class.popular]="plan.popular">
             <div class="popular-badge" *ngIf="plan.popular">El Más Elegido</div>
             <h3 class="plan-name">{{ plan.name }}</h3>
             <div class="plan-price">
-              <span class="currency" *ngIf="plan.price !== 'Contactar'">$</span>
+              <span class="currency" *ngIf="plan.price > -1">$</span>
               <span class="amount">{{ plan.price }}</span>
-              <span class="period" *ngIf="plan.price !== 'Contactar'">/ {{ plan.period }}</span>
+              <span class="period" *ngIf="plan.price > -1">/ {{ plan.billing_cycle === 'month' ? 'mes' : 'año' }}</span>
             </div>
             <ul class="plan-features list-unstyled">
-              <li *ngFor="let feat of plan.features">
-                <i class="fas fa-check"></i> {{ feat }}
+              <li *ngFor="let feat of (plan.showAll ? plan.features : plan.features.slice(0, 5))">
+                <i class="fas fa-check"></i> {{ feat.name }}
+              </li>
+              
+              <li *ngIf="plan.features.length > 5 && !plan.showAll" class="text-center mt-3">
+                <a href="javascript:void(0)" (click)="plan.showAll = true" class="text-primary text-decoration-none" style="font-size: 0.85rem; font-weight: 500;">
+                  + {{ plan.features.length - 5 }} módulos más
+                </a>
+              </li>
+              
+              <li *ngIf="plan.features.length > 5 && plan.showAll" class="text-center mt-3">
+                <a href="javascript:void(0)" (click)="plan.showAll = false" class="text-muted text-decoration-none" style="font-size: 0.85rem; font-weight: 500;">
+                  Mostrar menos
+                </a>
               </li>
             </ul>
-            <a routerLink="/register" class="btn btn-block mt-4" [ngClass]="plan.popular ? 'btn-primary' : 'btn-outline-primary'">
+            <a routerLink="/register" [queryParams]="{ plan: plan.id }" class="btn btn-block mt-auto" [ngClass]="plan.popular ? 'btn-primary' : 'btn-outline-primary'">
               Seleccionar
             </a>
           </div>

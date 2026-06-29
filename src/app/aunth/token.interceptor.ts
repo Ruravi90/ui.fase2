@@ -1,9 +1,12 @@
-import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpResponse } from '@angular/common/http';
+import { Injectable, Injector } from '@angular/core';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { finalize, tap } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
+
+  constructor(private injector: Injector) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     const startTime = Date.now();
@@ -33,7 +36,16 @@ export class TokenInterceptor implements HttpInterceptor {
             status = 'succeeded';
           }
         },
-        () => { status = 'failed'; }
+        (error) => {
+          status = 'failed';
+          if (error instanceof HttpErrorResponse && error.status === 403) {
+            // We force a hard redirect to the subscription page to avoid router conflicts
+            if (!window.location.hash.includes('/admin/subscription')) {
+              window.location.hash = '/admin/subscription';
+              window.location.reload();
+            }
+          }
+        }
       ),
       finalize(() => {
         const elapsedTime = Date.now() - startTime;

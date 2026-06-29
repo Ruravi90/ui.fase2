@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../services/user.service';
+import Swal from 'sweetalert2';
 
 declare var iziToast: any;
 
@@ -13,7 +14,7 @@ declare var iziToast: any;
     standalone: true,
     imports: [FormsModule, CommonModule, RouterModule]
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
 
   form = {
     tenant_name: '',
@@ -26,11 +27,19 @@ export class RegisterComponent {
   };
 
   loading = false;
+  planId: string | null = null;
 
   constructor(
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
+
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.planId = params['plan'];
+    });
+  }
 
   formatDomain() {
     // Basic formatting for subdomain: lowercase, no spaces, no special chars
@@ -42,6 +51,12 @@ export class RegisterComponent {
       this.toastError('Las contraseñas no coinciden');
       return;
     }
+    
+    // Auto-generate domain if not provided in the UI
+    if (!this.form.domain && this.form.tenant_name) {
+      this.form.domain = this.form.tenant_name.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
+    }
+
     if (!this.form.tenant_name || !this.form.domain || !this.form.name || !this.form.username || !this.form.email || !this.form.password) {
       this.toastError('Todos los campos son obligatorios');
       return;
@@ -51,12 +66,30 @@ export class RegisterComponent {
     this.userService.registerTenant(this.form).subscribe({
       next: (res) => {
         this.loading = false;
-        iziToast.success({
+        
+        // Check if token returned and save it so they are logged in!
+        if (res.token) {
+          localStorage.setItem('auth_token', res.token);
+          if (res.user) {
+            localStorage.setItem('user', JSON.stringify(res.user));
+          }
+        }
+
+        Swal.fire({
           title: '¡Bienvenido!',
-          message: 'Tu clínica ha sido creada exitosamente.',
-          position: 'topRight'
+          text: 'Tu clínica ha sido creada exitosamente.',
+          icon: 'success',
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000
         });
-        this.router.navigate(['/page/dashboard']);
+
+        if (this.planId) {
+          this.router.navigate(['/admin/subscription']);
+        } else {
+          this.router.navigate(['/page/dashboard']);
+        }
       },
       error: (err) => {
         this.loading = false;
@@ -72,14 +105,14 @@ export class RegisterComponent {
   }
 
   private toastError(message: string) {
-    if (typeof iziToast !== 'undefined') {
-      iziToast.error({
-        title: 'Error',
-        message: message,
-        position: 'topRight'
-      });
-    } else {
-      alert(message);
-    }
+    Swal.fire({
+      title: 'Error',
+      text: message,
+      icon: 'error',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000
+    });
   }
 }

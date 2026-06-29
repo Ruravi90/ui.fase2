@@ -18,11 +18,22 @@
       </div>
 
       <ul class="features">
-        <li *ngFor="let feature of plan.features">
+        <li *ngFor="let feature of (plan.showAll ? plan.features : plan.features.slice(0, 5))">
           <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
           </svg>
           {{ feature.name }}
+        </li>
+        <li *ngIf="plan.features.length > 5 && !plan.showAll" class="text-center mt-3" style="list-style: none; padding: 0;">
+          <a href="javascript:void(0)" (click)="plan.showAll = true" class="text-primary text-decoration-none" style="font-size: 0.85rem; font-weight: 500;">
+            + {{ plan.features.length - 5 }} módulos más
+          </a>
+        </li>
+        
+        <li *ngIf="plan.features.length > 5 && plan.showAll" class="text-center mt-3" style="list-style: none; padding: 0;">
+          <a href="javascript:void(0)" (click)="plan.showAll = false" class="text-muted text-decoration-none" style="font-size: 0.85rem; font-weight: 500;">
+            Mostrar menos
+          </a>
         </li>
       </ul>
 
@@ -30,8 +41,62 @@
         class="pay-btn" 
         [class.mp-btn]="plan.price > 0"
         [disabled]="plan.id === currentPlanId"
-        (click)="payWithMercadoPago(plan)">
+        (click)="openCheckout(plan)">
         {{ plan.id === currentPlanId ? 'Plan Actual' : (plan.price > 0 ? 'Pagar con Mercado Pago' : 'Elegir Plan') }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Checkout Modal Overlay -->
+<div class="checkout-overlay" *ngIf="selectedPlanForCheckout">
+  <div class="checkout-modal">
+    <div class="checkout-header">
+      <h2>Resumen de Compra</h2>
+      <button class="close-btn" (click)="closeCheckout()">&times;</button>
+    </div>
+    
+    <div class="checkout-body">
+      <div class="summary-row">
+        <span>Plan seleccionado</span>
+        <strong>{{ selectedPlanForCheckout.name }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>Precio Original ({{ selectedPlanForCheckout.billing_cycle === 'month' ? 'Mensual' : 'Anual' }})</span>
+        <strong>${{ selectedPlanForCheckout.price }}</strong>
+      </div>
+
+      <hr>
+
+      <div class="promo-section">
+        <label>¿Tienes un código de promoción?</label>
+        <div class="input-group mt-1">
+          <input type="text" class="form-control" placeholder="Ej: VERANO2026" [(ngModel)]="checkoutCode" [disabled]="checkoutAppliedCode != null">
+          <button class="btn btn-outline-secondary" type="button" (click)="applyCheckoutPromoCode()" [disabled]="loading || !checkoutCode || checkoutAppliedCode != null">Aplicar</button>
+        </div>
+        <small class="text-danger d-block mt-1" *ngIf="checkoutError">{{ checkoutError }}</small>
+        
+        <div class="alert alert-success mt-2 mb-0 py-2 px-3" *ngIf="checkoutAppliedCode" style="font-size: 0.9rem;">
+          ¡Código aplicado! Descuento: <strong>{{ checkoutAppliedCode.percentage }}%</strong>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="summary-row discount-row" *ngIf="checkoutAppliedCode">
+        <span>Descuento aplicado</span>
+        <strong>-${{ checkoutDiscount | number:'1.2-2' }}</strong>
+      </div>
+
+      <div class="summary-row total-row">
+        <span>Total a pagar</span>
+        <strong class="total-price">${{ checkoutTotal | number:'1.2-2' }}</strong>
+      </div>
+    </div>
+
+    <div class="checkout-footer mt-4">
+      <button class="btn btn-lg btn-primary w-100 mp-btn" (click)="confirmAndPay()" [disabled]="loading">
+        Proceder al Pago Seguro
       </button>
     </div>
   </div>

@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
@@ -7,7 +8,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-subscription',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './subscription.component.html',
   styleUrls: ['./subscription.component.scss']
 })
@@ -18,6 +19,10 @@ export class SubscriptionComponent implements OnInit {
   public loading = false;
   private apiUrl = environment.urlApi;
   public debugRes: any = 'Cargando...';
+
+  public promoCodeInput: { [key: number]: string } = {};
+  public appliedPromoCode: { [key: number]: any } = {};
+  public promoCodeError: { [key: number]: string } = {};
 
   constructor(
     private http: HttpClient,
@@ -52,7 +57,58 @@ export class SubscriptionComponent implements OnInit {
     });
   }
 
-  public payWithMercadoPago(plan: any) {
+  public selectedPlanForCheckout: any = null;
+  public checkoutCode = '';
+  public checkoutAppliedCode: any = null;
+  public checkoutError = '';
+  public checkoutDiscount = 0;
+  public checkoutTotal = 0;
+
+  public openCheckout(plan: any) {
+    this.selectedPlanForCheckout = plan;
+    this.checkoutCode = '';
+    this.checkoutAppliedCode = null;
+    this.checkoutError = '';
+    this.checkoutDiscount = 0;
+    this.checkoutTotal = parseFloat(plan.price);
+    // Asumimos que tenemos Bootstrap JS para abrir el modal, o manejamos el div oculto con ngIf
+  }
+
+  public closeCheckout() {
+    this.selectedPlanForCheckout = null;
+  }
+
+  public applyCheckoutPromoCode() {
+    if (!this.checkoutCode) return;
+    this.loading = true;
+    this.checkoutError = '';
+    
+    this.http.post<any>(this.apiUrl + 'saas/promo-codes/validate', { code: this.checkoutCode, plan_id: this.selectedPlanForCheckout.id }).subscribe({
+      next: (res) => {
+        this.loading = false;
+        this.checkoutAppliedCode = res;
+        
+        const price = parseFloat(this.selectedPlanForCheckout.price);
+        this.checkoutDiscount = price * (res.percentage / 100);
+        this.checkoutTotal = price - this.checkoutDiscount;
+        
+        this.cdr.detectChanges();
+        Swal.fire('¡Código Aplicado!', `Descuento de ${res.percentage}% aplicado correctamente.`, 'success');
+      },
+      error: (err) => {
+        this.loading = false;
+        this.checkoutError = err.error?.message || 'Código inválido o expirado';
+        this.checkoutAppliedCode = null;
+        this.checkoutDiscount = 0;
+        this.checkoutTotal = parseFloat(this.selectedPlanForCheckout.price);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  public confirmAndPay() {
+    if (!this.selectedPlanForCheckout) return;
+    
     this.loading = true;
     Swal.fire({
       title: 'Generando pago...',
@@ -63,7 +119,12 @@ export class SubscriptionComponent implements OnInit {
       }
     });
 
-    this.http.post<any>(this.apiUrl + 'saas/payment/preference', { plan_id: plan.id }).subscribe({
+    const payload: any = { plan_id: this.selectedPlanForCheckout.id };
+    if (this.checkoutAppliedCode) {
+      payload.promo_code_id = this.checkoutAppliedCode.id;
+    }
+
+    this.http.post<any>(this.apiUrl + 'saas/payment/preference', payload).subscribe({
       next: (res) => {
         this.loading = false;
         Swal.close();

@@ -160,3 +160,46 @@
     }
   }
 }
+
+.checkout-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  backdrop-filter: blur(4px);
+}
+.checkout-modal {
+  background: #fff;
+  width: 100%;
+  max-width: 450px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  padding: 1.5rem;
+  
+  .checkout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    h2 { margin: 0; font-size: 1.25rem; font-family: 'Playfair Display', serif; }
+    .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+  }
+  
+  .checkout-body {
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+    .discount-row strong { color: #28a745; }
+    .total-row {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      .total-price { font-size: 1.3rem; color: #009ee3; }
+    }
+  }
+}

@@ -64,6 +64,11 @@ export class DefaultLayoutComponent {
           name: 'Planes de Pago',
           url: '/saas/plans',
           icon: 'fas fa-tags',
+        },
+        {
+          name: 'Códigos de Prom.',
+          url: '/saas/promo-codes',
+          icon: 'fas fa-ticket-alt',
         }
       );
       // El super_admin no debe ver el menú de las clínicas
