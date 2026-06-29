@@ -2,6 +2,7 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { finalize, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
@@ -38,11 +39,27 @@ export class TokenInterceptor implements HttpInterceptor {
         },
         (error) => {
           status = 'failed';
-          if (error instanceof HttpErrorResponse && error.status === 403) {
-            // We force a hard redirect to the subscription page to avoid router conflicts
-            if (!window.location.hash.includes('/admin/subscription')) {
-              window.location.hash = '/admin/subscription';
-              window.location.reload();
+          if (error instanceof HttpErrorResponse) {
+            if (error.status === 401) {
+              // Not logged in or session expired/invalidated
+              if (!window.location.hash.includes('/login')) {
+                Swal.fire({
+                  title: 'Sesión Terminada',
+                  text: 'Tu sesión ha expirado o se ha iniciado sesión desde otro dispositivo.',
+                  icon: 'warning',
+                  confirmButtonText: 'Aceptar',
+                  allowOutsideClick: false
+                }).then(() => {
+                  window.location.hash = '/login';
+                  window.location.reload();
+                });
+              }
+            } else if (error.status === 403) {
+              // We force a hard redirect to the subscription page to avoid router conflicts
+              if (!window.location.hash.includes('/admin/subscription')) {
+                window.location.hash = '/admin/subscription';
+                window.location.reload();
+              }
             }
           }
         }
