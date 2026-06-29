@@ -10,6 +10,7 @@ import { ClientService,
   ProductsInventaryService,
   UserService
 } from '../../services';
+import { InitService } from '../../services/init.service';
 import { Client,
   Department,
   User,
@@ -90,6 +91,7 @@ export class SaleComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private router: Router,
     private userService: UserService,
+    private initService: InitService
     ) {
       this.currentUser = this.userService.currentUser;
     }
@@ -98,6 +100,7 @@ export class SaleComponent implements OnInit {
     this.isLoadingPage = true;
     setTimeout(() => this.cdr.detectChanges(), 0);
     this.setCombos();
+    this.loadInitData();
 
     this.clients$ = this.clientInput$.pipe(
       debounceTime(300),
@@ -120,8 +123,6 @@ export class SaleComponent implements OnInit {
           this.sale.amount = this.sale.total;
         }
     });
-
-    this.getSalesForDay();
   }
 
   isLoadingPage = true;
@@ -132,18 +133,18 @@ export class SaleComponent implements OnInit {
     });
   }
 
-  setCombos() {
-    forkJoin([
-      this.dS.get(), 
-      this.aS.get(),
-      this.tS.getAll('cat_type_sales')
-    ]).subscribe(r => {
-      this.departments = r[0];
-      this.agents = r[1];
-      this.typeSales = r[2];
+  loadInitData() {
+    this.initService.getSaleInit(this.currentUser.id!).subscribe(res => {
+      this.departments = res.departments;
+      this.agents = res.agents;
+      this.typeSales = res.cat_type_sales;
+      this.salesForDay = res.sales_day.sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
       this.isLoadingPage = false;
       this.cdr.detectChanges();
     });
+  }
+
+  setCombos() {
 
     this.typeConcepts = [
       {id: 'product', name: 'Producto'},

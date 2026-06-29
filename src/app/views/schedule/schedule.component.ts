@@ -22,6 +22,7 @@ import { DepartmentService } from '../../services/department.service';
 import { UserService } from '../../services/user.service';
 import { Package, PackageTracking, Sale, User, _Type } from '../../models';
 import { HttpClient } from '@angular/common/http';
+import { InitService } from '../../services/init.service';
 
 import { RouterModule } from '@angular/router';
 
@@ -136,16 +137,44 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private userService: UserService,
-    private http: HttpClient
+    private http: HttpClient,
+    private initService: InitService
   ) {
     this.currentUser = this.userService.currentUser;
   }
 
   ngOnInit(): void {
     this.loadEvents();
-    this.loadClients();
-    this.loadQuickSaleCatalogs();
     this.loadQueue();
+    this.initService.getScheduleInit().subscribe(res => {
+      this.catPackages = res.cat_packages;
+      this.catServices = res.cat_services;
+      this.agents = res.agents;
+      this.typeSales = res.cat_type_sales;
+      
+      const rawClients = Array.isArray(res.clients) ? res.clients : [];
+      this.clients = rawClients.map((c: any) => ({
+        ...c,
+        id: Number(c.id),
+        fullname: [c.name, c.lastname, c.motherlastname].filter(Boolean).join(' ')
+      }));
+
+      const r = res.departments;
+      if (r && r.length) {
+        this.defaultDepartmentId = r[0].id!;
+        const updates: Partial<CalendarOptions> = {};
+        if (r[0].business_hours_start) {
+          updates.slotMinTime = r[0].business_hours_start + ':00';
+        }
+        if (r[0].business_hours_end) {
+          updates.slotMaxTime = r[0].business_hours_end + ':00';
+        }
+        if (Object.keys(updates).length > 0) {
+          this.calendarOptions = { ...this.calendarOptions, ...updates };
+        }
+      }
+      this.cdr.detectChanges();
+    });
     this.searchSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe(term => {
       this.filterEvents(term);
     });
@@ -193,27 +222,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadQuickSaleCatalogs(): void {
-    this.typeService.getAll('cat_packages').subscribe(r => this.catPackages = r);
-    this.typeService.getAll('cat_services').subscribe(r => this.catServices = r);
-    this.agentService.get().subscribe(r => this.agents = r);
-    this.typeService.getAll('cat_type_sales').subscribe(r => this.typeSales = r);
-    this.departmentService.get().subscribe(r => {
-      if (r.length) {
-        this.defaultDepartmentId = r[0].id!;
-        const updates: Partial<CalendarOptions> = {};
-        if (r[0].business_hours_start) {
-          updates.slotMinTime = r[0].business_hours_start + ':00';
-        }
-        if (r[0].business_hours_end) {
-          updates.slotMaxTime = r[0].business_hours_end + ':00';
-        }
-        if (Object.keys(updates).length > 0) {
-          this.calendarOptions = { ...this.calendarOptions, ...updates };
-        }
-      }
-    });
-  }
+
 
   filterEvents(term: string) {
     const t = term.trim().toLowerCase();
@@ -237,16 +246,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     this.searchSubject.next('');
   }
 
-  loadClients() {
-    this.clientService.get().subscribe((res: any) => {
-      const raw = Array.isArray(res) ? res : (res?.data || []);
-      this.clients = raw.map((c: any) => ({
-        ...c,
-        id: Number(c.id),
-        fullname: [c.name, c.lastname, c.motherlastname].filter(Boolean).join(' ')
-      }));
-    });
-  }
+
 
   loadEvents() {
     this.isEventsLoading = true;

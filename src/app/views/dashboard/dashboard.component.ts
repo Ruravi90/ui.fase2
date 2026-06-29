@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BalanceService, ProductsInventaryService, PillsInventoryService } from '../../services';
+import { InitService } from '../../services/init.service';
 
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { forkJoin } from 'rxjs';
@@ -41,25 +42,14 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
     private bS: BalanceService, 
     private pS: ProductsInventaryService,
     private piS: PillsInventoryService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private initService: InitService
   ) {}
 
   ngOnInit(): void {
     this.isLoading = true;
     setTimeout(() => this.cdr.detectChanges(), 0);
-    forkJoin({
-      summary: this.bS.getDashboardSummary(),
-      sales: this.bS.getSaleChart(),
-      packages: this.bS.getPackageChart(),
-      services: this.bS.getServiceChart(),
-      departments: this.bS.getDepartmentChart(),
-      paymentMethods: this.bS.getPaymentMethodsChart(),
-      topSellers: this.bS.getTopSellers(),
-      activity: this.bS.getRecentActivity(),
-      alerts: this.bS.getAlerts(),
-      productsInv: this.pS.getAll(),
-      pillsInv: this.piS.getAll()
-    }).subscribe((res: any) => {
+    this.initService.getDashboardInit().subscribe((res: any) => {
       this.summary = res.summary || {};
       this.sales = res.sales || [];
       this.packages = res.packages || [];
@@ -116,7 +106,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       // Setup infinite scroll after initial load
       setTimeout(() => this.setupSentinel(), 100);
     }, (error) => {
-      console.error('Error in forkJoin:', error);
+      console.error('Error loading dashboard init data:', error);
       this.isLoading = false;
       this.cdr.detectChanges();
     });
