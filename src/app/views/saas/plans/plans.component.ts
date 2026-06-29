@@ -111,10 +111,14 @@ export class PlansComponent implements OnInit {
 
   deletePlan(id: number) {
     Swal.fire({
-      title: '¿Estás seguro?',
-      text: "¡No podrás revertir esto! Se eliminará el plan de pago.",
+      title: '¿Eliminar plan?',
+      html: `<p style="color:#555;font-size:0.95rem">Se eliminará el plan de pago. Esta acción no se puede deshacer.</p>`,
       icon: 'warning',
+      reverseButtons: true,
+      allowOutsideClick: false,
       showCancelButton: true,
+      cancelButtonColor: '#bdc3c7',
+      confirmButtonColor: '#e85d5d',
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     }).then((result) => {

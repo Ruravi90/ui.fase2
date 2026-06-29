@@ -129,12 +129,14 @@ export class TenantsComponent implements OnInit {
 
   deleteTenant(id: string) {
     Swal.fire({
-      title: '¿Estás seguro?',
-      text: "Se eliminará esta clínica del sistema (Hard Delete temporal)",
+      title: '¿Eliminar clínica?',
+      html: `<p style="color:#555;font-size:0.95rem">Se eliminará esta clínica del sistema. Esta acción no se puede deshacer.</p>`,
       icon: 'warning',
+      reverseButtons: true,
+      allowOutsideClick: false,
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
+      cancelButtonColor: '#bdc3c7',
+      confirmButtonColor: '#e85d5d',
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
@@ -157,9 +159,24 @@ export class TenantsComponent implements OnInit {
 
   openAssignModal(tenantId: string) {
     this.assignData = { tenantId, planId: 0, months: 1 };
-    if (this.availablePlans.length > 0) {
+    
+    // Find the tenant to pre-fill the form
+    const tenant = this.tenants.find(t => t.id === tenantId);
+    
+    if (tenant && tenant.subscription) {
+        this.assignData.planId = tenant.subscription.plan_id;
+        
+        // Calculate months if ends_at exists
+        if (tenant.subscription.starts_at && tenant.subscription.ends_at) {
+            const start = new Date(tenant.subscription.starts_at);
+            const end = new Date(tenant.subscription.ends_at);
+            const diffMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+            this.assignData.months = diffMonths > 0 ? diffMonths : 1;
+        }
+    } else if (this.availablePlans.length > 0) {
         this.assignData.planId = this.availablePlans[0].id;
     }
+    
     this.showAssignModal = true;
   }
 
@@ -177,10 +194,13 @@ export class TenantsComponent implements OnInit {
       next: (res) => {
         this.loading = false;
         this.closeAssignModal();
+        this.cdr.detectChanges();
         Swal.fire('Éxito', 'Plan asignado correctamente', 'success');
+        this.loadTenants();
       },
       error: () => {
         this.loading = false;
+        this.cdr.detectChanges();
         Swal.fire('Error', 'No se pudo asignar el plan', 'error');
       }
     });

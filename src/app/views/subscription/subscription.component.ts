@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
@@ -17,8 +17,12 @@ export class SubscriptionComponent implements OnInit {
   public currentPlanId = 1;
   public loading = false;
   private apiUrl = environment.urlApi;
+  public debugRes: any = 'Cargando...';
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     this.loadPlans();
@@ -26,14 +30,24 @@ export class SubscriptionComponent implements OnInit {
 
   loadPlans() {
     this.loading = true;
+    console.log('[DEBUG] Starting loadPlans call to:', this.apiUrl + 'saas/available-plans');
     this.http.get<any>(this.apiUrl + 'saas/available-plans').subscribe({
       next: (res) => {
-        this.plans = res.plans || [];
+        console.log('[DEBUG] loadPlans next() fired. res:', res);
+        this.debugRes = res;
+        this.plans = res?.plans || [];
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
+        console.error('[DEBUG] loadPlans error() fired:', err);
+        this.debugRes = 'ERROR: ' + err.message;
         this.loading = false;
-        Swal.fire('Error', 'No se pudieron cargar los planes disponibles', 'error');
+        this.cdr.detectChanges();
+        Swal.fire('Error HTTP', 'Detalle: ' + err.message, 'error');
+      },
+      complete: () => {
+        console.log('[DEBUG] loadPlans complete() fired.');
       }
     });
   }
