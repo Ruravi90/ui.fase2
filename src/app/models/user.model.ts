@@ -13,5 +13,6 @@ export class User  extends Base {
     professional_license?: string;
     university?: string;
     roles?: Role[] = [];
+    features?: string[] = [];
     fullname = () => `${this.name} ${this.lastname}`;
 }

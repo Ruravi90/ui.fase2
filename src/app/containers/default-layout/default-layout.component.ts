@@ -87,48 +87,59 @@ export class DefaultLayoutComponent {
     }
 
     if (this.getRoles(['admin', 'user'])) {
-      this.navItems.push(
-        {
+      if (this.hasFeature('module-clients')) {
+        this.navItems.push({
           name: 'Clientes',
           url: '/page/clients',
           icon: 'fa fa-users',
-        },
-        {
+        });
+      }
+      if (this.hasFeature('module-sales')) {
+        this.navItems.push({
           name: 'Punto de venta',
           url: '/page/sale',
           icon: 'fas fa-shopping-bag',
           children: null
-        },
-        {
+        });
+      }
+      if (this.hasFeature('module-agenda')) {
+        this.navItems.push({
           name: 'Agenda',
           url: '/page/schedule',
           icon: 'fas fa-calendar-alt',
           children: null
-        },
-        {
+        });
+      }
+      if (this.hasFeature('module-sales')) {
+        this.navItems.push({
           name: 'Ventas',
           url: '/page/sales',
           icon: 'fas fa-piggy-bank',
           children: null
-        },
-        {
+        });
+      }
+      if (this.hasFeature('module-packages')) {
+        this.navItems.push({
           name: 'Paquetes',
           url: '/page/packages',
           icon: 'fas fa-cubes',
           children: null
-        }
-      );
+        });
+      }
     }
 
     if (this.getRoles('admin')) {
-      this.navItems.push(
-        {
+      if (this.hasFeature('module-box')) {
+        this.navItems.push({
           name: 'Balance',
           url: '/page/box',
           icon: 'fas fa-balance-scale',
           children: null
-        },
-        {
+        });
+      }
+      
+      if (this.hasFeature('module-purchases')) {
+        this.navItems.push({
           name: 'Egresos',
           icon: 'fas fa-store',
           url: '/shopping',
@@ -144,50 +155,54 @@ export class DefaultLayoutComponent {
               icon: 'fas fa-cart-arrow-down'
             }
           ]
-        },
-        {
-          name: 'Administración',
-          icon: 'icon-settings',
-          url: '/admin',
-          children: [
-            {
-              name: 'Mi Suscripción',
-              url: '/admin/subscription',
-              icon: 'fas fa-star'
-            },
-            {
-              name: 'Departamentos',
-              url: '/admin/departments',
-              icon: 'icon-briefcase '
-            },
-            {
-              name: 'Prov./Acreedores',
-              url: '/admin/creditors',
-              icon: 'fas fa-user-tag'
-            },
-            {
-              name: 'Usuarios',
-              url: '/admin/users',
-              icon: 'fas fa-users'
-            },
-            {
-              name: 'Agentes',
-              url: '/admin/agents',
-              icon: 'icofont icofont-users-social'
-            },
-            {
-              name: 'Roles/Permisos',
-              url: '/admin/roles',
-              icon: 'icon-lock-open '
-            },
-            {
-              name: 'OpenWa',
-              url: '/admin/openwa',
-              icon: 'fab fa-whatsapp'
-            }
-          ]
-        },
-        {
+        });
+      }
+      
+      this.navItems.push({
+        name: 'Administración',
+        icon: 'icon-settings',
+        url: '/admin',
+        children: [
+          {
+            name: 'Mi Suscripción',
+            url: '/admin/subscription',
+            icon: 'fas fa-star'
+          },
+          {
+            name: 'Departamentos',
+            url: '/admin/departments',
+            icon: 'icon-briefcase '
+          },
+          {
+            name: 'Prov./Acreedores',
+            url: '/admin/creditors',
+            icon: 'fas fa-user-tag'
+          },
+          {
+            name: 'Usuarios',
+            url: '/admin/users',
+            icon: 'fas fa-users'
+          },
+          {
+            name: 'Agentes',
+            url: '/admin/agents',
+            icon: 'icofont icofont-users-social'
+          },
+          {
+            name: 'Roles/Permisos',
+            url: '/admin/roles',
+            icon: 'icon-lock-open '
+          },
+          {
+            name: 'OpenWa',
+            url: '/admin/openwa',
+            icon: 'fab fa-whatsapp'
+          }
+        ]
+      });
+
+      if (this.hasFeature('module-inventory')) {
+        this.navItems.push({
           name: 'Inventario',
           icon: 'fas fa-list-ul',
           url: '/inventory',
@@ -203,8 +218,11 @@ export class DefaultLayoutComponent {
               icon: 'icofont icofont-pills'
             }
           ]
-        },
-        {
+        });
+      }
+      
+      if (this.hasFeature('module-catalogs')) {
+        this.navItems.push({
           name: 'Catalogos',
           icon: 'icon-notebook',
           url: '/catalogs',
@@ -245,9 +263,16 @@ export class DefaultLayoutComponent {
               icon: 'icofont icofont-sub-listing'
             }
           ]
-        }
-      );
+        });
+      }
     }
+  }
+
+  hasFeature(featureCode: string): boolean {
+    if (this.currentUser == null || !this.currentUser.features) {
+      return false;
+    }
+    return this.currentUser.features.includes(featureCode);
   }
 
   getRoles(p: any) {

@@ -20,7 +20,25 @@ export class LoginComponent implements OnInit {
   constructor(private uS: UserService, private router: Router) { }
 
   ngOnInit() {
-    this.isBusy = false;
+    this.isBusy = true;
+    this.uS.me().subscribe({
+      next: (user) => {
+        if (user) {
+          this.isAuthorized = true;
+          const isSuperAdmin = user.roles?.some(r => r.name === 'super_admin');
+          if (isSuperAdmin) {
+            this.router.navigate(['/saas/dashboard']);
+          } else {
+            this.router.navigate(['/page']);
+          }
+        } else {
+          this.isBusy = false;
+        }
+      },
+      error: () => {
+        this.isBusy = false;
+      }
+    });
   }
 
   login() {
